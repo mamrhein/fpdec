@@ -37,10 +37,10 @@ fpdec_set_default_rounding_mode(enum FPDEC_ROUNDING_MODE rnd) {
 }
 
 
-static inline uint64_t
-round_qr(char sign, uint64_t quot, uint64_t rem, uint64_t quant,
-         enum FPDEC_ROUNDING_MODE rnd) {
-    uint64_t tie;
+static inline fpdec_digit_t
+round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem,
+         fpdec_digit_t quant, enum FPDEC_ROUNDING_MODE rnd) {
+    fpdec_digit_t tie;
 
     assert(quant > 0);
     assert(rem < quant);
@@ -48,7 +48,7 @@ round_qr(char sign, uint64_t quot, uint64_t rem, uint64_t quant,
 
     if (rnd == FPDEC_DEFAULT_ROUNDING_MODE) {
         rnd = FPDEC_ROUND_HALF_EVEN;
-    };
+    }
 
     switch (rnd) {
         case FPDEC_ROUND_05UP:
@@ -90,16 +90,16 @@ round_qr(char sign, uint64_t quot, uint64_t rem, uint64_t quant,
             return quant - rem;
         default:
             return 0;
-    };
+    }
     // fall-through: round towards 0
     return -rem;
-};
+}
 
 
-uint64_t
-round_to_multiple(char sign, uint64_t num, uint64_t quant,
+fpdec_digit_t
+round_to_multiple(fpdec_sign_t sign, fpdec_digit_t num, fpdec_digit_t quant,
                   enum FPDEC_ROUNDING_MODE rnd) {
-    uint64_t quot, rem;
+    fpdec_digit_t quot, rem;
 
     rem = num % quant;
     if (rem == 0)
@@ -107,5 +107,5 @@ round_to_multiple(char sign, uint64_t num, uint64_t quant,
     else {
         quot = num / quant;
         return num + round_qr(sign, quot, rem, quant, rnd);
-    };
+    }
 }

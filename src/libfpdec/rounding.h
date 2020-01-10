@@ -42,6 +42,6 @@ enum FPDEC_ROUNDING_MODE {
 
 enum FPDEC_ROUNDING_MODE fpdec_get_default_rounding_mode();
 enum FPDEC_ROUNDING_MODE fpdec_set_default_rounding_mode(
-        enum FPDEC_ROUNDING_MODE rnd);
+        enum FPDEC_ROUNDING_MODE);
 
 #endif //FPDEC_ROUNDING_H

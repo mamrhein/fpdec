@@ -20,12 +20,12 @@ $Revision$
 extern "C" {
 #endif // __cplusplus
 
-#include <stdint.h>
+#include "common_.h"
 #include "rounding.h"
 
-inline uint64_t
-round_to_multiple(char sign, uint64_t num, uint64_t quant,
-                  enum FPDEC_ROUNDING_MODE rnd);
+fpdec_digit_t
+round_to_multiple(fpdec_sign_t, fpdec_digit_t, fpdec_digit_t,
+                  enum FPDEC_ROUNDING_MODE);
 
 #ifdef __cplusplus
 }
