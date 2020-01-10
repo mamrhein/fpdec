@@ -19,9 +19,13 @@ $Revision$
 
 #ifdef __cplusplus
 extern "C" {
+#endif // __cplusplus
 
+#include <stdint.h>
 
+#include "rounding.h"
 
+#ifdef __cplusplus
 }
 #endif // __cplusplus
 

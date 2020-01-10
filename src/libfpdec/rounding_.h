@@ -9,18 +9,26 @@ License:     This program is part of a larger application or library.
              For license details please read the file LICENSE provided
              together with the application or library.
 ------------------------------------------------------------------------------
-$Source:$
-$Revision:$
+$Source$
+$Revision$
 */
 
-#ifndef FPDEC__RND_H
-#define FPDEC__RND_H
+#ifndef FPDEC_ROUNDING__H
+#define FPDEC_ROUNDING__H
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
 #include <stdint.h>
 #include "rounding.h"
 
-static inline uint64_t
+inline uint64_t
 round_to_multiple(char sign, uint64_t num, uint64_t quant,
-                  enum FPDEC_ROUNDING_MODE rnd);;
+                  enum FPDEC_ROUNDING_MODE rnd);
 
-#endif //FPDEC__RND_H
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+
+#endif //FPDEC_ROUNDING__H
