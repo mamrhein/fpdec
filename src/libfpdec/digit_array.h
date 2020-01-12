@@ -17,5 +17,26 @@ $Revision$
 #ifndef FPDEC_DIGIT_ARRAY_H
 #define FPDEC_DIGIT_ARRAY_H
 
+#include <stdint.h>
+
+#include "common_.h"
+
+/*****************************************************************************
+*  Types
+*****************************************************************************/
+
+typedef uint32_t fpdec_n_digits_t;
+
+typedef struct {
+    fpdec_n_digits_t n_alloc;
+    fpdec_n_digits_t n_signif;
+    fpdec_digit_t digits[1];
+} fpdec_digit_array_t;
+
+/*****************************************************************************
+*  Functions
+*****************************************************************************/
+
+
 
 #endif //FPDEC_DIGIT_ARRAY_H

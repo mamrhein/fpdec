@@ -21,7 +21,86 @@ $Revision$
 extern "C" {
 #endif // __cplusplus
 
+#include "common_.h"
 #include "rounding.h"
+#include "digit_array.h"
+#include "uint96.h"
+
+
+typedef struct {
+    union {
+        struct {                                // common elements
+            union {
+                uint8_t flags;
+                struct {
+                    uint8_t dyn_alloc:1,        // 1 indicates digit array
+                            normalized:1;       // 1 if digit array is
+                };                              // normalized
+            };
+            int8_t sign;                        // sign indicator:
+            // =0 -> zero
+            // <0 -> negative
+            // >0 -> positive
+            uint16_t dec_prec;                  // number of decimal
+            // fractional digits
+            uint32_t _filler_1;
+            uint64_t _filler_2;
+        };
+        struct {                                // shifted int variant
+            uint32_t _filler_3;
+            uint32_t hi;                        // high 32 bits
+            uint64_t lo;                        // low  64 bits
+        };
+        struct {                                // digit array variant
+            uint32_t _filler_4;
+            int32_t exp;                        // exponent (base 10 ** 19)
+            fpdec_digit_array_t *digit_array;   // pointer to digit array
+        };
+    };
+} fpdec_t;
+
+/*****************************************************************************
+*  Macros
+*****************************************************************************/
+
+#define FPDEC_MAX_DEC_PREC 65535                    // 2 ** 16 - 1
+#define FPDEC_MIN_EXP -FPDEC_MAX_DEC_PREC / 19 + 1
+#define FPDEC_MAX_EXP 2147483647                    // 2 ** 31 - 1
+
+#define FPDEC_IS_DYN_ALLOC(fpdec) (((fpdec_t*)fpdec)->dyn_alloc)
+
+#define FPDEC_IS_NORMALIZED(fpdec) \
+        (!FPDEC_IS_DYN_ALLOC(fpdec) || ((fpdec_t*)fpdec)->normalized)
+
+#define FPDEC_SIGN(fpdec) (((fpdec_t*)fpdec)->sign)
+
+#define FPDEC_DEC_PREC(fpdec) (((fpdec_t*)fpdec)->dec_prec)
+
+#define FPDEC_EXP(fpdec) \
+        (FPDEC_IS_DYN_ALLOC(fpdec) ? ((fpdec_t*)fpdec)->exp : 0)
+
+#define FPDEC_N_DIGITS(fpdec) \
+        (FPDEC_IS_DYN_ALLOC(fpdec) ? \
+            ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
+
+// #define FPDEC_DIGIT(fpdec, idx) TODO
+
+/*****************************************************************************
+*  Constants
+*****************************************************************************/
+
+static fpdec_t FPDEC_ZERO;
+static fpdec_t FPDEC_ONE = {{0, 1, 0, 0, 1}};
+static fpdec_t FPDEC_MINUS_ONE = {{0, -1, 0, 0, 1}};
+
+/*****************************************************************************
+*  Functions
+*****************************************************************************/
+
+void
+fpdec_dump(fpdec_t *);
+
+
 
 #ifdef __cplusplus
 }
