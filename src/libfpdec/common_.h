@@ -27,12 +27,11 @@ extern "C" {
 *  Common internal types
 *****************************************************************************/
 
-typedef int8_t fpdec_sign_t;                // sign indicator:
-                                            // =0 -> zero
-                                            // <0 -> negative
-                                            // >0 -> positive
-typedef uint64_t fpdec_digit_t;             // single digit
-                                            // (base 2 ** 64 or 10 ** 19)
+// sign indicator: =0 -> zero, <0 -> negative, >0 -> positive
+typedef int8_t fpdec_sign_t;
+
+// single digit (base 2 ** 64 or 10 ** 19)
+typedef uint64_t fpdec_digit_t;
 
 /*****************************************************************************
 *  Constants

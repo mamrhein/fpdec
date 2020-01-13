@@ -38,11 +38,11 @@ typedef struct {
                 };                              // normalized
             };
             int8_t sign;                        // sign indicator:
-            // =0 -> zero
-            // <0 -> negative
-            // >0 -> positive
+                                                // =0 -> zero
+                                                // <0 -> negative
+                                                // >0 -> positive
             uint16_t dec_prec;                  // number of decimal
-            // fractional digits
+                                                // fractional digits
             uint32_t _filler_1;
             uint64_t _filler_2;
         };
@@ -63,14 +63,31 @@ typedef struct {
 *  Macros
 *****************************************************************************/
 
+// Limits
+
 #define FPDEC_MAX_DEC_PREC 65535                    // 2 ** 16 - 1
 #define FPDEC_MIN_EXP -FPDEC_MAX_DEC_PREC / 19 + 1
 #define FPDEC_MAX_EXP 2147483647                    // 2 ** 31 - 1
+
+// Properties
 
 #define FPDEC_IS_DYN_ALLOC(fpdec) (((fpdec_t*)fpdec)->dyn_alloc)
 
 #define FPDEC_IS_NORMALIZED(fpdec) \
         (!FPDEC_IS_DYN_ALLOC(fpdec) || ((fpdec_t*)fpdec)->normalized)
+
+/* TODO: shifted int variant
+#define FPDEC_IS_INT(fpdec) (((fpdec_t*)fpdec)->dec_prec == 0 || \
+                             FPDEC_IS_DYN_ALLOC(fpdec) && \
+                             ((fpdec_t*)fpdec)->normalized && \
+                             ((fpdec_t*)fpdec)->exp >= 0)
+*/
+
+#define FPDEC_EQ_ZERO(fpdec) (((fpdec_t*)fpdec)->sign == FPDEC_SIGN_ZERO)
+
+#define FPDEC_IS_NEGATIVE(fpdec) (((fpdec_t*)fpdec)->sign == FPDEC_SIGN_NEG)
+
+// Access to members
 
 #define FPDEC_SIGN(fpdec) (((fpdec_t*)fpdec)->sign)
 
@@ -83,7 +100,7 @@ typedef struct {
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
 
-// #define FPDEC_DIGIT(fpdec, idx) TODO
+// #define FPDEC_DIGITS(fpdec, idx) TODO
 
 /*****************************************************************************
 *  Constants
