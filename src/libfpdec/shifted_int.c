@@ -14,4 +14,4 @@ $Revision$
 */
 
 
-#include "uint96.h"
+#include "shifted_int.h"

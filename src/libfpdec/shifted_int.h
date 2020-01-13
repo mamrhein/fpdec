@@ -14,8 +14,8 @@ $Revision$
 */
 
 
-#ifndef FPDEC_UINT96_H
-#define FPDEC_UINT96_H
+#ifndef FPDEC_SHIFTED_INT_H
+#define FPDEC_SHIFTED_INT_H
 
 
-#endif //FPDEC_UINT96_H
+#endif //FPDEC_SHIFTED_INT_H

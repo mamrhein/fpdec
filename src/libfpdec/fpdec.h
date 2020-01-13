@@ -24,7 +24,7 @@ extern "C" {
 #include "common.h"
 #include "rounding.h"
 #include "digit_array.h"
-#include "uint96.h"
+#include "shifted_int.h"
 
 
 typedef struct {
