@@ -114,6 +114,8 @@ static fpdec_t FPDEC_MINUS_ONE = {{0, -1, 0, 0, 1}};
 *  Functions
 *****************************************************************************/
 
+// For testing only!
+
 void
 fpdec_dump(fpdec_t *);
 
