@@ -23,7 +23,6 @@
 # CMake build and output folders
 cmake-build*/
 build/
-include/
 bin/
 lib/
 
