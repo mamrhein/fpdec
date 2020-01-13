@@ -19,7 +19,7 @@ $Revision$
 
 #include <stdint.h>
 
-#include "common_.h"
+#include "common.h"
 
 /*****************************************************************************
 *  Types

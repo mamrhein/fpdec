@@ -21,7 +21,7 @@ $Revision$
 extern "C" {
 #endif // __cplusplus
 
-#include "common_.h"
+#include "common.h"
 #include "rounding.h"
 #include "digit_array.h"
 #include "uint96.h"

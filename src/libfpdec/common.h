@@ -14,8 +14,8 @@ $Revision$
 */
 
 
-#ifndef FPDEC_COMMON__H
-#define FPDEC_COMMON__H
+#ifndef FPDEC_COMMON_H
+#define FPDEC_COMMON_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,4 +48,4 @@ typedef uint64_t fpdec_digit_t;
 #endif // __cplusplus
 
 
-#endif //FPDEC_COMMON__H
+#endif //FPDEC_COMMON_H
