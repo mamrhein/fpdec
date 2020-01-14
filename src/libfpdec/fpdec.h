@@ -65,9 +65,9 @@ typedef struct {
 
 // Limits
 
-#define FPDEC_MAX_DEC_PREC 65535                    // 2 ** 16 - 1
-#define FPDEC_MIN_EXP -FPDEC_MAX_DEC_PREC / 19 + 1
-#define FPDEC_MAX_EXP 2147483647                    // 2 ** 31 - 1
+#define FPDEC_MAX_DEC_PREC UINT16_MAX
+#define FPDEC_MIN_EXP -3450  // -FPDEC_MAX_DEC_PREC / DEC_DIGITS_PER_DIGIT + 1
+#define FPDEC_MAX_EXP INT32_MAX
 
 // Properties
 
