@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------------------
-Name:        digit_array.h
+Name:        digit_array_.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -14,26 +14,25 @@ $Revision$
 */
 
 
-#ifndef FPDEC_DIGIT_ARRAY_H
-#define FPDEC_DIGIT_ARRAY_H
+#ifndef FPDEC_DIGIT_ARRAY__H
+#define FPDEC_DIGIT_ARRAY__H
 
-#include <stdint.h>
+#include "common_.h"
+#include "digit_array.h"
 
-#include "common.h"
-
-/*****************************************************************************
-*  Types
-*****************************************************************************/
-
-typedef struct {
-    fpdec_n_digits_t n_alloc;
-    fpdec_n_digits_t n_signif;
-    fpdec_digit_t digits[1];
-} fpdec_digit_array_t;
 
 /*****************************************************************************
 *  Functions
 *****************************************************************************/
 
+// digit getter
 
-#endif //FPDEC_DIGIT_ARRAY_H
+fpdec_digit_t
+digits_get_digit(fpdec_digit_array_t *digit_array, fpdec_n_digits_t idx);
+
+// digit iterator
+
+digit_iter
+digits_iter_digits(fpdec_digit_array_t *digit_array);
+
+#endif //FPDEC_DIGIT_ARRAY__H

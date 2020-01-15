@@ -17,5 +17,13 @@ $Revision$
 #ifndef FPDEC_SHIFTED_INT_H
 #define FPDEC_SHIFTED_INT_H
 
+#include <stdint.h>
+
+#include "common.h"
+
+/*****************************************************************************
+*  Functions
+*****************************************************************************/
+
 
 #endif //FPDEC_SHIFTED_INT_H

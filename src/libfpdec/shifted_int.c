@@ -14,4 +14,28 @@ $Revision$
 */
 
 
-#include "shifted_int.h"
+#include "shifted_int_.h"
+
+
+/*****************************************************************************
+*  Functions
+*****************************************************************************/
+
+// digit iterator
+
+fpdec_digit_t
+_shint_get_next_digit(digit_iter *it) {
+    return it->next_idx < it->limit ? it->digits[it->next_idx++] :
+           (fpdec_digit_t) FPDEC_DIGIT_MAX;
+}
+
+digit_iter
+shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi) {
+    digit_iter it = {
+            .limit = 2,
+            .next_idx = 0,
+            .next = _shint_get_next_digit,
+            .digits = {lo, hi}
+    };
+    return it;
+}

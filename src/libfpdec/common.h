@@ -23,6 +23,7 @@ extern "C" {
 
 #include <stdint.h>
 
+
 /*****************************************************************************
 *  Common internal types
 *****************************************************************************/
@@ -33,9 +34,16 @@ typedef int8_t fpdec_sign_t;
 // single digit (base 2 ** 64 or 10 ** 19)
 typedef uint64_t fpdec_digit_t;
 
+// digit counter
+typedef uint32_t fpdec_n_digits_t;
+
+
 /*****************************************************************************
-*  Constants
+*  Macros
 *****************************************************************************/
+
+// limits
+#define FPDEC_DIGIT_MAX UINT64_MAX
 
 // sign
 #define FPDEC_SIGN_ZERO 0

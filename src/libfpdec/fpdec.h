@@ -27,35 +27,26 @@ extern "C" {
 #include "shifted_int.h"
 
 
+/*****************************************************************************
+*  Types
+*****************************************************************************/
+
+typedef uint16_t  fpdec_dec_prec_t;
+typedef int32_t fpdec_exp_t;
+
 typedef struct {
+    uint8_t dyn_alloc:1,        // 1 indicates digit array
+            normalized:1;       // 1 if digit array is normalized
+    fpdec_sign_t sign;          // sign indicator
+    fpdec_dec_prec_t dec_prec;  // number of decimal fractional digits
+    // variants:
+    union {                     // shifted int          digit_array
+        uint32_t hi;            // high 32 bits
+        fpdec_exp_t exp;        //                      exponent (base 2**64)
+    };
     union {
-        struct {                                // common elements
-            union {
-                uint8_t flags;
-                struct {
-                    uint8_t dyn_alloc:1,        // 1 indicates digit array
-                            normalized:1;       // 1 if digit array is
-                };                              // normalized
-            };
-            int8_t sign;                        // sign indicator:
-                                                // =0 -> zero
-                                                // <0 -> negative
-                                                // >0 -> positive
-            uint16_t dec_prec;                  // number of decimal
-                                                // fractional digits
-            uint32_t _filler_1;
-            uint64_t _filler_2;
-        };
-        struct {                                // shifted int variant
-            uint32_t _filler_3;
-            uint32_t hi;                        // high 32 bits
-            uint64_t lo;                        // low  64 bits
-        };
-        struct {                                // digit array variant
-            uint32_t _filler_4;
-            int32_t exp;                        // exponent (base 10 ** 19)
-            fpdec_digit_array_t *digit_array;   // pointer to digit array
-        };
+        fpdec_digit_t lo;       // low  64 bits
+        fpdec_digit_array_t *digit_array;   //          pointer to digit array
     };
 } fpdec_t;
 
@@ -73,8 +64,7 @@ typedef struct {
 
 #define FPDEC_IS_DYN_ALLOC(fpdec) (((fpdec_t*)fpdec)->dyn_alloc)
 
-#define FPDEC_IS_NORMALIZED(fpdec) \
-        (!FPDEC_IS_DYN_ALLOC(fpdec) || ((fpdec_t*)fpdec)->normalized)
+#define FPDEC_IS_NORMALIZED(fpdec) (((fpdec_t*)fpdec)->normalized)
 
 /* TODO: shifted int variant
 #define FPDEC_IS_INT(fpdec) (((fpdec_t*)fpdec)->dec_prec == 0 || \
@@ -100,15 +90,24 @@ typedef struct {
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
 
-// #define FPDEC_DIGITS(fpdec, idx) TODO
+#define FPDEC_DIGITS(fpdec) \
+        (FPDEC_IS_DYN_ALLOC(fpdec) ? \
+            digits_iter_digits(fpdec->digit_array) : \
+            shint_iter_digits(fpdec->lo, fpdec->hi))
 
 /*****************************************************************************
 *  Constants
 *****************************************************************************/
 
-static fpdec_t FPDEC_ZERO;
-static fpdec_t FPDEC_ONE = {{0, 1, 0, 0, 1}};
-static fpdec_t FPDEC_MINUS_ONE = {{0, -1, 0, 0, 1}};
+static const fpdec_t FPDEC_ZERO;
+static const fpdec_t FPDEC_ONE = {
+        .sign = 1,
+        .lo = 1
+};
+static const fpdec_t FPDEC_MINUS_ONE = {
+        .sign = -1,
+        .lo = 1
+};
 
 /*****************************************************************************
 *  Functions

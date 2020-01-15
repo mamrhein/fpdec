@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------------------
-Name:        digit_array.h
+Name:        shifted_int_.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -14,26 +14,21 @@ $Revision$
 */
 
 
-#ifndef FPDEC_DIGIT_ARRAY_H
-#define FPDEC_DIGIT_ARRAY_H
+#ifndef FPDEC_SHIFTED_INT__H
+#define FPDEC_SHIFTED_INT__H
 
-#include <stdint.h>
 
-#include "common.h"
+#include "common_.h"
+#include "shifted_int.h"
 
-/*****************************************************************************
-*  Types
-*****************************************************************************/
-
-typedef struct {
-    fpdec_n_digits_t n_alloc;
-    fpdec_n_digits_t n_signif;
-    fpdec_digit_t digits[1];
-} fpdec_digit_array_t;
 
 /*****************************************************************************
 *  Functions
 *****************************************************************************/
 
+// digit iterator
 
-#endif //FPDEC_DIGIT_ARRAY_H
+digit_iter
+shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi);
+
+#endif //FPDEC_SHIFTED_INT__H
