@@ -37,6 +37,8 @@ typedef uint64_t fpdec_digit_t;
 // digit counter
 typedef uint32_t fpdec_n_digits_t;
 
+// one byte character
+typedef uint8_t uchar;
 
 /*****************************************************************************
 *  Macros
@@ -49,6 +51,13 @@ typedef uint32_t fpdec_n_digits_t;
 #define FPDEC_SIGN_ZERO 0
 #define FPDEC_SIGN_NEG -1
 #define FPDEC_SIGN_POS 1
+
+// error codes
+#define FPDEC_OK 0
+#define FPDEC_PREC_LIMIT_EXCEEDED -1
+#define FPDEC_EXP_LIMIT_EXCEEDED -2
+#define FPDEC_N_DIGITS_LIMIT_EXCEEDED -3
+#define FPDEC_INVALID_DECIMAL_LITERAL -4
 
 
 #ifdef __cplusplus
