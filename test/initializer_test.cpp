@@ -35,6 +35,14 @@ TEST_CASE("Initialize from string") {
         };
         fpdec_sign_t res_sign[6] = {1, -1, 1, 1, 0, 0};
         fpdec_dec_prec_t res_prec[6] = {2, 7, 12, 0, 2, 0};
+        uint64_t res_digits[6][2] = {
+                {192683UL, 0UL},
+                {12345678901234567890UL, 0UL},
+                {8558702606396361426UL, 4UL},
+                {12899172069043863552UL, 3794707603UL},
+                {0UL, 0UL},
+                {0UL, 0UL}
+        };
 
         for (int i = 0; i < 6; ++i) {
             fpdec_t fpdec;
@@ -44,6 +52,8 @@ TEST_CASE("Initialize from string") {
             REQUIRE(check_shint(&fpdec));
             REQUIRE(fpdec.sign == res_sign[i]);
             REQUIRE(fpdec.dec_prec == res_prec[i]);
+            REQUIRE(fpdec.lo == res_digits[i][0]);
+            REQUIRE(fpdec.hi == res_digits[i][1]);
         }
     }
 
