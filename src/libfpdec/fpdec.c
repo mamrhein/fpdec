@@ -66,7 +66,12 @@ fpdec_from_asci_literal(fpdec_t *fpdec, const char *literal) {
         rc = shint_from_coeff_exp(&fpdec->lo, &fpdec->hi, dec_str_repr->coeff,
                                   n_add_zeros);
         if (rc == FPDEC_OK) {
+            fpdec->dyn_alloc = 0;
+            fpdec->normalized = 0;
             fpdec->dec_prec = MAX(0, -dec_str_repr->exp);
+            if (fpdec->lo == 0 && fpdec->hi == 0) {
+                fpdec->sign = FPDEC_SIGN_ZERO;
+            }
             goto EXIT;
         }
     }
