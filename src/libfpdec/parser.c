@@ -1,6 +1,5 @@
 /* ---------------------------------------------------------------------------
 Name:        parser
-Purpose:     ${PURPOSE}
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -28,12 +27,12 @@ $Revision$
 // [+|-]<int>[.<frac>][<e|E>[+|-]<exp>] or
 // [+|-].<frac>[<e|E>[+|-]<exp>].
 int
-parse_ascii_dec_literal(dec_str_repr *result, const uchar *literal) {
-    const uchar *curr_char = literal;
-    const uchar *int_part = NULL;
-    const uchar *signif_int_part = NULL;
+parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal) {
+    const char *curr_char = literal;
+    const char *int_part = NULL;
+    const char *signif_int_part = NULL;
     ptrdiff_t len_int_part = 0;
-    const uchar *frac_part = NULL;
+    const char *frac_part = NULL;
     ptrdiff_t len_frac_part = 0;
 
     while isspace(*curr_char) {
@@ -100,8 +99,8 @@ parse_ascii_dec_literal(dec_str_repr *result, const uchar *literal) {
         return FPDEC_INVALID_DECIMAL_LITERAL;
     }
     assert(len_int_part + len_frac_part <= result->n_chars);
-    strncat((char*)result->coeff, (char*)signif_int_part, len_int_part);
-    strncat((char*)result->coeff, (char*)frac_part, len_frac_part);
+    strncat(result->coeff, signif_int_part, len_int_part);
+    strncat(result->coeff, frac_part, len_frac_part);
     result->exp -= len_frac_part;
     return FPDEC_OK;
 }

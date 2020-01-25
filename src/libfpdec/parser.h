@@ -1,6 +1,5 @@
 /* ---------------------------------------------------------------------------
 Name:        parser
-Purpose:     ${PURPOSE}
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -23,17 +22,17 @@ $Revision$
 *****************************************************************************/
 
 typedef struct {
-    uchar sign;
+    char sign;
     int exp;
     size_t n_chars;
-    uchar coeff[];
-} dec_str_repr;
+    char coeff[];
+} dec_str_repr_t;
 
 /*****************************************************************************
 *  Functions
 *****************************************************************************/
 
 int
-parse_ascii_dec_literal(dec_str_repr *result, const uchar *literal);
+parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal);
 
 #endif //FPDEC_PARSER_H

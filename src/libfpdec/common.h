@@ -36,9 +36,6 @@ typedef uint64_t fpdec_digit_t;
 // digit counter
 typedef uint32_t fpdec_n_digits_t;
 
-// one byte character
-typedef uint8_t uchar;
-
 /*****************************************************************************
 *  Macros
 *****************************************************************************/
