@@ -13,7 +13,6 @@ $Source$
 $Revision$
 */
 
-
 #ifndef FPDEC_COMMON_H
 #define FPDEC_COMMON_H
 
@@ -59,10 +58,12 @@ typedef uint8_t uchar;
 #define FPDEC_N_DIGITS_LIMIT_EXCEEDED -3
 #define FPDEC_INVALID_DECIMAL_LITERAL -4
 
+// max / min
+#define MAX(a, b) (a >= b ? a : b)
+#define MIN(a, b) (a <= b ? a : b)
 
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-
 
 #endif //FPDEC_COMMON_H
