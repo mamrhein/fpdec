@@ -99,14 +99,29 @@ typedef struct {
 *  Constants
 *****************************************************************************/
 
-static const fpdec_t FPDEC_ZERO;
+static const fpdec_t FPDEC_ZERO = {
+        .dyn_alloc = 0,
+        .normalized = 0,
+        .sign = 0,
+        .dec_prec = 0,
+        .hi = 0,
+        .lo = 0,
+};
 static const fpdec_t FPDEC_ONE = {
+        .dyn_alloc = 0,
+        .normalized = 0,
         .sign = 1,
-        .lo = 1
+        .dec_prec = 0,
+        .hi = 0,
+        .lo = 1,
 };
 static const fpdec_t FPDEC_MINUS_ONE = {
+        .dyn_alloc = 0,
+        .normalized = 0,
         .sign = -1,
-        .lo = 1
+        .dec_prec = 0,
+        .hi = 0,
+        .lo = 1,
 };
 
 /*****************************************************************************
@@ -117,8 +132,6 @@ static const fpdec_t FPDEC_MINUS_ONE = {
 
 void
 fpdec_dump(fpdec_t *);
-
-
 
 #ifdef __cplusplus
 }
