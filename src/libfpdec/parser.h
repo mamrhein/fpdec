@@ -32,7 +32,7 @@ typedef struct {
 *  Functions
 *****************************************************************************/
 
-int
-parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal);
+dec_str_repr_t *
+parse_ascii_dec_literal(const char *literal);
 
 #endif //FPDEC_PARSER_H

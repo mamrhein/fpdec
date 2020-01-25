@@ -14,7 +14,6 @@ $Source$
 $Revision$
 */
 
-#include <assert.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -52,25 +51,17 @@ fpdec_dump(fpdec_t *fpdec) {
 
 int
 fpdec_from_asci_literal(fpdec_t *fpdec, const char *literal) {
-    size_t n_chars = strlen(literal);
     dec_str_repr_t *dec_str_repr;
-    int rc;
     size_t n_add_zeros, n_dec_digits;
+    int rc;
 
-    if (n_chars == 0) {
+    dec_str_repr = parse_ascii_dec_literal(literal);
+    if (dec_str_repr == NULL) {
         return FPDEC_INVALID_DECIMAL_LITERAL;
     }
-    dec_str_repr = malloc(offsetof(dec_str_repr_t, coeff) + n_chars + 1);
-    dec_str_repr->n_chars = n_chars;
-    dec_str_repr->coeff[0] = '\0';
-    rc = parse_ascii_dec_literal(dec_str_repr, literal);
-    if (rc != FPDEC_OK) {
-        return rc;
-    }
     fpdec->sign = dec_str_repr->sign == '-' ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
-    n_chars = strlen(dec_str_repr->coeff);
     n_add_zeros = MAX(0, dec_str_repr->exp);
-    n_dec_digits = n_chars + n_add_zeros;
+    n_dec_digits = dec_str_repr->n_chars + n_add_zeros;
     if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
         rc = shint_from_coeff_exp(&fpdec->lo, &fpdec->hi, dec_str_repr->coeff,
                                   n_add_zeros);

@@ -14,6 +14,7 @@ $Revision$
 
 #include <assert.h>
 #include <ctype.h>
+#include <malloc.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -26,8 +27,10 @@ $Revision$
 // parse for a Decimal
 // [+|-]<int>[.<frac>][<e|E>[+|-]<exp>] or
 // [+|-].<frac>[<e|E>[+|-]<exp>].
-int
-parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal) {
+dec_str_repr_t *
+parse_ascii_dec_literal(const char *literal) {
+    dec_str_repr_t *result;
+    size_t n_chars = strlen(literal);
     const char *curr_char = literal;
     const char *int_part = NULL;
     const char *signif_int_part = NULL;
@@ -35,18 +38,25 @@ parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal) {
     const char *frac_part = NULL;
     ptrdiff_t len_frac_part = 0;
 
+    if (n_chars == 0) {
+        return NULL;
+    }
     while isspace(*curr_char) {
         curr_char++;
     }
     if (*curr_char == 0) {
-        return FPDEC_INVALID_DECIMAL_LITERAL;
+        return NULL;
     }
-    if (*curr_char == '+' || *curr_char == '-') {
+
+    result = malloc(offsetof(dec_str_repr_t, coeff) + n_chars + 1);
+    result->sign = '+';
+    result->exp = 0;
+    result->n_chars = 0;
+    result->coeff[0] = '\0';
+
+    if (*curr_char == '-' || *curr_char == '+') {
         result->sign = *curr_char;
         curr_char++;
-    }
-    else {
-        result->sign = '+';
     }
     int_part = curr_char;
     while (*curr_char == '0') {
@@ -71,7 +81,8 @@ parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal) {
             len_int_part = 1;
         }
         else {
-            return FPDEC_INVALID_DECIMAL_LITERAL;
+            free(result);
+            return NULL;
         }
     }
     if (*curr_char == 'e' || *curr_char == 'E') {
@@ -96,11 +107,13 @@ parse_ascii_dec_literal(dec_str_repr_t *result, const char *literal) {
         curr_char++;
     }
     if (*curr_char != 0) {
-        return FPDEC_INVALID_DECIMAL_LITERAL;
+        free(result);
+        return NULL;
     }
-    assert(len_int_part + len_frac_part <= result->n_chars);
+    assert(len_int_part + len_frac_part <= n_chars);
     strncat(result->coeff, signif_int_part, len_int_part);
     strncat(result->coeff, frac_part, len_frac_part);
+    result->n_chars = len_int_part + len_frac_part;
     result->exp -= len_frac_part;
-    return FPDEC_OK;
+    return result;
 }
