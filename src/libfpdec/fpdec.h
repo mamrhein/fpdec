@@ -133,6 +133,11 @@ static const fpdec_t FPDEC_MINUS_ONE = {
 void
 fpdec_dump(fpdec_t *);
 
+// Initializer
+
+int
+fpdec_from_asci_literal(fpdec_t *fpdec, const char *literal);
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
