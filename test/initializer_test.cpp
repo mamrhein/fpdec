@@ -59,14 +59,17 @@ TEST_CASE("Initialize from string") {
 
         for (int i = 0; i < 6; ++i) {
             fpdec_t fpdec;
-            int rc = fpdec_from_ascii_literal(&fpdec, literals[i].c_str());
+            const char *literal = literals[i].c_str();
+            int rc = fpdec_from_ascii_literal(&fpdec, literal);
 
-            REQUIRE(rc == 0);
-            REQUIRE(is_shint(&fpdec));
-            REQUIRE(fpdec.sign == res_sign[i]);
-            REQUIRE(fpdec.dec_prec == res_prec[i]);
-            REQUIRE(fpdec.lo == res_digits[i][0]);
-            REQUIRE(fpdec.hi == res_digits[i][1]);
+            SECTION(literal){
+                REQUIRE(rc == 0);
+                REQUIRE(is_shint(&fpdec));
+                REQUIRE(fpdec.sign == res_sign[i]);
+                REQUIRE(fpdec.dec_prec == res_prec[i]);
+                REQUIRE(fpdec.lo == res_digits[i][0]);
+                REQUIRE(fpdec.hi == res_digits[i][1]);
+            }
         }
     }
 
