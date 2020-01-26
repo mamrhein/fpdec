@@ -38,18 +38,22 @@ bool check_normalized(fpdec_t *fpdec) {
 TEST_CASE("Initialize from string") {
 
     SECTION("Coeff <= MAX_N_DEC_DIGITS_IN_SHINT") {
-        std::string literals[6] = {
+        std::string literals[8] = {
                 "  1926.83 \n",
+                "+5.387E+1",
+                "+5.387E-17",
                 "-12345678901234567890e-7",
                 "82345678901234567890e-12",
                 "+007e28",
                 "   +0.00e-0",
                 "-000000",
         };
-        fpdec_sign_t res_sign[6] = {1, -1, 1, 1, 0, 0};
-        fpdec_dec_prec_t res_prec[6] = {2, 7, 12, 0, 2, 0};
-        uint64_t res_digits[6][2] = {
+        fpdec_sign_t res_sign[8] = {1, 1, 1, -1, 1, 1, 0, 0};
+        fpdec_dec_prec_t res_prec[8] = {2, 2, 20, 7, 12, 0, 2, 0};
+        uint64_t res_digits[8][2] = {
                 {192683UL,               0UL},
+                {5387UL,                 0UL},
+                {5387UL,                 0UL},
                 {12345678901234567890UL, 0UL},
                 {8558702606396361426UL,  4UL},
                 {12899172069043863552UL, 3794707603UL},
@@ -57,12 +61,12 @@ TEST_CASE("Initialize from string") {
                 {0UL,                    0UL}
         };
 
-        for (int i = 0; i < 6; ++i) {
+        for (int i = 0; i < 8; ++i) {
             fpdec_t fpdec;
             const char *literal = literals[i].c_str();
             int rc = fpdec_from_ascii_literal(&fpdec, literal);
 
-            SECTION(literal){
+            SECTION(literal) {
                 REQUIRE(rc == 0);
                 REQUIRE(is_shint(&fpdec));
                 REQUIRE(fpdec.sign == res_sign[i]);
