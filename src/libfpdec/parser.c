@@ -89,12 +89,16 @@ parse_ascii_dec_literal(const char *literal) {
         int sign = 1;
         int exp = 0;
         curr_char++;
-        if (*curr_char == '+') {
-            curr_char++;
-        }
-        if (*curr_char == '-') {
-            sign = -1;
-            curr_char++;
+        switch (*curr_char) {
+            case '-':
+                sign = -1;
+            case '+':
+                curr_char++;
+                break;
+            default:
+                if (!isdigit(*curr_char)) {
+                    return NULL;
+                }
         }
         while isdigit(*curr_char) {
             // TODO: check overflow
