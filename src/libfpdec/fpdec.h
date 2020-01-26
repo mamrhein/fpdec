@@ -136,7 +136,7 @@ fpdec_dump(fpdec_t *);
 // Initializer
 
 int
-fpdec_from_asci_literal(fpdec_t *fpdec, const char *literal);
+fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
 
 #ifdef __cplusplus
 }

@@ -59,7 +59,7 @@ TEST_CASE("Initialize from string") {
 
         for (int i = 0; i < 6; ++i) {
             fpdec_t fpdec;
-            int rc = fpdec_from_asci_literal(&fpdec, literals[i].c_str());
+            int rc = fpdec_from_ascii_literal(&fpdec, literals[i].c_str());
 
             REQUIRE(rc == 0);
             REQUIRE(is_shint(&fpdec));
@@ -83,7 +83,7 @@ TEST_CASE("Initialize from string") {
             fpdec_t fpdec;
 
             SECTION(literal) {
-                REQUIRE(fpdec_from_asci_literal(&fpdec, literal.c_str()) ==
+                REQUIRE(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
                         FPDEC_INVALID_DECIMAL_LITERAL);
             }
         }
