@@ -12,8 +12,9 @@ $Source$
 $Revision$
 */
 
-#include "catch.hpp"
+#include <vector>
 
+#include "catch.hpp"
 #include "fpdec.h"
 
 
@@ -37,42 +38,79 @@ bool check_normalized(fpdec_t *fpdec) {
 
 TEST_CASE("Initialize from string") {
 
+    struct test_data {
+        std::string literal;
+        fpdec_sign_t sign;
+        fpdec_dec_prec_t dec_prec;
+        fpdec_exp_t exp;
+        fpdec_n_digits_t n_digits;
+        std::vector<fpdec_digit_t> digits;
+    };
+
     SECTION("Coeff <= MAX_N_DEC_DIGITS_IN_SHINT") {
-        std::string literals[8] = {
-                "  1926.83 \n",
-                "+5.387E+1",
-                "+5.387E-17",
-                "-12345678901234567890e-7",
-                "82345678901234567890e-12",
-                "+007e28",
-                "   +0.00e-0",
-                "-000000",
-        };
-        fpdec_sign_t res_sign[8] = {1, 1, 1, -1, 1, 1, 0, 0};
-        fpdec_dec_prec_t res_prec[8] = {2, 2, 20, 7, 12, 0, 2, 0};
-        uint64_t res_digits[8][2] = {
-                {192683UL,               0UL},
-                {5387UL,                 0UL},
-                {5387UL,                 0UL},
-                {12345678901234567890UL, 0UL},
-                {8558702606396361426UL,  4UL},
-                {12899172069043863552UL, 3794707603UL},
-                {0UL,                    0UL},
-                {0UL,                    0UL}
+        struct test_data tests[8] = {
+                {
+                        .literal = "  1926.83 \n",
+                        .sign = 1,
+                        .dec_prec = 2,
+                        .digits = {192683UL, 0UL}
+                },
+                {
+                        .literal = "+5.387E+1",
+                        .sign = 1,
+                        .dec_prec = 2,
+                        .digits = {5387UL, 0UL}
+                },
+                {
+                        .literal = "+5.387E-17",
+                        .sign = 1,
+                        .dec_prec = 20,
+                        .digits = {5387UL, 0UL}
+                },
+                {
+                        .literal = "-12345678901234567890e-7",
+                        .sign = -1,
+                        .dec_prec = 7,
+                        .digits = {12345678901234567890UL, 0UL}
+                },
+                {
+                        .literal = "82345678901234567890e-12",
+                        .sign = 1,
+                        .dec_prec = 12,
+                        .digits = {8558702606396361426UL, 4UL}
+                },
+                {
+                        .literal = "+007e28",
+                        .sign = 1,
+                        .dec_prec = 0,
+                        .digits = {12899172069043863552UL, 3794707603UL}
+                },
+                {
+                        .literal = "   +0.00e-0",
+                        .sign = 0,
+                        .dec_prec = 2,
+                        .digits = {0UL, 0UL}
+                },
+                {
+                        .literal = "-000000",
+                        .sign = 0,
+                        .dec_prec = 0,
+                        .digits = {0UL, 0UL}
+                }
         };
 
-        for (int i = 0; i < 8; ++i) {
+        for (const auto &test : tests) {
             fpdec_t fpdec;
-            const char *literal = literals[i].c_str();
+            const char *literal = test.literal.c_str();
             int rc = fpdec_from_ascii_literal(&fpdec, literal);
 
             SECTION(literal) {
                 REQUIRE(rc == 0);
                 REQUIRE(is_shint(&fpdec));
-                REQUIRE(fpdec.sign == res_sign[i]);
-                REQUIRE(fpdec.dec_prec == res_prec[i]);
-                REQUIRE(fpdec.lo == res_digits[i][0]);
-                REQUIRE(fpdec.hi == res_digits[i][1]);
+                REQUIRE(FPDEC_SIGN(&fpdec) == test.sign);
+                REQUIRE(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
+                REQUIRE(fpdec.lo == test.digits[0]);
+                REQUIRE(fpdec.hi == test.digits[1]);
             }
         }
     }
