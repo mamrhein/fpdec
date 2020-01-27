@@ -50,8 +50,14 @@ typedef struct _it_t  {
 *  Macros
 *****************************************************************************/
 
+// error return
 #define ERROR(err, retval) {errno = err; return retval;}
 #define MEMERROR(retval) ERROR(ENOMEM, retval)
 #define FREE_N_ERROR(buf, err, retval) {free(buf); ERROR(err, retval)}
+
+// max / min
+#define MAX(a, b) (a >= b ? a : b)
+#define MIN(a, b) (a <= b ? a : b)
+
 
 #endif //FPDEC_COMMON__H

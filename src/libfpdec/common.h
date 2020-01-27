@@ -56,10 +56,6 @@ typedef uint32_t fpdec_n_digits_t;
 #define FPDEC_N_DIGITS_LIMIT_EXCEEDED EOVERFLOW
 #define FPDEC_INVALID_DECIMAL_LITERAL EINVAL
 
-// max / min
-#define MAX(a, b) (a >= b ? a : b)
-#define MIN(a, b) (a <= b ? a : b)
-
 #ifdef __cplusplus
 }
 #endif // __cplusplus
