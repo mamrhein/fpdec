@@ -59,5 +59,9 @@ typedef struct _it_t  {
 #define MAX(a, b) (a >= b ? a : b)
 #define MIN(a, b) (a <= b ? a : b)
 
+// modulo arith
+#define CEIL(a, b) ((a % b) <= 0 ? a / b : a / b + 1)
+#define FLOOR(a, b) ((a % b) < 0 ? a / b - 1 : a / b)
+#define MOD(a, b) (a - FLOOR(a, b) * b)
 
 #endif //FPDEC_COMMON__H
