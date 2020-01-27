@@ -55,6 +55,7 @@ shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi);
 // converter
 
 error_t
-shint_from_coeff_exp(uint64_t *lo, uint32_t *hi, const char *coeff, int exp);
+shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const char *coeff,
+                     size_t n_add_zeros);
 
 #endif //FPDEC_SHIFTED_INT__H

@@ -57,8 +57,8 @@ shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi) {
 // converter
 
 error_t
-shint_from_coeff_exp(uint64_t *lo, uint32_t *hi, const char *coeff,
-                     const int exp) {
+shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const char *coeff,
+                     size_t n_add_zeros) {
     uint128_t accu = {0, 0};
     int d;
 
@@ -74,7 +74,7 @@ shint_from_coeff_exp(uint64_t *lo, uint32_t *hi, const char *coeff,
         accu.lo += d;           // d is < 10, so no overflow here
         coeff++;
     }
-    for (int i = 0; i < MAX(0, exp); ++i) {
+    for (int i = 0; i < n_add_zeros; ++i) {
         uint128_imul10(&accu);
     }
     if (U64_HI(U128_HI(accu))) return FPDEC_N_DIGITS_LIMIT_EXCEEDED;

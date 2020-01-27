@@ -63,7 +63,8 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     n_add_zeros = MAX(0, dec_str_repr->exp);
     n_dec_digits = dec_str_repr->n_chars + n_add_zeros;
     if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
-        rc = shint_from_coeff_exp(&fpdec->lo, &fpdec->hi, dec_str_repr->coeff,
+        rc = shint_from_dec_coeff(&fpdec->lo, &fpdec->hi,
+                                  dec_str_repr->coeff,
                                   n_add_zeros);
         if (rc == FPDEC_OK) {
             fpdec->dyn_alloc = 0;
