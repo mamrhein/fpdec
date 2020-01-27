@@ -49,15 +49,15 @@ fpdec_dump(fpdec_t *fpdec) {
 
 // Initializer
 
-int
+error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     dec_str_repr_t *dec_str_repr;
     size_t n_add_zeros, n_dec_digits;
-    int rc;
+    error_t rc;
 
     dec_str_repr = parse_ascii_dec_literal(literal);
     if (dec_str_repr == NULL) {
-        return FPDEC_INVALID_DECIMAL_LITERAL;
+        return errno;
     }
     fpdec->sign = dec_str_repr->sign == '-' ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_str_repr->exp);

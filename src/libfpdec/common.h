@@ -20,6 +20,7 @@ $Revision$
 extern "C" {
 #endif // __cplusplus
 
+#include <errno.h>
 #include <stdint.h>
 
 
@@ -50,10 +51,10 @@ typedef uint32_t fpdec_n_digits_t;
 
 // error codes
 #define FPDEC_OK 0
-#define FPDEC_PREC_LIMIT_EXCEEDED -1
-#define FPDEC_EXP_LIMIT_EXCEEDED -2
-#define FPDEC_N_DIGITS_LIMIT_EXCEEDED -3
-#define FPDEC_INVALID_DECIMAL_LITERAL -4
+#define FPDEC_PREC_LIMIT_EXCEEDED EDOM
+#define FPDEC_EXP_LIMIT_EXCEEDED ERANGE
+#define FPDEC_N_DIGITS_LIMIT_EXCEEDED EOVERFLOW
+#define FPDEC_INVALID_DECIMAL_LITERAL EINVAL
 
 // max / min
 #define MAX(a, b) (a >= b ? a : b)

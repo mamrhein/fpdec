@@ -56,7 +56,7 @@ shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi) {
 
 // converter
 
-int
+error_t
 shint_from_coeff_exp(uint64_t *lo, uint32_t *hi, const char *coeff,
                      const int exp) {
     uint128_t accu = {0, 0};

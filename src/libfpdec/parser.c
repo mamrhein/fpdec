@@ -18,6 +18,7 @@ $Revision$
 #include <stddef.h>
 #include <string.h>
 
+#include "common_.h"
 #include "parser.h"
 
 /*****************************************************************************
@@ -38,17 +39,14 @@ parse_ascii_dec_literal(const char *literal) {
     const char *frac_part = NULL;
     ptrdiff_t len_frac_part = 0;
 
-    if (n_chars == 0) {
-        return NULL;
-    }
+    if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL, NULL)
     while isspace(*curr_char) {
         curr_char++;
     }
-    if (*curr_char == 0) {
-        return NULL;
-    }
+    if (*curr_char == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL, NULL)
 
     result = malloc(offsetof(dec_str_repr_t, coeff) + n_chars + 1);
+    if (result == NULL) MEMERROR(NULL)
     result->sign = '+';
     result->exp = 0;
     result->n_chars = 0;
@@ -79,10 +77,8 @@ parse_ascii_dec_literal(const char *literal) {
         if (*int_part == '0') {
             signif_int_part = int_part;
             len_int_part = 1;
-        }
-        else {
-            free(result);
-            return NULL;
+        } else {
+            FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
         }
     }
     if (*curr_char == 'e' || *curr_char == 'E') {
@@ -97,7 +93,7 @@ parse_ascii_dec_literal(const char *literal) {
                 break;
             default:
                 if (!isdigit(*curr_char)) {
-                    return NULL;
+                    FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
                 }
         }
         while isdigit(*curr_char) {
@@ -111,8 +107,7 @@ parse_ascii_dec_literal(const char *literal) {
         curr_char++;
     }
     if (*curr_char != 0) {
-        free(result);
-        return NULL;
+        FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
     }
     assert(len_int_part + len_frac_part <= n_chars);
     strncat(result->coeff, signif_int_part, len_int_part);
