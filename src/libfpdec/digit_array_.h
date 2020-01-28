@@ -19,7 +19,16 @@ $Revision$
 
 #include "common_.h"
 #include "digit_array.h"
+#include "fpdec.h"
 
+
+/*****************************************************************************
+*  Macros
+*****************************************************************************/
+
+#define DEC_DIGITS_PER_DIGIT 19             // int(log10(2^64))
+#define RADIX 10000000000000000000UL        // 10 ** DEC_DIGITS_PER_DIGIT
+#define MAX_DIGIT 9999999999999999999UL     // RADIX - 1
 
 /*****************************************************************************
 *  Functions
@@ -34,5 +43,12 @@ digits_get_digit(fpdec_digit_array_t *digit_array, fpdec_n_digits_t idx);
 
 digit_iter
 digits_iter_digits(fpdec_digit_array_t *digit_array);
+
+// converter
+
+error_t
+digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
+                          size_t n_dec_digits, const char *coeff,
+                          int dec_exp);
 
 #endif //FPDEC_DIGIT_ARRAY__H

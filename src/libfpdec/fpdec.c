@@ -76,9 +76,23 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
             goto EXIT;
         }
     }
-    // TODO: digit array variant
-    rc = FPDEC_N_DIGITS_LIMIT_EXCEEDED;
-EXIT:
+    rc = digits_from_dec_coeff_exp(&(fpdec->digit_array), &(fpdec->exp),
+                                   dec_str_repr->n_chars, dec_str_repr->coeff,
+                                   dec_str_repr->exp);
+    fpdec->dyn_alloc = 1;
+    fpdec->normalized = 1;
+    fpdec->dec_prec = MAX(0, -dec_str_repr->exp);
+    EXIT:
     free(dec_str_repr);
     return rc;
+}
+
+// Deallocator
+
+void
+fpdec_dealloc(fpdec_t *fpdec)  {
+    if (FPDEC_IS_DYN_ALLOC(fpdec)) {
+        free((void *)fpdec->digit_array);
+    }
+    memset((void *)fpdec, 0, sizeof(fpdec_t));
 }

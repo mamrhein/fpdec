@@ -13,6 +13,9 @@ $Source$
 $Revision$
 */
 
+#include <assert.h>
+#include <malloc.h>
+#include <stddef.h>
 
 #include "digit_array_.h"
 
@@ -31,6 +34,18 @@ $Revision$
 /*****************************************************************************
 *  Functions
 *****************************************************************************/
+
+// digit array allocator
+
+static inline fpdec_digit_array_t *
+digits_alloc(size_t n_digits) {
+    fpdec_digit_array_t *digit_array = (fpdec_digit_array_t *) \
+        calloc(n_digits + 1, sizeof(fpdec_digit_t));
+    if (digit_array != NULL) {
+        digit_array->n_alloc = n_digits;
+    }
+    return digit_array;
+}
 
 // digit getter
 
@@ -57,4 +72,54 @@ digits_iter_digits(fpdec_digit_array_t *digit_array) {
             .ptr_to_digits = digit_array->digits
     };
     return it;
+}
+
+// converter
+
+static inline fpdec_digit_t
+dec_digits_to_digit(char *start, const char *stop) {
+    fpdec_digit_t digit = 0;
+    for (; start < stop; ++start) {
+        digit = digit * 10 + *start - '0';
+    }
+    return digit;
+}
+
+error_t
+digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
+                          const size_t n_dec_digits, const char *coeff,
+                          const int dec_exp) {
+    size_t n_digits, n_dec_shift;
+    fpdec_digit_t *digit;
+    char *chunk_start, *chunk_stop;
+
+    assert(n_dec_digits > 0);
+
+    n_digits = CEIL(n_dec_digits, DEC_DIGITS_PER_DIGIT);
+    *digit_array = digits_alloc(n_digits);
+    if (*digit_array == NULL) MEMERROR(ENOMEM)
+
+    *exp = FLOOR(dec_exp, DEC_DIGITS_PER_DIGIT);
+    n_dec_shift = MOD(dec_exp, DEC_DIGITS_PER_DIGIT);
+    digit = (*digit_array)->digits;
+    chunk_stop = (char *)coeff + n_dec_digits;
+    chunk_start = MAX(chunk_stop + n_dec_shift - DEC_DIGITS_PER_DIGIT,
+                      (char *)coeff);
+    while (chunk_stop > coeff) {
+        *digit = dec_digits_to_digit(chunk_start, chunk_stop);
+        if (*digit == 0) {
+            (*exp)++;
+            n_digits--;
+        } else {
+            digit++;
+        }
+        chunk_stop = chunk_start;
+        chunk_start = MAX(chunk_start - DEC_DIGITS_PER_DIGIT, (char *)coeff);
+    }
+    // least significant digit to be shifted?
+    if (n_dec_shift > 0) {
+        (*digit_array)->digits[0] *= _10_POW_N(n_dec_shift);
+    }
+    (*digit_array)->n_signif = n_digits;
+    return FPDEC_OK;
 }

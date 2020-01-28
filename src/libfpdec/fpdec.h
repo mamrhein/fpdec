@@ -135,8 +135,13 @@ fpdec_dump(fpdec_t *);
 
 // Initializer
 
-int
+error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
+
+// Deallocator
+
+void
+fpdec_dealloc(fpdec_t *fpdec);
 
 #ifdef __cplusplus
 }

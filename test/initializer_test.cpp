@@ -33,7 +33,7 @@ bool check_normalized(fpdec_t *fpdec) {
     fpdec_n_digits_t n_signif = digit_array->n_signif;
     return n_signif == 0 ||
            (digit_array->digits[0] != 0 &&
-            digit_array->digits[n_signif] != 0);
+            digit_array->digits[n_signif - 1] != 0);
 }
 
 TEST_CASE("Initialize from string") {
@@ -104,8 +104,8 @@ TEST_CASE("Initialize from string") {
             const char *literal = test.literal.c_str();
             int rc = fpdec_from_ascii_literal(&fpdec, literal);
 
-            SECTION(literal) {
-                REQUIRE(rc == 0);
+            SECTION(test.literal) {
+                REQUIRE(rc == FPDEC_OK);
                 REQUIRE(is_shint(&fpdec));
                 REQUIRE(FPDEC_SIGN(&fpdec) == test.sign);
                 REQUIRE(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
@@ -116,7 +116,67 @@ TEST_CASE("Initialize from string") {
     }
 
     SECTION("Coeff > MAX_N_DEC_DIGITS_IN_SHINT") {
+        struct test_data tests[3] = {
+                {
+                        .literal = "  1926.837209e26",
+                        .sign = 1,
+                        .dec_prec = 0,
+                        .exp = 1,
+                        .n_digits = 1,
+                        .digits = {19268372090UL}
+                },
+                {
+                        .literal = "-11702439610000.0000002938162540",
+                        .sign = -1,
+                        .dec_prec = 16,
+                        .exp = -1,
+                        .n_digits = 2,
+                        .digits = {2938162540000UL, 11702439610000UL}
+                },
+                {
+                        .literal = "1111111111111111111"
+                                   "2222222222222222222"
+                                   "3333333333333333333"
+                                   "4444444444444444444"
+                                   "5555555555555555555"
+                                   "."
+                                   "6666666666666666666"
+                                   "7777777777777777777"
+                                   "888",
+                        .sign = 1,
+                        .dec_prec = 41,
+                        .exp = -3,
+                        .n_digits = 8,
+                        .digits = {8880000000000000000UL,
+                                   7777777777777777777UL,
+                                   6666666666666666666UL,
+                                   5555555555555555555UL,
+                                   4444444444444444444UL,
+                                   3333333333333333333UL,
+                                   2222222222222222222UL,
+                                   1111111111111111111UL}
+                }
+        };
 
+        for (const auto &test : tests) {
+            fpdec_t fpdec;
+            const char *literal = test.literal.c_str();
+            int rc = fpdec_from_ascii_literal(&fpdec, literal);
+
+            SECTION(test.literal) {
+                REQUIRE(rc == FPDEC_OK);
+                REQUIRE(is_digit_array(&fpdec));
+                REQUIRE(check_normalized(&fpdec));
+                REQUIRE(FPDEC_SIGN(&fpdec) == test.sign);
+                REQUIRE(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
+                REQUIRE(FPDEC_EXP(&fpdec) == test.exp);
+                REQUIRE(FPDEC_N_DIGITS(&fpdec) == test.n_digits);
+                for (int i = 0; i < test.n_digits; ++i) {
+                    REQUIRE(fpdec.digit_array->digits[i] == test.digits[i]);
+                }
+            }
+            fpdec_dealloc(&fpdec);
+        }
     }
 
     SECTION("Invalid input") {
