@@ -25,8 +25,14 @@ extern "C" {
 
 
 /*****************************************************************************
-*  Common internal types
+*  Common types
 *****************************************************************************/
+
+// error_t may or may not be available from errno.h
+#ifndef __error_t_defined
+#define __error_t_defined 1
+typedef int error_t;
+#endif
 
 // sign indicator: =0 -> zero, <0 -> negative, >0 -> positive
 typedef int8_t fpdec_sign_t;

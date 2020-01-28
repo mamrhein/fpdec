@@ -26,12 +26,6 @@ $Revision$
 *  Types
 *****************************************************************************/
 
-// error_t may or may not be available from errno.h
-#ifndef __error_t_defined
-    #define __error_t_defined 1
-    typedef int error_t;
-#endif
-
 struct _it_t;
 
 typedef fpdec_digit_t (*get_next)(struct _it_t *iter);
