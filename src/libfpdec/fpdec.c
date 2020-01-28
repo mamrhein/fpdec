@@ -51,25 +51,25 @@ fpdec_dump(fpdec_t *fpdec) {
 
 error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
-    dec_str_repr_t *dec_str_repr;
+    dec_repr_t *dec_repr;
     size_t n_add_zeros, n_dec_digits;
     error_t rc;
 
-    dec_str_repr = parse_ascii_dec_literal(literal);
-    if (dec_str_repr == NULL) {
+    dec_repr = parse_ascii_dec_literal(literal);
+    if (dec_repr == NULL) {
         return errno;
     }
-    fpdec->sign = dec_str_repr->sign == '-' ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
-    n_add_zeros = MAX(0, dec_str_repr->exp);
-    n_dec_digits = dec_str_repr->n_chars + n_add_zeros;
+    fpdec->sign = dec_repr->sign == '-' ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
+    n_add_zeros = MAX(0, dec_repr->exp);
+    n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
     if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
         rc = shint_from_dec_coeff(&fpdec->lo, &fpdec->hi,
-                                  dec_str_repr->coeff,
+                                  dec_repr->coeff,
                                   n_add_zeros);
         if (rc == FPDEC_OK) {
             fpdec->dyn_alloc = 0;
             fpdec->normalized = 0;
-            fpdec->dec_prec = MAX(0, -dec_str_repr->exp);
+            fpdec->dec_prec = MAX(0, -dec_repr->exp);
             if (fpdec->lo == 0 && fpdec->hi == 0) {
                 fpdec->sign = FPDEC_SIGN_ZERO;
             }
@@ -77,13 +77,13 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
         }
     }
     rc = digits_from_dec_coeff_exp(&(fpdec->digit_array), &(fpdec->exp),
-                                   dec_str_repr->n_chars, dec_str_repr->coeff,
-                                   dec_str_repr->exp);
+                                   dec_repr->n_dec_digits, dec_repr->coeff,
+                                   dec_repr->exp);
     fpdec->dyn_alloc = 1;
     fpdec->normalized = 1;
-    fpdec->dec_prec = MAX(0, -dec_str_repr->exp);
+    fpdec->dec_prec = MAX(0, -dec_repr->exp);
     EXIT:
-    free(dec_str_repr);
+    free(dec_repr);
     return rc;
 }
 

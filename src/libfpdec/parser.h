@@ -22,15 +22,15 @@ $Revision$
 typedef struct {
     char sign;
     int exp;
-    size_t n_chars;
+    size_t n_dec_digits;
     char coeff[];
-} dec_str_repr_t;
+} dec_repr_t;
 
 /*****************************************************************************
 *  Functions
 *****************************************************************************/
 
-dec_str_repr_t *
+dec_repr_t *
 parse_ascii_dec_literal(const char *literal);
 
 #endif //FPDEC_PARSER_H

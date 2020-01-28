@@ -8,8 +8,8 @@ License:     This program is part of a larger application. For license
              details please read the file LICENSE.TXT provided together
              with the application.
 ------------------------------------------------------------------------------
-$Source: src/libfpdec/parser.c $
-$Revision: 2020-01-27T15:50:49+01:00 $
+$Source$
+$Revision$
 */
 
 #include <assert.h>
@@ -32,9 +32,9 @@ $Revision: 2020-01-27T15:50:49+01:00 $
 // parse for a Decimal
 // [+|-]<int>[.<frac>][<e|E>[+|-]<exp>] or
 // [+|-].<frac>[<e|E>[+|-]<exp>].
-dec_str_repr_t *
+dec_repr_t *
 parse_ascii_dec_literal(const char *literal) {
-    dec_str_repr_t *result;
+    dec_repr_t *result;
     size_t n_chars = strlen(literal);
     const char *curr_char = literal;
     const char *int_part = NULL;
@@ -49,11 +49,11 @@ parse_ascii_dec_literal(const char *literal) {
     }
     if (*curr_char == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL, NULL)
 
-    result = malloc(offsetof(dec_str_repr_t, coeff) + n_chars + 1);
+    result = malloc(offsetof(dec_repr_t, coeff) + n_chars + 1);
     if (result == NULL) MEMERROR(NULL)
     result->sign = '+';
     result->exp = 0;
-    result->n_chars = 0;
+    result->n_dec_digits = 0;
     result->coeff[0] = '\0';
 
     if (*curr_char == '-' || *curr_char == '+') {
@@ -116,7 +116,7 @@ parse_ascii_dec_literal(const char *literal) {
     assert(len_int_part + len_frac_part <= n_chars);
     strncat(result->coeff, signif_int_part, len_int_part);
     strncat(result->coeff, frac_part, len_frac_part);
-    result->n_chars = len_int_part + len_frac_part;
+    result->n_dec_digits = len_int_part + len_frac_part;
     result->exp -= len_frac_part;
     return result;
 }
