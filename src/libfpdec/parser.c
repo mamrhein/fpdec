@@ -8,8 +8,8 @@ License:     This program is part of a larger application. For license
              details please read the file LICENSE.TXT provided together
              with the application.
 ------------------------------------------------------------------------------
-$Source$
-$Revision$
+$Source: src/libfpdec/parser.c $
+$Revision: 2020-01-27T15:50:49+01:00 $
 */
 
 #include <assert.h>
@@ -24,6 +24,10 @@ $Revision$
 /*****************************************************************************
 *  Functions
 *****************************************************************************/
+
+/* TODO: use statically allocated result
+ * if length of literal below a threshold
+ */
 
 // parse for a Decimal
 // [+|-]<int>[.<frac>][<e|E>[+|-]<exp>] or
