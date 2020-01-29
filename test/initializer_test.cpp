@@ -100,7 +100,7 @@ TEST_CASE("Initialize from string") {
         };
 
         for (const auto &test : tests) {
-            fpdec_t fpdec;
+            fpdec_t fpdec = FPDEC_ZERO;
             const char *literal = test.literal.c_str();
             int rc = fpdec_from_ascii_literal(&fpdec, literal);
 
@@ -159,7 +159,7 @@ TEST_CASE("Initialize from string") {
         };
 
         for (const auto &test : tests) {
-            fpdec_t fpdec;
+            fpdec_t fpdec = FPDEC_ZERO;
             const char *literal = test.literal.c_str();
             int rc = fpdec_from_ascii_literal(&fpdec, literal);
 
@@ -185,7 +185,7 @@ TEST_CASE("Initialize from string") {
             "\t+   \r\n"
         };
         for (const auto &literal : literals) {
-            fpdec_t fpdec;
+            fpdec_t fpdec = FPDEC_ZERO;
 
             SECTION(literal) {
                 REQUIRE(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
