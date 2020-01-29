@@ -20,12 +20,12 @@ $Revision$
 
 bool
 is_shint(fpdec_t *fpdec) {
-    return (fpdec->dyn_alloc == 0 && fpdec->normalized == 0);
+    return !(fpdec->dyn_alloc && fpdec->normalized);
 }
 
 bool
 is_digit_array(fpdec_t *fpdec) {
-    return (fpdec->dyn_alloc == 1 && fpdec->normalized == 1);
+    return (fpdec->dyn_alloc && fpdec->normalized);
 }
 
 bool check_normalized(fpdec_t *fpdec) {

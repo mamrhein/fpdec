@@ -67,8 +67,8 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
                                   dec_repr->coeff,
                                   n_add_zeros);
         if (rc == FPDEC_OK) {
-            fpdec->dyn_alloc = 0;
-            fpdec->normalized = 0;
+            fpdec->dyn_alloc = false;
+            fpdec->normalized = false;
             fpdec->dec_prec = MAX(0, -dec_repr->exp);
             if (fpdec->lo == 0 && fpdec->hi == 0) {
                 fpdec->sign = FPDEC_SIGN_ZERO;
@@ -79,8 +79,8 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     rc = digits_from_dec_coeff_exp(&(fpdec->digit_array), &(fpdec->exp),
                                    dec_repr->n_dec_digits, dec_repr->coeff,
                                    dec_repr->exp);
-    fpdec->dyn_alloc = 1;
-    fpdec->normalized = 1;
+    fpdec->dyn_alloc = true;
+    fpdec->normalized = true;
     fpdec->dec_prec = MAX(0, -dec_repr->exp);
 EXIT:
     free(dec_repr);

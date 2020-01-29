@@ -21,6 +21,7 @@ extern "C" {
 #endif // __cplusplus
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdint.h>
 
 

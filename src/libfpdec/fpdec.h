@@ -35,8 +35,8 @@ typedef uint16_t fpdec_dec_prec_t;
 typedef int32_t fpdec_exp_t;
 
 typedef struct {
-    uint8_t dyn_alloc:1;        // 1 indicates digit array
-    uint8_t normalized:1;       // 1 if digit array is normalized
+    bool dyn_alloc:1;           // true indicates digit array
+    bool normalized:1;          // true if digit array is normalized
     fpdec_sign_t sign;          // sign indicator
     fpdec_dec_prec_t dec_prec;  // number of decimal fractional digits
     //                             variants:
@@ -101,24 +101,24 @@ typedef struct {
 *****************************************************************************/
 
 static const fpdec_t FPDEC_ZERO = {
-    .dyn_alloc = 0,
-    .normalized = 0,
+    .dyn_alloc = false,
+    .normalized = false,
     .sign = 0,
     .dec_prec = 0,
     .hi = 0,
     .lo = 0,
 };
 static const fpdec_t FPDEC_ONE = {
-    .dyn_alloc = 0,
-    .normalized = 0,
+    .dyn_alloc = false,
+    .normalized = false,
     .sign = 1,
     .dec_prec = 0,
     .hi = 0,
     .lo = 1,
 };
 static const fpdec_t FPDEC_MINUS_ONE = {
-    .dyn_alloc = 0,
-    .normalized = 0,
+    .dyn_alloc = false,
+    .normalized = false,
     .sign = -1,
     .dec_prec = 0,
     .hi = 0,
