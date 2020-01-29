@@ -26,6 +26,8 @@ $Revision$
 *  Types
 *****************************************************************************/
 
+typedef unsigned char dec_digit_t;
+
 struct _it_t;
 
 typedef fpdec_digit_t (*get_next)(struct _it_t *iter);

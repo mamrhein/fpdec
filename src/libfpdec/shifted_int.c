@@ -57,22 +57,19 @@ shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi) {
 // converter
 
 error_t
-shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const char *coeff,
-                     size_t n_add_zeros) {
+shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
+                     const size_t n_dec_digits, const size_t n_add_zeros) {
     uint128_t accu = {0, 0};
-    int d;
+    const dec_digit_t *stop = coeff + n_dec_digits;
+    const dec_digit_t *cut = MIN(coeff + MAX_N_DEC_DIGITS_UINT64 - 1, stop);
 
-    for (int i = 1; i < MAX_N_DEC_DIGITS_UINT64 && *coeff != 0; ++i) {
+    for (; coeff < cut; ++coeff) {
         accu.lo *= 10;
-        d = *coeff - '0';
-        accu.lo += d;           // d is < 10, so no overflow here
-        coeff++;
+        accu.lo += *coeff;           // *coeff is < 10, so no overflow here
     }
-    while (*coeff != 0) {
+    for (; coeff < stop; ++coeff) {
         uint128_imul10(&accu);
-        d = *coeff - '0';
-        accu.lo += d;           // d is < 10, so no overflow here
-        coeff++;
+        accu.lo += *coeff;           // *coeff is < 10, so no overflow here
     }
     for (int i = 0; i < n_add_zeros; ++i) {
         uint128_imul10(&accu);

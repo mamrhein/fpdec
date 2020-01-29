@@ -48,7 +48,7 @@ digits_iter_digits(fpdec_digit_array_t *digit_array);
 
 error_t
 digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
-                          size_t n_dec_digits, const char *coeff,
+                          size_t n_dec_digits, const dec_digit_t *coeff,
                           int dec_exp);
 
 #endif //FPDEC_DIGIT_ARRAY__H

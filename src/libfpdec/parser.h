@@ -15,15 +15,19 @@ $Revision$
 #ifndef FPDEC_PARSER_H
 #define FPDEC_PARSER_H
 
+#include "common_.h"
+
+
 /*****************************************************************************
 *  Types
 *****************************************************************************/
 
+// represent decimal number as (negative ? -1 : 1) * coeff * pow(10, exp)
 typedef struct {
-    char sign;
+    bool negative;
     int exp;
     size_t n_dec_digits;
-    char coeff[];
+    dec_digit_t coeff[];
 } dec_repr_t;
 
 /*****************************************************************************

@@ -25,6 +25,19 @@ $Revision$
 *  Functions
 *****************************************************************************/
 
+static inline void
+fill_in_digits(dec_repr_t *dec_repr, const char *dec_chars,
+               const size_t n_dec_digits) {
+    const char *curr_char = dec_chars;
+    dec_digit_t *curr_digit = dec_repr->coeff + dec_repr->n_dec_digits;
+    for (size_t i = 0; i < n_dec_digits; ++i) {
+        *curr_digit = *curr_char - '0';
+        curr_char++;
+        curr_digit++;
+    }
+    dec_repr->n_dec_digits += n_dec_digits;
+}
+
 /* TODO: use statically allocated result
  * if length of literal below a threshold
  */
@@ -49,16 +62,17 @@ parse_ascii_dec_literal(const char *literal) {
     }
     if (*curr_char == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL, NULL)
 
-    result = malloc(offsetof(dec_repr_t, coeff) + n_chars + 1);
+    result = malloc(offsetof(dec_repr_t, coeff) + n_chars);
     if (result == NULL) MEMERROR(NULL)
-    result->sign = '+';
+    result->negative = false;
     result->exp = 0;
     result->n_dec_digits = 0;
-    result->coeff[0] = '\0';
 
-    if (*curr_char == '-' || *curr_char == '+') {
-        result->sign = *curr_char;
-        curr_char++;
+    switch (*curr_char) {
+        case '-':
+            result->negative = true;
+        case '+':
+            curr_char++;
     }
     int_part = curr_char;
     while (*curr_char == '0') {
@@ -101,7 +115,6 @@ parse_ascii_dec_literal(const char *literal) {
                 }
         }
         while isdigit(*curr_char) {
-            // TODO: check overflow
             exp = exp * 10 + (*curr_char - '0');
             curr_char++;
         }
@@ -114,9 +127,8 @@ parse_ascii_dec_literal(const char *literal) {
         FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
     }
     assert(len_int_part + len_frac_part <= n_chars);
-    strncat(result->coeff, signif_int_part, len_int_part);
-    strncat(result->coeff, frac_part, len_frac_part);
-    result->n_dec_digits = len_int_part + len_frac_part;
+    fill_in_digits(result, signif_int_part, len_int_part);
+    fill_in_digits(result, frac_part, len_frac_part);
     result->exp -= len_frac_part;
     return result;
 }

@@ -59,12 +59,12 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     if (dec_repr == NULL) {
         return errno;
     }
-    fpdec->sign = dec_repr->sign == '-' ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
+    fpdec->sign = dec_repr->negative ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
     if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
         rc = shint_from_dec_coeff(&fpdec->lo, &fpdec->hi,
-                                  dec_repr->coeff,
+                                  dec_repr->coeff, dec_repr->n_dec_digits,
                                   n_add_zeros);
         if (rc == FPDEC_OK) {
             fpdec->dyn_alloc = false;

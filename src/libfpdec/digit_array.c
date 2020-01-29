@@ -77,21 +77,22 @@ digits_iter_digits(fpdec_digit_array_t *digit_array) {
 // converter
 
 static inline fpdec_digit_t
-dec_digits_to_digit(char *start, const char *stop) {
+dec_digits_to_digit(const dec_digit_t *start, const dec_digit_t *stop) {
     fpdec_digit_t digit = 0;
     for (; start < stop; ++start) {
-        digit = digit * 10 + *start - '0';
+        digit *= 10;
+        digit += *start;
     }
     return digit;
 }
 
 error_t
 digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
-                          const size_t n_dec_digits, const char *coeff,
-                          const int dec_exp) {
+                          size_t n_dec_digits, const dec_digit_t *coeff,
+                          int dec_exp) {
     size_t n_digits, n_dec_shift;
     fpdec_digit_t *digit;
-    char *chunk_start, *chunk_stop;
+    const dec_digit_t *chunk_start, *chunk_stop;
 
     assert(n_dec_digits > 0);
 
@@ -102,9 +103,8 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
     *exp = FLOOR(dec_exp, DEC_DIGITS_PER_DIGIT);
     n_dec_shift = MOD(dec_exp, DEC_DIGITS_PER_DIGIT);
     digit = (*digit_array)->digits;
-    chunk_stop = (char *) coeff + n_dec_digits;
-    chunk_start = MAX(chunk_stop + n_dec_shift - DEC_DIGITS_PER_DIGIT,
-                      (char *) coeff);
+    chunk_stop = coeff + n_dec_digits;
+    chunk_start = MAX(chunk_stop + n_dec_shift - DEC_DIGITS_PER_DIGIT, coeff);
     while (chunk_stop > coeff) {
         *digit = dec_digits_to_digit(chunk_start, chunk_stop);
         if (*digit == 0) {
@@ -114,7 +114,7 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
             digit++;
         }
         chunk_stop = chunk_start;
-        chunk_start = MAX(chunk_start - DEC_DIGITS_PER_DIGIT, (char *) coeff);
+        chunk_start = MAX(chunk_start - DEC_DIGITS_PER_DIGIT, coeff);
     }
     // least significant digit to be shifted?
     if (n_dec_shift > 0) {
