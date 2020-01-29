@@ -107,11 +107,11 @@ TEST_CASE("Initialize from string") {
 
             SECTION(test.literal) {
                 REQUIRE(rc == FPDEC_OK);
-                REQUIRE(is_shint(&fpdec));
-                REQUIRE(FPDEC_SIGN(&fpdec) == test.sign);
-                REQUIRE(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
-                REQUIRE(fpdec.lo == test.digits[0]);
-                REQUIRE(fpdec.hi == test.digits[1]);
+                CHECK(is_shint(&fpdec));
+                CHECK(FPDEC_SIGN(&fpdec) == test.sign);
+                CHECK(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
+                CHECK(fpdec.lo == test.digits[0]);
+                CHECK(fpdec.hi == test.digits[1]);
             }
         }
     }
@@ -167,13 +167,13 @@ TEST_CASE("Initialize from string") {
             SECTION(test.literal) {
                 REQUIRE(rc == FPDEC_OK);
                 REQUIRE(is_digit_array(&fpdec));
-                REQUIRE(check_normalized(&fpdec));
-                REQUIRE(FPDEC_SIGN(&fpdec) == test.sign);
-                REQUIRE(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
-                REQUIRE(FPDEC_EXP(&fpdec) == test.exp);
+                CHECK(check_normalized(&fpdec));
+                CHECK(FPDEC_SIGN(&fpdec) == test.sign);
+                CHECK(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
+                CHECK(FPDEC_EXP(&fpdec) == test.exp);
                 REQUIRE(FPDEC_N_DIGITS(&fpdec) == test.n_digits);
                 for (int i = 0; i < test.n_digits; ++i) {
-                    REQUIRE(fpdec.digit_array->digits[i] == test.digits[i]);
+                    CHECK(fpdec.digit_array->digits[i] == test.digits[i]);
                 }
             }
             fpdec_dealloc(&fpdec);
@@ -189,7 +189,7 @@ TEST_CASE("Initialize from string") {
             fpdec_t fpdec = FPDEC_ZERO;
 
             SECTION(literal) {
-                REQUIRE(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
+                CHECK(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
                         FPDEC_INVALID_DECIMAL_LITERAL);
             }
         }
@@ -202,7 +202,7 @@ TEST_CASE("Initialize from long long.") {
     char buf[30];
 
     for (long long test_val : test_vals) {
-        snprintf(reinterpret_cast<char *>(&buf), 30, "%lld", test_val);
+        snprintf((char *) (&buf), 30, "%lld", test_val);
         fpdec_t fpdec = FPDEC_ZERO;
         error_t rc = fpdec_from_long_long(&fpdec, test_val);
         long long abs_val = std::abs(test_val);
@@ -217,11 +217,11 @@ TEST_CASE("Initialize from long long.") {
 
         SECTION(buf) {
             REQUIRE(rc == FPDEC_OK);
-            REQUIRE(is_shint(&fpdec));
-            REQUIRE(FPDEC_SIGN(&fpdec) == sign);
-            REQUIRE(FPDEC_DEC_PREC(&fpdec) == 0);
-            REQUIRE(fpdec.lo == abs_val);
-            REQUIRE(fpdec.hi == 0);
+            CHECK(is_shint(&fpdec));
+            CHECK(FPDEC_SIGN(&fpdec) == sign);
+            CHECK(FPDEC_DEC_PREC(&fpdec) == 0);
+            CHECK(fpdec.lo == abs_val);
+            CHECK(fpdec.hi == 0);
         }
     }
 }
