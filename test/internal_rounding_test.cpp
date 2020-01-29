@@ -22,7 +22,7 @@ void check_rounding(fpdec_digit_t num, fpdec_digit_t quant,
                     enum FPDEC_ROUNDING_MODE rnd) {
     fpdec_digit_t res;
 
-    for (fpdec_sign_t sign = -1; sign <= 1 ; ++sign) {
+    for (fpdec_sign_t sign = -1; sign <= 1; ++sign) {
         res = round_to_multiple(sign, num, quant, rnd);
         REQUIRE(res % quant == 0);
     }

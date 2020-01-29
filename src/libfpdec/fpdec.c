@@ -82,7 +82,7 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     fpdec->dyn_alloc = 1;
     fpdec->normalized = 1;
     fpdec->dec_prec = MAX(0, -dec_repr->exp);
-    EXIT:
+EXIT:
     free(dec_repr);
     return rc;
 }
@@ -90,9 +90,9 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
 // Deallocator
 
 void
-fpdec_dealloc(fpdec_t *fpdec)  {
+fpdec_dealloc(fpdec_t *fpdec) {
     if (FPDEC_IS_DYN_ALLOC(fpdec)) {
-        free((void *)fpdec->digit_array);
+        free((void *) fpdec->digit_array);
     }
-    memset((void *)fpdec, 0, sizeof(fpdec_t));
+    memset((void *) fpdec, 0, sizeof(fpdec_t));
 }

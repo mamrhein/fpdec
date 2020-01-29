@@ -49,54 +49,54 @@ TEST_CASE("Initialize from string") {
 
     SECTION("Coeff <= MAX_N_DEC_DIGITS_IN_SHINT") {
         struct test_data tests[8] = {
-                {
-                        .literal = "  1926.83 \n",
-                        .sign = 1,
-                        .dec_prec = 2,
-                        .digits = {192683UL, 0UL}
-                },
-                {
-                        .literal = "+5.387E+1",
-                        .sign = 1,
-                        .dec_prec = 2,
-                        .digits = {5387UL, 0UL}
-                },
-                {
-                        .literal = "+5.387E-17",
-                        .sign = 1,
-                        .dec_prec = 20,
-                        .digits = {5387UL, 0UL}
-                },
-                {
-                        .literal = "-12345678901234567890e-7",
-                        .sign = -1,
-                        .dec_prec = 7,
-                        .digits = {12345678901234567890UL, 0UL}
-                },
-                {
-                        .literal = "82345678901234567890e-12",
-                        .sign = 1,
-                        .dec_prec = 12,
-                        .digits = {8558702606396361426UL, 4UL}
-                },
-                {
-                        .literal = "+007e28",
-                        .sign = 1,
-                        .dec_prec = 0,
-                        .digits = {12899172069043863552UL, 3794707603UL}
-                },
-                {
-                        .literal = "   +0.00e-0",
-                        .sign = 0,
-                        .dec_prec = 2,
-                        .digits = {0UL, 0UL}
-                },
-                {
-                        .literal = "-000000",
-                        .sign = 0,
-                        .dec_prec = 0,
-                        .digits = {0UL, 0UL}
-                }
+            {
+                .literal = "  1926.83 \n",
+                .sign = 1,
+                .dec_prec = 2,
+                .digits = {192683UL, 0UL}
+            },
+            {
+                .literal = "+5.387E+1",
+                .sign = 1,
+                .dec_prec = 2,
+                .digits = {5387UL, 0UL}
+            },
+            {
+                .literal = "+5.387E-17",
+                .sign = 1,
+                .dec_prec = 20,
+                .digits = {5387UL, 0UL}
+            },
+            {
+                .literal = "-12345678901234567890e-7",
+                .sign = -1,
+                .dec_prec = 7,
+                .digits = {12345678901234567890UL, 0UL}
+            },
+            {
+                .literal = "82345678901234567890e-12",
+                .sign = 1,
+                .dec_prec = 12,
+                .digits = {8558702606396361426UL, 4UL}
+            },
+            {
+                .literal = "+007e28",
+                .sign = 1,
+                .dec_prec = 0,
+                .digits = {12899172069043863552UL, 3794707603UL}
+            },
+            {
+                .literal = "   +0.00e-0",
+                .sign = 0,
+                .dec_prec = 2,
+                .digits = {0UL, 0UL}
+            },
+            {
+                .literal = "-000000",
+                .sign = 0,
+                .dec_prec = 0,
+                .digits = {0UL, 0UL}
+            }
         };
 
         for (const auto &test : tests) {
@@ -117,45 +117,45 @@ TEST_CASE("Initialize from string") {
 
     SECTION("Coeff > MAX_N_DEC_DIGITS_IN_SHINT") {
         struct test_data tests[3] = {
-                {
-                        .literal = "  1926.837209e26",
-                        .sign = 1,
-                        .dec_prec = 0,
-                        .exp = 1,
-                        .n_digits = 1,
-                        .digits = {19268372090UL}
-                },
-                {
-                        .literal = "-11702439610000.0000002938162540",
-                        .sign = -1,
-                        .dec_prec = 16,
-                        .exp = -1,
-                        .n_digits = 2,
-                        .digits = {2938162540000UL, 11702439610000UL}
-                },
-                {
-                        .literal = "1111111111111111111"
-                                   "2222222222222222222"
-                                   "3333333333333333333"
-                                   "4444444444444444444"
-                                   "5555555555555555555"
-                                   "."
-                                   "6666666666666666666"
-                                   "7777777777777777777"
-                                   "888",
-                        .sign = 1,
-                        .dec_prec = 41,
-                        .exp = -3,
-                        .n_digits = 8,
-                        .digits = {8880000000000000000UL,
-                                   7777777777777777777UL,
-                                   6666666666666666666UL,
-                                   5555555555555555555UL,
-                                   4444444444444444444UL,
-                                   3333333333333333333UL,
-                                   2222222222222222222UL,
-                                   1111111111111111111UL}
-                }
+            {
+                .literal = "  1926.837209e26",
+                .sign = 1,
+                .dec_prec = 0,
+                .exp = 1,
+                .n_digits = 1,
+                .digits = {19268372090UL}
+            },
+            {
+                .literal = "-11702439610000.0000002938162540",
+                .sign = -1,
+                .dec_prec = 16,
+                .exp = -1,
+                .n_digits = 2,
+                .digits = {2938162540000UL, 11702439610000UL}
+            },
+            {
+                .literal = "1111111111111111111"
+                           "2222222222222222222"
+                           "3333333333333333333"
+                           "4444444444444444444"
+                           "5555555555555555555"
+                           "."
+                           "6666666666666666666"
+                           "7777777777777777777"
+                           "888",
+                .sign = 1,
+                .dec_prec = 41,
+                .exp = -3,
+                .n_digits = 8,
+                .digits = {8880000000000000000UL,
+                           7777777777777777777UL,
+                           6666666666666666666UL,
+                           5555555555555555555UL,
+                           4444444444444444444UL,
+                           3333333333333333333UL,
+                           2222222222222222222UL,
+                           1111111111111111111UL}
+            }
         };
 
         for (const auto &test : tests) {
@@ -181,8 +181,8 @@ TEST_CASE("Initialize from string") {
 
     SECTION("Invalid input") {
         std::string literals[7] = {
-                " 1.23.5", "1.24e", "--4.92", "", "   ", "3,49E-3",
-                "\t+   \r\n"
+            " 1.23.5", "1.24e", "--4.92", "", "   ", "3,49E-3",
+            "\t+   \r\n"
         };
         for (const auto &literal : literals) {
             fpdec_t fpdec;

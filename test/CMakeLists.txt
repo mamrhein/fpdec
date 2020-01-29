@@ -1,8 +1,8 @@
 # Michael Amrhein. Copyright (C) 2020.
 
-file (GLOB_RECURSE TEST_SRC *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
-set (TEST_BIN ${PROJECT_NAME}_test)
-set (TEST_LIBS ${PROJECT_NAME})
+file(GLOB_RECURSE TEST_SRC *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
+set(TEST_BIN ${PROJECT_NAME}_test)
+set(TEST_LIBS ${PROJECT_NAME})
 
 # configure the executable
 link_directories(${MAINFOLDER}/lib)

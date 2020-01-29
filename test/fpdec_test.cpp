@@ -15,6 +15,7 @@ $Revision$
 */
 
 #define CATCH_CONFIG_MAIN
+
 #include "catch.hpp"
 
 #include "fpdec.h"

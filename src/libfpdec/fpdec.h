@@ -31,15 +31,15 @@ extern "C" {
 *  Types
 *****************************************************************************/
 
-typedef uint16_t  fpdec_dec_prec_t;
+typedef uint16_t fpdec_dec_prec_t;
 typedef int32_t fpdec_exp_t;
 
 typedef struct {
-    uint8_t dyn_alloc:1,        // 1 indicates digit array
-            normalized:1;       // 1 if digit array is normalized
+    uint8_t dyn_alloc:1;        // 1 indicates digit array
+    uint8_t normalized:1;       // 1 if digit array is normalized
     fpdec_sign_t sign;          // sign indicator
     fpdec_dec_prec_t dec_prec;  // number of decimal fractional digits
-    // variants:
+    //                             variants:
     union {                     // shifted int          digit_array
         uint32_t hi;            // high 32 bits
         fpdec_exp_t exp;        //                      exponent (base 2**64)
@@ -65,6 +65,7 @@ typedef struct {
 #define FPDEC_IS_DYN_ALLOC(fpdec) (((fpdec_t*)fpdec)->dyn_alloc)
 
 #define FPDEC_IS_NORMALIZED(fpdec) (((fpdec_t*)fpdec)->normalized)
+
 
 /* TODO: shifted int variant
 #define FPDEC_IS_INT(fpdec) (((fpdec_t*)fpdec)->dec_prec == 0 || \
@@ -100,28 +101,28 @@ typedef struct {
 *****************************************************************************/
 
 static const fpdec_t FPDEC_ZERO = {
-        .dyn_alloc = 0,
-        .normalized = 0,
-        .sign = 0,
-        .dec_prec = 0,
-        .hi = 0,
-        .lo = 0,
+    .dyn_alloc = 0,
+    .normalized = 0,
+    .sign = 0,
+    .dec_prec = 0,
+    .hi = 0,
+    .lo = 0,
 };
 static const fpdec_t FPDEC_ONE = {
-        .dyn_alloc = 0,
-        .normalized = 0,
-        .sign = 1,
-        .dec_prec = 0,
-        .hi = 0,
-        .lo = 1,
+    .dyn_alloc = 0,
+    .normalized = 0,
+    .sign = 1,
+    .dec_prec = 0,
+    .hi = 0,
+    .lo = 1,
 };
 static const fpdec_t FPDEC_MINUS_ONE = {
-        .dyn_alloc = 0,
-        .normalized = 0,
-        .sign = -1,
-        .dec_prec = 0,
-        .hi = 0,
-        .lo = 1,
+    .dyn_alloc = 0,
+    .normalized = 0,
+    .sign = -1,
+    .dec_prec = 0,
+    .hi = 0,
+    .lo = 1,
 };
 
 /*****************************************************************************

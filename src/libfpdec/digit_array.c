@@ -66,10 +66,10 @@ _digits_get_next_digit(digit_iter *it) {
 digit_iter
 digits_iter_digits(fpdec_digit_array_t *digit_array) {
     digit_iter it = {
-            .limit = digit_array->n_signif,
-            .next_idx = 0,
-            .next = _digits_get_next_digit,
-            .ptr_to_digits = digit_array->digits
+        .limit = digit_array->n_signif,
+        .next_idx = 0,
+        .next = _digits_get_next_digit,
+        .ptr_to_digits = digit_array->digits
     };
     return it;
 }
@@ -102,9 +102,9 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
     *exp = FLOOR(dec_exp, DEC_DIGITS_PER_DIGIT);
     n_dec_shift = MOD(dec_exp, DEC_DIGITS_PER_DIGIT);
     digit = (*digit_array)->digits;
-    chunk_stop = (char *)coeff + n_dec_digits;
+    chunk_stop = (char *) coeff + n_dec_digits;
     chunk_start = MAX(chunk_stop + n_dec_shift - DEC_DIGITS_PER_DIGIT,
-                      (char *)coeff);
+                      (char *) coeff);
     while (chunk_stop > coeff) {
         *digit = dec_digits_to_digit(chunk_start, chunk_stop);
         if (*digit == 0) {
@@ -114,7 +114,7 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
             digit++;
         }
         chunk_stop = chunk_start;
-        chunk_start = MAX(chunk_start - DEC_DIGITS_PER_DIGIT, (char *)coeff);
+        chunk_start = MAX(chunk_start - DEC_DIGITS_PER_DIGIT, (char *) coeff);
     }
     // least significant digit to be shifted?
     if (n_dec_shift > 0) {

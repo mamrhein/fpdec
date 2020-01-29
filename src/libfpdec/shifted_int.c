@@ -46,10 +46,10 @@ _shint_get_next_digit(digit_iter *it) {
 digit_iter
 shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi) {
     digit_iter it = {
-            .limit = 2,
-            .next_idx = 0,
-            .next = _shint_get_next_digit,
-            .digits = {lo, hi}
+        .limit = 2,
+        .next_idx = 0,
+        .next = _shint_get_next_digit,
+        .digits = {lo, hi}
     };
     return it;
 }
@@ -79,6 +79,6 @@ shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const char *coeff,
     }
     if (U64_HI(U128_HI(accu))) return FPDEC_N_DIGITS_LIMIT_EXCEEDED;
     *lo = U128_LO(accu);
-    *hi = (uint32_t)U128_HI(accu);
+    *hi = (uint32_t) U128_HI(accu);
     return FPDEC_OK;
 }
