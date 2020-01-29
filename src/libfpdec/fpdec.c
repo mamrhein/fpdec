@@ -51,14 +51,23 @@ fpdec_dump(fpdec_t *fpdec) {
 
 error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
+    size_t n_chars = strlen(literal);
+    dec_repr_t st_dec_repr;
     dec_repr_t *dec_repr;
     size_t n_add_zeros, n_dec_digits;
     error_t rc;
 
-    dec_repr = parse_ascii_dec_literal(literal);
-    if (dec_repr == NULL) {
-        return errno;
+    if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL,
+                            FPDEC_INVALID_DECIMAL_LITERAL)
+
+    if (n_chars <= COEFF_SIZE_THRESHOLD) {
+        dec_repr = &st_dec_repr;
+    } else {
+        dec_repr = malloc(offsetof(dec_repr_t, coeff) + n_chars);
+        if (dec_repr == NULL) MEMERROR(ENOMEM)
     }
+    rc = parse_ascii_dec_literal(dec_repr, literal);
+    if (rc != FPDEC_OK) ERROR(rc, rc)
     fpdec->sign = dec_repr->negative ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
@@ -83,7 +92,9 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     fpdec->normalized = true;
     fpdec->dec_prec = MAX(0, -dec_repr->exp);
 EXIT:
-    free(dec_repr);
+    if (dec_repr != &st_dec_repr) {
+        free(dec_repr);
+    }
     return rc;
 }
 

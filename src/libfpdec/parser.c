@@ -38,17 +38,11 @@ fill_in_digits(dec_repr_t *dec_repr, const char *dec_chars,
     dec_repr->n_dec_digits += n_dec_digits;
 }
 
-/* TODO: use statically allocated result
- * if length of literal below a threshold
- */
-
 // parse for a Decimal
 // [+|-]<int>[.<frac>][<e|E>[+|-]<exp>] or
 // [+|-].<frac>[<e|E>[+|-]<exp>].
-dec_repr_t *
-parse_ascii_dec_literal(const char *literal) {
-    dec_repr_t *result;
-    size_t n_chars = strlen(literal);
+error_t
+parse_ascii_dec_literal(dec_repr_t *result, const char *literal) {
     const char *curr_char = literal;
     const char *int_part = NULL;
     const char *signif_int_part = NULL;
@@ -56,14 +50,11 @@ parse_ascii_dec_literal(const char *literal) {
     const char *frac_part = NULL;
     ptrdiff_t len_frac_part = 0;
 
-    if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL, NULL)
     while isspace(*curr_char) {
         curr_char++;
     }
-    if (*curr_char == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL, NULL)
+    if (*curr_char == 0) return FPDEC_INVALID_DECIMAL_LITERAL;
 
-    result = malloc(offsetof(dec_repr_t, coeff) + n_chars);
-    if (result == NULL) MEMERROR(NULL)
     result->negative = false;
     result->exp = 0;
     result->n_dec_digits = 0;
@@ -95,9 +86,9 @@ parse_ascii_dec_literal(const char *literal) {
         if (*int_part == '0') {
             signif_int_part = int_part;
             len_int_part = 1;
-        } else {
-            FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
         }
+        else
+            return FPDEC_INVALID_DECIMAL_LITERAL;
     }
     if (*curr_char == 'e' || *curr_char == 'E') {
         int sign = 1;
@@ -110,9 +101,8 @@ parse_ascii_dec_literal(const char *literal) {
                 curr_char++;
                 break;
             default:
-                if (!isdigit(*curr_char)) {
-                    FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
-                }
+                if (!isdigit(*curr_char))
+                    return FPDEC_INVALID_DECIMAL_LITERAL;
         }
         while isdigit(*curr_char) {
             exp = exp * 10 + (*curr_char - '0');
@@ -123,12 +113,10 @@ parse_ascii_dec_literal(const char *literal) {
     while isspace(*curr_char) {
         curr_char++;
     }
-    if (*curr_char != 0) {
-        FREE_N_ERROR(result, FPDEC_INVALID_DECIMAL_LITERAL, NULL)
-    }
-    assert(len_int_part + len_frac_part <= n_chars);
+    if (*curr_char != 0)
+        return FPDEC_INVALID_DECIMAL_LITERAL;
     fill_in_digits(result, signif_int_part, len_int_part);
     fill_in_digits(result, frac_part, len_frac_part);
     result->exp -= len_frac_part;
-    return result;
+    return FPDEC_OK;
 }
