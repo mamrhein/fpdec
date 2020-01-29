@@ -12,6 +12,7 @@ $Source$
 $Revision$
 */
 
+#include <cstdio>
 #include <vector>
 
 #include "catch.hpp"
@@ -102,7 +103,7 @@ TEST_CASE("Initialize from string") {
         for (const auto &test : tests) {
             fpdec_t fpdec = FPDEC_ZERO;
             const char *literal = test.literal.c_str();
-            int rc = fpdec_from_ascii_literal(&fpdec, literal);
+            error_t rc = fpdec_from_ascii_literal(&fpdec, literal);
 
             SECTION(test.literal) {
                 REQUIRE(rc == FPDEC_OK);
@@ -161,7 +162,7 @@ TEST_CASE("Initialize from string") {
         for (const auto &test : tests) {
             fpdec_t fpdec = FPDEC_ZERO;
             const char *literal = test.literal.c_str();
-            int rc = fpdec_from_ascii_literal(&fpdec, literal);
+            error_t rc = fpdec_from_ascii_literal(&fpdec, literal);
 
             SECTION(test.literal) {
                 REQUIRE(rc == FPDEC_OK);
@@ -191,6 +192,36 @@ TEST_CASE("Initialize from string") {
                 REQUIRE(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
                         FPDEC_INVALID_DECIMAL_LITERAL);
             }
+        }
+    }
+}
+
+TEST_CASE("Initialize from long long.") {
+
+    long long test_vals[4] = {INT64_MIN, -290382, 0, INT64_MAX};
+    char buf[30];
+
+    for (long long test_val : test_vals) {
+        snprintf(reinterpret_cast<char *>(&buf), 30, "%lld", test_val);
+        fpdec_t fpdec = FPDEC_ZERO;
+        error_t rc = fpdec_from_long_long(&fpdec, test_val);
+        long long abs_val = std::abs(test_val);
+        fpdec_sign_t sign;
+
+        if (test_val == 0)
+            sign = FPDEC_SIGN_ZERO;
+        else if (test_val > 0)
+            sign = FPDEC_SIGN_POS;
+        else
+            sign = FPDEC_SIGN_NEG;
+
+        SECTION(buf) {
+            REQUIRE(rc == FPDEC_OK);
+            REQUIRE(is_shint(&fpdec));
+            REQUIRE(FPDEC_SIGN(&fpdec) == sign);
+            REQUIRE(FPDEC_DEC_PREC(&fpdec) == 0);
+            REQUIRE(fpdec.lo == abs_val);
+            REQUIRE(fpdec.hi == 0);
         }
     }
 }
