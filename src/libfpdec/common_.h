@@ -47,9 +47,11 @@ typedef struct _it_t {
 *****************************************************************************/
 
 // error return
-#define ERROR(err, retval) {errno = err; return retval;}
-#define MEMERROR(retval) ERROR(ENOMEM, retval)
-#define FREE_N_ERROR(buf, err, retval) {free(buf); ERROR(err, retval)}
+#define ERROR(err) {errno = err; return err;}
+#define ERROR_RETVAL(err, retval) {errno = err; return retval;}
+#define MEMERROR ERROR(ENOMEM)
+#define MEMERROR_RETVAL(retval) ERROR(ENOMEM, retval)
+#define FREE_N_ERROR(buf, err) {free(buf); ERROR(err)}
 
 // max / min
 #define MAX(a, b) (a >= b ? a : b)

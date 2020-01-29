@@ -57,17 +57,16 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     size_t n_add_zeros, n_dec_digits;
     error_t rc;
 
-    if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL,
-                            FPDEC_INVALID_DECIMAL_LITERAL)
+    if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
 
     if (n_chars <= COEFF_SIZE_THRESHOLD) {
         dec_repr = &st_dec_repr;
     } else {
         dec_repr = malloc(offsetof(dec_repr_t, coeff) + n_chars);
-        if (dec_repr == NULL) MEMERROR(ENOMEM)
+        if (dec_repr == NULL) MEMERROR
     }
     rc = parse_ascii_dec_literal(dec_repr, literal);
-    if (rc != FPDEC_OK) ERROR(rc, rc)
+    if (rc != FPDEC_OK) ERROR(rc)
     fpdec->sign = dec_repr->negative ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;

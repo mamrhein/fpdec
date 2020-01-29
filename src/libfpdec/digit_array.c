@@ -98,7 +98,7 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
 
     n_digits = CEIL(n_dec_digits, DEC_DIGITS_PER_DIGIT);
     *digit_array = digits_alloc(n_digits);
-    if (*digit_array == NULL) MEMERROR(ENOMEM)
+    if (*digit_array == NULL) MEMERROR
 
     *exp = FLOOR(dec_exp, DEC_DIGITS_PER_DIGIT);
     n_dec_shift = MOD(dec_exp, DEC_DIGITS_PER_DIGIT);
