@@ -14,6 +14,7 @@ $Source$
 $Revision$
 */
 
+#include <assert.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>
@@ -23,6 +24,19 @@ $Revision$
 #include "parser.h"
 #include "shifted_int_.h"
 
+
+/*****************************************************************************
+*  Macros
+*****************************************************************************/
+
+#define FPDEC_IS_ZEROED(fpdec) (!FPDEC_IS_DYN_ALLOC(fpdec) && \
+                                !FPDEC_IS_NORMALIZED(fpdec) && \
+                                FPDEC_SIGN(fpdec) == 0 && \
+                                FPDEC_DEC_PREC(fpdec) == 0 && \
+                                ((fpdec_t*)fpdec)->hi == 0 && \
+                                ((fpdec_t*)fpdec)->lo == 0)
+
+#define ASSERT_FPDEC_IS_ZEROED(fpdec) assert(FPDEC_IS_ZEROED(fpdec))
 
 /*****************************************************************************
 *  Functions
@@ -57,6 +71,8 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     size_t n_add_zeros, n_dec_digits;
     error_t rc;
 
+    ASSERT_FPDEC_IS_ZEROED(fpdec);
+
     if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
 
     if (n_chars <= COEFF_SIZE_THRESHOLD) {
@@ -67,6 +83,7 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     }
     rc = parse_ascii_dec_literal(dec_repr, literal);
     if (rc != FPDEC_OK) ERROR(rc)
+
     fpdec->sign = dec_repr->negative ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
