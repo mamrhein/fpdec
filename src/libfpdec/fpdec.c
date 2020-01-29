@@ -114,6 +114,21 @@ EXIT:
     return rc;
 }
 
+error_t
+fpdec_from_long_long(fpdec_t *fpdec, const long long val) {
+    ASSERT_FPDEC_IS_ZEROED(fpdec);
+
+    if (val > 0) {
+        fpdec->sign = FPDEC_SIGN_POS;
+        fpdec->lo = val;
+    }
+    else if (val < 0) {
+        fpdec->sign = FPDEC_SIGN_NEG;
+        fpdec->lo = -val;
+    }
+    return FPDEC_OK;
+}
+
 // Deallocator
 
 void
