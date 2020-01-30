@@ -17,17 +17,17 @@ $Revision$
 
 #include "fpdec.h"
 
-bool
+static inline bool
 is_shint(fpdec_t *fpdec) {
     return !(fpdec->dyn_alloc && fpdec->normalized);
 }
 
-bool
+static inline bool
 is_digit_array(fpdec_t *fpdec) {
     return (fpdec->dyn_alloc && fpdec->normalized);
 }
 
-bool check_normalized(fpdec_t *fpdec) {
+static inline bool check_normalized(fpdec_t *fpdec) {
     fpdec_digit_array_t *digit_array = fpdec->digit_array;
     fpdec_n_digits_t n_signif = digit_array->n_signif;
     return n_signif == 0 ||
