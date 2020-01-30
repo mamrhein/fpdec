@@ -129,6 +129,19 @@ fpdec_from_long_long(fpdec_t *fpdec, const long long val) {
     return FPDEC_OK;
 }
 
+// converter
+
+error_t
+fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
+    *fpdec = *src;
+    if (src->dyn_alloc) {
+        fpdec->digit_array = digits_copy(src->digit_array);
+        if (fpdec->digit_array == NULL) MEMERROR
+    }
+    fpdec->sign = -src->sign;
+    return FPDEC_OK;
+}
+
 // Deallocator
 
 void

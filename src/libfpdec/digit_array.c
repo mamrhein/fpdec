@@ -16,6 +16,7 @@ $Revision$
 #include <assert.h>
 #include <malloc.h>
 #include <stddef.h>
+#include <string.h>
 
 #include "digit_array_.h"
 
@@ -74,7 +75,22 @@ digits_iter_digits(fpdec_digit_array_t *digit_array) {
     return it;
 }
 
-// converter
+// constructors
+
+fpdec_digit_array_t *
+digits_copy(fpdec_digit_array_t *src) {
+    fpdec_digit_array_t *result;
+
+    assert(src != NULL);
+
+    result = digits_alloc(src->n_signif);
+    if (result != NULL) {
+        result->n_signif = src->n_signif;
+        memcpy(result->digits, src->digits,
+               src->n_signif * sizeof(fpdec_digit_t));
+    }
+    return result;
+}
 
 static inline fpdec_digit_t
 dec_digits_to_digit(const dec_digit_t *start, const dec_digit_t *stop) {
