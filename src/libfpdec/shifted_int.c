@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------------------
-Name:        uint96.c
+Name:        shifted_int.c
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-Name:        parser
+Name:        parser.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
