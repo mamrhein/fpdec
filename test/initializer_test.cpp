@@ -17,25 +17,8 @@ $Revision$
 
 #include "catch.hpp"
 #include "fpdec.h"
+#include "checks.hpp"
 
-
-bool
-is_shint(fpdec_t *fpdec) {
-    return !(fpdec->dyn_alloc && fpdec->normalized);
-}
-
-bool
-is_digit_array(fpdec_t *fpdec) {
-    return (fpdec->dyn_alloc && fpdec->normalized);
-}
-
-bool check_normalized(fpdec_t *fpdec) {
-    fpdec_digit_array_t *digit_array = fpdec->digit_array;
-    fpdec_n_digits_t n_signif = digit_array->n_signif;
-    return n_signif == 0 ||
-           (digit_array->digits[0] != 0 &&
-            digit_array->digits[n_signif - 1] != 0);
-}
 
 TEST_CASE("Initialize from string") {
 
