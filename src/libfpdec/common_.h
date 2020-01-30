@@ -46,6 +46,9 @@ typedef struct _it_t {
 *  Macros
 *****************************************************************************/
 
+// limits
+#define FPDEC_DIGIT_MAX UINT64_MAX
+
 // error return
 #define ERROR(err) {errno = err; return err;}
 #define ERROR_RETVAL(err, retval) {errno = err; return retval;}

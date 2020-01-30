@@ -48,9 +48,6 @@ typedef uint32_t fpdec_n_digits_t;
 *  Macros
 *****************************************************************************/
 
-// limits
-#define FPDEC_DIGIT_MAX UINT64_MAX
-
 // sign
 #define FPDEC_SIGN_ZERO 0
 #define FPDEC_SIGN_NEG -1
