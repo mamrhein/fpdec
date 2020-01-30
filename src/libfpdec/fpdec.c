@@ -63,6 +63,16 @@ fpdec_dump(fpdec_t *fpdec) {
 
 // Initializer
 
+static inline error_t
+fpdec_copy(fpdec_t *fpdec, fpdec_t *src) {
+    *fpdec = *src;
+    if (src->dyn_alloc) {
+        fpdec->digit_array = digits_copy(src->digit_array);
+        if (fpdec->digit_array == NULL) return ENOMEM;
+    }
+    return FPDEC_OK;
+}
+
 error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     size_t n_chars = strlen(literal);
@@ -129,15 +139,16 @@ fpdec_from_long_long(fpdec_t *fpdec, const long long val) {
     return FPDEC_OK;
 }
 
-// converter
+// Converter
 
 error_t
 fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
-    *fpdec = *src;
-    if (src->dyn_alloc) {
-        fpdec->digit_array = digits_copy(src->digit_array);
-        if (fpdec->digit_array == NULL) MEMERROR
-    }
+    error_t rc;
+
+    ASSERT_FPDEC_IS_ZEROED(fpdec);
+
+    rc = fpdec_copy(fpdec, src);
+    if (rc == ENOMEM) MEMERROR
     fpdec->sign = -src->sign;
     return FPDEC_OK;
 }
