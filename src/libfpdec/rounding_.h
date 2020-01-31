@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------------------
-Name:        _rnd.h
+Name:        rounding_.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -23,9 +23,68 @@ extern "C" {
 #include "common.h"
 #include "rounding.h"
 
+
+static inline fpdec_digit_t
+round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem,
+         fpdec_digit_t quant, enum FPDEC_ROUNDING_MODE rounding) {
+    fpdec_digit_t tie;
+
+    assert(quant > 0);
+    assert(rem < quant);
+    assert(0 <= rounding && rounding <= FPDEC_MAX_ROUNDING_MODE);
+
+    if (rounding == FPDEC_DEFAULT_ROUNDING_MODE) {
+        rounding = FPDEC_ROUND_HALF_EVEN;
+    }
+
+    switch (rounding) {
+        case FPDEC_ROUND_05UP:
+            // Round down unless last digit is 0 or 5
+            if (quot % 5 == 0)
+                return quant - rem;
+            break;
+        case FPDEC_ROUND_CEILING:
+            // Round towards Infinity (i. e. not towards 0 if non-negative)
+            if (sign >= 0)
+                return quant - rem;
+            break;
+        case FPDEC_ROUND_DOWN:
+            // Round towards 0 (aka truncate)
+            break;
+        case FPDEC_ROUND_FLOOR:
+            // Round towards -Infinity (i.e. not towards 0 if negative)
+            if (sign < 0)
+                return quant - rem;
+            break;
+        case FPDEC_ROUND_HALF_DOWN:
+            // Round 5 down, rest to nearest
+            if (rem > quant >> 1U)
+                return quant - rem;
+            break;
+        case FPDEC_ROUND_HALF_EVEN:
+            // Round 5 to nearest even, rest to nearest
+            tie = quant >> 1U;
+            if (rem > tie || (rem == tie && quot % 2 != 0))
+                return quant - rem;
+            break;
+        case FPDEC_ROUND_HALF_UP:
+            // Round 5 up (away from 0), rest to nearest
+            if (rem >= quant >> 1U)
+                return quant - rem;
+            break;
+        case FPDEC_ROUND_UP:
+            // Round away from 0
+            return quant - rem;
+        default:
+            return 0;
+    }
+    // fall-through: round towards 0
+    return -rem;
+}
+
 fpdec_digit_t
-round_to_multiple(fpdec_sign_t, fpdec_digit_t, fpdec_digit_t,
-                  enum FPDEC_ROUNDING_MODE);
+round_to_multiple(fpdec_sign_t sign, fpdec_digit_t num, fpdec_digit_t quant,
+                  enum FPDEC_ROUNDING_MODE rounding);
 
 #ifdef __cplusplus
 }
