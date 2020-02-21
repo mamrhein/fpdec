@@ -29,7 +29,7 @@ fpdec_get_default_rounding_mode() {
 
 enum FPDEC_ROUNDING_MODE
 fpdec_set_default_rounding_mode(enum FPDEC_ROUNDING_MODE rnd) {
-    assert(rnd > FPDEC_DEFAULT_ROUNDING_MODE);
+    assert(rnd > FPDEC_ROUND_DEFAULT);
     assert(rnd <= FPDEC_MAX_ROUNDING_MODE);
 
     dflt_rounding_mode = rnd;
@@ -38,15 +38,17 @@ fpdec_set_default_rounding_mode(enum FPDEC_ROUNDING_MODE rnd) {
 
 
 fpdec_digit_t
-round_to_multiple(fpdec_sign_t sign, fpdec_digit_t num, fpdec_digit_t quant,
-                  enum FPDEC_ROUNDING_MODE rounding) {
-    fpdec_digit_t quot, rem;
+round_to_multiple(const fpdec_sign_t sign, const fpdec_digit_t num,
+                  const fpdec_digit_t quant,
+                  const enum FPDEC_ROUNDING_MODE rounding) {
+    fpdec_digit_t rem;
 
     rem = num % quant;
     if (rem == 0)
         return num;
     else {
-        quot = num / quant;
-        return num + round_qr(sign, quot, rem, quant, rounding);
+        return num +
+                round_qr(sign, num / quant, rem, quant, rounding) * quant -
+                rem;
     }
 }

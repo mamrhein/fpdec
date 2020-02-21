@@ -33,20 +33,20 @@ round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem,
     assert(rem < quant);
     assert(0 <= rounding && rounding <= FPDEC_MAX_ROUNDING_MODE);
 
-    if (rounding == FPDEC_DEFAULT_ROUNDING_MODE) {
-        rounding = FPDEC_ROUND_HALF_EVEN;
+    if (rounding == FPDEC_ROUND_DEFAULT) {
+        rounding = fpdec_get_default_rounding_mode();
     }
 
     switch (rounding) {
         case FPDEC_ROUND_05UP:
             // Round down unless last digit is 0 or 5
             if (quot % 5 == 0)
-                return quant - rem;
+                return 1;
             break;
         case FPDEC_ROUND_CEILING:
             // Round towards Infinity (i. e. not towards 0 if non-negative)
             if (sign >= 0)
-                return quant - rem;
+                return 1;
             break;
         case FPDEC_ROUND_DOWN:
             // Round towards 0 (aka truncate)
@@ -54,32 +54,32 @@ round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem,
         case FPDEC_ROUND_FLOOR:
             // Round towards -Infinity (i.e. not towards 0 if negative)
             if (sign < 0)
-                return quant - rem;
+                return 1;
             break;
         case FPDEC_ROUND_HALF_DOWN:
             // Round 5 down, rest to nearest
             if (rem > quant >> 1U)
-                return quant - rem;
+                return 1;
             break;
         case FPDEC_ROUND_HALF_EVEN:
             // Round 5 to nearest even, rest to nearest
             tie = quant >> 1U;
             if (rem > tie || (rem == tie && quot % 2 != 0))
-                return quant - rem;
+                return 1;
             break;
         case FPDEC_ROUND_HALF_UP:
             // Round 5 up (away from 0), rest to nearest
             if (rem >= quant >> 1U)
-                return quant - rem;
+                return 1;
             break;
         case FPDEC_ROUND_UP:
             // Round away from 0
-            return quant - rem;
+            return 1;
         default:
             return 0;
     }
     // fall-through: round towards 0
-    return -rem;
+    return 0;
 }
 
 fpdec_digit_t

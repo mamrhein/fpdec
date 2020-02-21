@@ -17,28 +17,28 @@ $Revision$
 #define FPDEC_ROUNDING_H
 
 enum FPDEC_ROUNDING_MODE {
-    // Round away from zero if last digit after rounding towards
-    // zero would have been 0 or 5; otherwise round towards zero.
+        // Use default rounding mode
+        FPDEC_ROUND_DEFAULT = 0,
+        // Round away from zero if last digit after rounding towards
+        // zero would have been 0 or 5; otherwise round towards zero.
         FPDEC_ROUND_05UP = 1,
-    // Round towards Infinity.
+        // Round towards Infinity.
         FPDEC_ROUND_CEILING = 2,
-    // Round towards zero.
+        // Round towards zero.
         FPDEC_ROUND_DOWN = 3,
-    // Round towards -Infinity.
+        // Round towards -Infinity.
         FPDEC_ROUND_FLOOR = 4,
-    // Round to nearest with ties going towards zero.
+        // Round to nearest with ties going towards zero.
         FPDEC_ROUND_HALF_DOWN = 5,
-    // Round to nearest with ties going to nearest even integer.
+        // Round to nearest with ties going to nearest even integer.
         FPDEC_ROUND_HALF_EVEN = 6,
-    // Round to nearest with ties going away from zero.
+        // Round to nearest with ties going away from zero.
         FPDEC_ROUND_HALF_UP = 7,
-    // Round away from zero.
+        // Round away from zero.
         FPDEC_ROUND_UP = 8,
 };
 
-#define FPDEC_DEFAULT_ROUNDING_MODE 0
 #define FPDEC_MAX_ROUNDING_MODE 8
-
 
 enum FPDEC_ROUNDING_MODE fpdec_get_default_rounding_mode();
 
