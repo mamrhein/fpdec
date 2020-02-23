@@ -27,10 +27,11 @@ extern "C" {
 static inline fpdec_digit_t
 round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem,
          fpdec_digit_t divisor, enum FPDEC_ROUNDING_MODE rounding) {
+    const uint64_t max_tie = 0x8000000000000000;
     fpdec_digit_t tie;
 
-    assert(divisor > 0);
-    assert(rem < divisor);
+    // divisor == 0 means divisor == 2^64
+    assert(divisor == 0 || rem < divisor);
     assert(0 <= rounding && rounding <= FPDEC_MAX_ROUNDING_MODE);
 
     if (rounding == FPDEC_ROUND_DEFAULT) {
@@ -58,18 +59,21 @@ round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem,
             break;
         case FPDEC_ROUND_HALF_DOWN:
             // Round 5 down, rest to nearest
-            if (rem > divisor >> 1U)
+            tie = divisor > 0 ? divisor >> 1U : max_tie;
+            if (rem > tie) {
                 return 1;
+            }
             break;
         case FPDEC_ROUND_HALF_EVEN:
             // Round 5 to nearest even, rest to nearest
-            tie = divisor >> 1U;
+            tie = divisor > 0 ? divisor >> 1U : max_tie;
             if (rem > tie || (rem == tie && quot % 2 != 0))
                 return 1;
             break;
         case FPDEC_ROUND_HALF_UP:
             // Round 5 up (away from 0), rest to nearest
-            if (rem >= divisor >> 1U)
+            tie = divisor > 0 ? divisor >> 1U : max_tie;
+            if (rem >= tie)
                 return 1;
             break;
         case FPDEC_ROUND_UP:
