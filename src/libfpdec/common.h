@@ -44,6 +44,12 @@ typedef uint64_t fpdec_digit_t;
 // digit counter
 typedef uint32_t fpdec_n_digits_t;
 
+// large unsigned int
+typedef struct {
+    uint64_t lo;
+    uint64_t hi;
+} uint128_t;
+
 /*****************************************************************************
 *  Macros
 *****************************************************************************/

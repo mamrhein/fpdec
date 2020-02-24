@@ -91,6 +91,7 @@ typedef struct {
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
 
+// TODO: rename to FPDEC_ITER_DIGITS
 #define FPDEC_DIGITS(fpdec) \
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             digits_iter_digits(fpdec->digit_array) : \
@@ -142,10 +143,14 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
 error_t
 fpdec_from_long_long(fpdec_t *fpdec, long long val);
 
-// converter
+// Converter
 
 error_t
 fpdec_neg(fpdec_t *fpdec, fpdec_t *src);
+
+error_t
+fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src, fpdec_dec_prec_t dec_prec,
+               enum FPDEC_ROUNDING_MODE rounding);
 
 // Deallocator
 

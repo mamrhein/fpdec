@@ -23,11 +23,16 @@ $Revision$
 #include "digit_array_.h"
 #include "parser.h"
 #include "shifted_int_.h"
+#include "rounding_.h"
 
 
 /*****************************************************************************
 *  Macros
 *****************************************************************************/
+
+#define FPDEC_DYN_EXP(fpdec) (((fpdec_t*)fpdec)->exp)
+
+#define FPDEC_DYN_N_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->n_signif)
 
 #define FPDEC_IS_ZEROED(fpdec) (!FPDEC_IS_DYN_ALLOC(fpdec) && \
                                 !FPDEC_IS_NORMALIZED(fpdec) && \
@@ -64,7 +69,7 @@ fpdec_dump(fpdec_t *fpdec) {
 // Initializer
 
 static inline error_t
-fpdec_copy(fpdec_t *fpdec, fpdec_t *src) {
+fpdec_copy(fpdec_t *fpdec, const fpdec_t *src) {
     *fpdec = *src;
     if (src->dyn_alloc) {
         fpdec->digit_array = digits_copy(src->digit_array);
@@ -87,7 +92,8 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
 
     if (n_chars <= COEFF_SIZE_THRESHOLD) {
         dec_repr = &st_dec_repr;
-    } else {
+    }
+    else {
         dec_repr = malloc(offsetof(dec_repr_t, coeff) + n_chars);
         if (dec_repr == NULL) MEMERROR
     }
@@ -150,6 +156,112 @@ fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
     rc = fpdec_copy(fpdec, src);
     if (rc == ENOMEM) MEMERROR
     fpdec->sign = -src->sign;
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_dyn_from_shint(fpdec_t *fpdec, const fpdec_t *src) {
+    uint128_t t = {src->lo, src->hi};
+    fpdec_dec_prec_t prec = FPDEC_DEC_PREC(src);
+    fpdec_digit_t digits[3];
+    error_t rc;
+
+    assert(!FPDEC_IS_DYN_ALLOC(src));
+
+    shint_to_digits(digits, 3, RADIX, src->lo, src->hi, prec);
+    rc = digits_from_digits(&fpdec->digit_array, digits, 3);
+    if (rc == FPDEC_OK) {
+        fpdec->dyn_alloc = true;
+        fpdec->normalized = true;
+        FPDEC_SIGN(fpdec) = FPDEC_SIGN(src);
+        FPDEC_DEC_PREC(fpdec) = prec;
+    }
+    return rc;
+}
+
+error_t
+fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
+               const fpdec_dec_prec_t dec_prec,
+               const enum FPDEC_ROUNDING_MODE rounding) {
+    error_t rc;
+
+    ASSERT_FPDEC_IS_ZEROED(fpdec);
+
+    rc = fpdec_copy(fpdec, src);
+    if (rc == ENOMEM) MEMERROR
+
+    if (FPDEC_DEC_PREC(fpdec) == dec_prec)
+        return FPDEC_OK;
+
+    if (FPDEC_IS_DYN_ALLOC(fpdec)) {
+        size_t radix_point_at = -FPDEC_DYN_EXP(fpdec) * DEC_DIGITS_PER_DIGIT;
+        if (dec_prec <= FPDEC_DEC_PREC(fpdec) && dec_prec < radix_point_at) {
+            // need to shorten / round digits
+            size_t dec_shift = radix_point_at - dec_prec;
+            if (dec_shift >
+                    FPDEC_DYN_N_DIGITS(fpdec) * DEC_DIGITS_PER_DIGIT) {
+                fpdec_digit_t quant;
+                FPDEC_DYN_EXP(fpdec) += dec_shift / DEC_DIGITS_PER_DIGIT;
+                dec_shift %= DEC_DIGITS_PER_DIGIT;
+                quant = _10_POW_N(dec_shift);
+                if (round_qr(FPDEC_SIGN(fpdec), 0UL, 1UL, quant,
+                             rounding) == 0UL) {
+                    FPDEC_DYN_N_DIGITS(fpdec) = 0;
+                }
+                else {
+                    FPDEC_DYN_N_DIGITS(fpdec) = 1;
+                    fpdec->digit_array->digits[0] = quant;
+                }
+            }
+            else {
+                bool carry = digits_round(fpdec->digit_array,
+                                          FPDEC_SIGN(fpdec),
+                                          dec_shift, rounding);
+                if (carry) {
+                    // total carry-over
+                    FPDEC_DYN_EXP(fpdec) += FPDEC_DYN_N_DIGITS(fpdec);
+                    fpdec->digit_array->digits[0] = 1UL;
+                    FPDEC_DYN_N_DIGITS(fpdec) = 1;
+                }
+                else {
+                    FPDEC_DYN_EXP(fpdec) +=
+                            digits_eliminate_trailing_zeros(
+                                    fpdec->digit_array);
+                }
+            }
+            if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
+                fpdec_dealloc(fpdec);
+                // *fpdec = FPDEC_ZERO
+            }
+            // else {
+            // TODO: try to transform result to shifted int
+            // }
+        }
+    }
+    else {
+        int dec_shift = dec_prec - FPDEC_DEC_PREC(fpdec);
+        uint128_t shifted = {fpdec->lo, fpdec->hi};
+        u128_idecshift(&shifted, FPDEC_SIGN(fpdec), dec_shift, rounding);
+        if (!U128_FITS_SHINT(shifted)) {
+            fpdec_t dyn_src;
+            rc = fpdec_dyn_from_shint(&dyn_src, src);
+            if (rc != FPDEC_OK)
+                return rc;
+            return fpdec_adjusted(fpdec, &dyn_src, dec_prec, rounding);
+        }
+        else {
+            if (shifted.lo > 0 || shifted.hi > 0) {
+                fpdec->lo = shifted.lo;
+                fpdec->hi = shifted.hi;
+            }
+            else {
+                FPDEC_SIGN(fpdec) = FPDEC_SIGN_ZERO;
+                fpdec->lo = 0;
+                fpdec->hi = 0;
+            }
+        }
+    }
+    FPDEC_DEC_PREC(fpdec) = dec_prec;
     return FPDEC_OK;
 }
 

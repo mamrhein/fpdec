@@ -20,6 +20,7 @@ $Revision$
 #include "common_.h"
 #include "digit_array.h"
 #include "fpdec.h"
+#include "rounding.h"
 
 
 /*****************************************************************************
@@ -34,17 +35,17 @@ $Revision$
 *  Functions
 *****************************************************************************/
 
-// digit getter
+// Digit getter
 
 fpdec_digit_t
 digits_get_digit(fpdec_digit_array_t *digit_array, fpdec_n_digits_t idx);
 
-// digit iterator
+// Digit iterator
 
 digit_iter
 digits_iter_digits(fpdec_digit_array_t *digit_array);
 
-// constructors
+// Constructors
 
 fpdec_digit_array_t *
 digits_copy(fpdec_digit_array_t *src);
@@ -53,5 +54,20 @@ error_t
 digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
                           size_t n_dec_digits, const dec_digit_t *coeff,
                           int dec_exp);
+
+error_t
+digits_from_digits(fpdec_digit_array_t **digit_array,
+                   const fpdec_digit_t *digits, size_t n_digits);
+
+// Normalization
+
+fpdec_n_digits_t
+digits_eliminate_trailing_zeros(fpdec_digit_array_t *digit_array);
+
+// Rounding
+
+bool
+digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
+             size_t n_dec_shift, enum FPDEC_ROUNDING_MODE rounding);
 
 #endif //FPDEC_DIGIT_ARRAY__H
