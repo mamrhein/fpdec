@@ -1109,17 +1109,35 @@ TEST_CASE("Adjust presision") {
                 },
         };
 
-        for (
-            const auto &test
-                : tests) {
+        for (const auto &test : tests) {
             const char *literal = test.literal.c_str();
             SECTION(test.literal) {
                 check_adjusted_shint(FPDEC_ROUND_DEFAULT, literal,
-                                     test
-                                             .dec_prec, test.digits);
+                                     test.dec_prec, test.digits);
             }
         }
     } // end SECTION("Digit array to shifted int")
+
+    SECTION("Shifted int to digit array") {
+
+        struct test_data tests[1] = {
+                {
+                        .literal = "999999999999999999999999.99999",
+                        .dec_prec = 4,
+                        .exp = 1,
+                        .digits = {100000UL}
+                },
+        };
+
+        for (const auto &test : tests) {
+            const char *literal = test.literal.c_str();
+            SECTION(test.literal) {
+                check_adjusted_digit_array(FPDEC_ROUND_DEFAULT, literal,
+                                           test.dec_prec, test.exp,
+                                           test.digits);
+            }
+        }
+    } // end SECTION("Shifted int to digit array")
 }
 
 void
