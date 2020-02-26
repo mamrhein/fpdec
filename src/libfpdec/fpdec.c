@@ -25,7 +25,6 @@ $Revision$
 #include "shifted_int_.h"
 #include "rounding_.h"
 
-
 /*****************************************************************************
 *  Macros
 *****************************************************************************/
@@ -42,6 +41,9 @@ $Revision$
                                 ((fpdec_t*)fpdec)->lo == 0)
 
 #define ASSERT_FPDEC_IS_ZEROED(fpdec) assert(FPDEC_IS_ZEROED(fpdec))
+
+#define DISPATCH_FUNC(vtab, fpdec, ...) \
+        (vtab[FPDEC_IS_DYN_ALLOC(fpdec)])(fpdec, __VA_ARGS__)
 
 /*****************************************************************************
 *  Functions
@@ -258,6 +260,12 @@ fpdec_shint_adjust_to_prec(fpdec_t *fpdec,
     return FPDEC_OK;
 }
 
+typedef error_t (*v_adjust_to_prec)(fpdec_t *, fpdec_dec_prec_t,
+                                    enum FPDEC_ROUNDING_MODE);
+
+const v_adjust_to_prec vtab_adjust_to_prec[2] = {fpdec_shint_adjust_to_prec,
+                                                 fpdec_dyn_adjust_to_prec};
+
 error_t
 fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
                const fpdec_dec_prec_t dec_prec,
@@ -272,12 +280,7 @@ fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
     if (FPDEC_DEC_PREC(fpdec) == dec_prec)
         return FPDEC_OK;
 
-    if (FPDEC_IS_DYN_ALLOC(fpdec)) {
-        return fpdec_dyn_adjust_to_prec(fpdec, dec_prec, rounding);
-    }
-    else {
-        return fpdec_shint_adjust_to_prec(fpdec, dec_prec, rounding);
-    }
+    return DISPATCH_FUNC(vtab_adjust_to_prec, fpdec, dec_prec, rounding);
 }
 
 // Deallocator
