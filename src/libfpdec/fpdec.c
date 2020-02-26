@@ -160,23 +160,102 @@ fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
 }
 
 static error_t
-fpdec_dyn_from_shint(fpdec_t *fpdec, const fpdec_t *src) {
-    uint128_t t = {src->lo, src->hi};
-    fpdec_dec_prec_t prec = FPDEC_DEC_PREC(src);
+fpdec_shint_to_dyn(fpdec_t *fpdec) {
     fpdec_digit_t digits[3];
     error_t rc;
 
-    assert(!FPDEC_IS_DYN_ALLOC(src));
+    assert(!FPDEC_IS_DYN_ALLOC(fpdec));
 
-    shint_to_digits(digits, 3, RADIX, src->lo, src->hi, prec);
+    shint_to_digits(digits, 3, RADIX, fpdec->lo, fpdec->hi,
+                    FPDEC_DEC_PREC(fpdec));
     rc = digits_from_digits(&fpdec->digit_array, digits, 3);
     if (rc == FPDEC_OK) {
         fpdec->dyn_alloc = true;
         fpdec->normalized = true;
-        FPDEC_SIGN(fpdec) = FPDEC_SIGN(src);
-        FPDEC_DEC_PREC(fpdec) = prec;
+        fpdec->exp = -CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
     }
     return rc;
+}
+
+static error_t
+fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
+                         const fpdec_dec_prec_t dec_prec,
+                         const enum FPDEC_ROUNDING_MODE rounding) {
+    size_t radix_point_at = -FPDEC_DYN_EXP(fpdec) * DEC_DIGITS_PER_DIGIT;
+    if (dec_prec <= FPDEC_DEC_PREC(fpdec) && dec_prec < radix_point_at) {
+        // need to shorten / round digits
+        size_t dec_shift = radix_point_at - dec_prec;
+        if (dec_shift >
+                FPDEC_DYN_N_DIGITS(fpdec) * DEC_DIGITS_PER_DIGIT) {
+            fpdec_digit_t quant;
+            FPDEC_DYN_EXP(fpdec) += dec_shift / DEC_DIGITS_PER_DIGIT;
+            dec_shift %= DEC_DIGITS_PER_DIGIT;
+            quant = _10_POW_N(dec_shift);
+            if (round_qr(FPDEC_SIGN(fpdec), 0UL, 0UL, true, quant,
+                         rounding) == 0UL) {
+                FPDEC_DYN_N_DIGITS(fpdec) = 0;
+            }
+            else {
+                FPDEC_DYN_N_DIGITS(fpdec) = 1;
+                fpdec->digit_array->digits[0] = quant;
+            }
+        }
+        else {
+            bool carry = digits_round(fpdec->digit_array,
+                                      FPDEC_SIGN(fpdec),
+                                      dec_shift, rounding);
+            if (carry) {
+                // total carry-over
+                FPDEC_DYN_EXP(fpdec) += FPDEC_DYN_N_DIGITS(fpdec);
+                fpdec->digit_array->digits[0] = 1UL;
+                FPDEC_DYN_N_DIGITS(fpdec) = 1;
+            }
+            else {
+                FPDEC_DYN_EXP(fpdec) +=
+                        digits_eliminate_trailing_zeros(
+                                fpdec->digit_array);
+            }
+        }
+        if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
+            fpdec_dealloc(fpdec);
+            // *fpdec = FPDEC_ZERO
+        }
+        // else {
+        // TODO: try to transform result to shifted int
+        // }
+    }
+    FPDEC_DEC_PREC(fpdec) = dec_prec;
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_shint_adjust_to_prec(fpdec_t *fpdec,
+                           const fpdec_dec_prec_t dec_prec,
+                           const enum FPDEC_ROUNDING_MODE rounding) {
+    error_t rc;
+    int dec_shift = dec_prec - FPDEC_DEC_PREC(fpdec);
+    uint128_t shifted = {fpdec->lo, fpdec->hi};
+
+    u128_idecshift(&shifted, FPDEC_SIGN(fpdec), dec_shift, rounding);
+    if (!U128_FITS_SHINT(shifted)) {
+        rc = fpdec_shint_to_dyn(fpdec);
+        if (rc != FPDEC_OK)
+            return rc;
+        return fpdec_dyn_adjust_to_prec(fpdec, dec_prec, rounding);
+    }
+    else {
+        if (shifted.lo > 0 || shifted.hi > 0) {
+            fpdec->lo = shifted.lo;
+            fpdec->hi = shifted.hi;
+        }
+        else {
+            FPDEC_SIGN(fpdec) = FPDEC_SIGN_ZERO;
+            fpdec->lo = 0;
+            fpdec->hi = 0;
+        }
+    }
+    FPDEC_DEC_PREC(fpdec) = dec_prec;
+    return FPDEC_OK;
 }
 
 error_t
@@ -194,75 +273,11 @@ fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
         return FPDEC_OK;
 
     if (FPDEC_IS_DYN_ALLOC(fpdec)) {
-        size_t radix_point_at = -FPDEC_DYN_EXP(fpdec) * DEC_DIGITS_PER_DIGIT;
-        if (dec_prec <= FPDEC_DEC_PREC(fpdec) && dec_prec < radix_point_at) {
-            // need to shorten / round digits
-            size_t dec_shift = radix_point_at - dec_prec;
-            if (dec_shift >
-                    FPDEC_DYN_N_DIGITS(fpdec) * DEC_DIGITS_PER_DIGIT) {
-                fpdec_digit_t quant;
-                FPDEC_DYN_EXP(fpdec) += dec_shift / DEC_DIGITS_PER_DIGIT;
-                dec_shift %= DEC_DIGITS_PER_DIGIT;
-                quant = _10_POW_N(dec_shift);
-                if (round_qr(FPDEC_SIGN(fpdec), 0UL, 0UL, true, quant,
-                             rounding) == 0UL) {
-                    FPDEC_DYN_N_DIGITS(fpdec) = 0;
-                }
-                else {
-                    FPDEC_DYN_N_DIGITS(fpdec) = 1;
-                    fpdec->digit_array->digits[0] = quant;
-                }
-            }
-            else {
-                bool carry = digits_round(fpdec->digit_array,
-                                          FPDEC_SIGN(fpdec),
-                                          dec_shift, rounding);
-                if (carry) {
-                    // total carry-over
-                    FPDEC_DYN_EXP(fpdec) += FPDEC_DYN_N_DIGITS(fpdec);
-                    fpdec->digit_array->digits[0] = 1UL;
-                    FPDEC_DYN_N_DIGITS(fpdec) = 1;
-                }
-                else {
-                    FPDEC_DYN_EXP(fpdec) +=
-                            digits_eliminate_trailing_zeros(
-                                    fpdec->digit_array);
-                }
-            }
-            if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
-                fpdec_dealloc(fpdec);
-                // *fpdec = FPDEC_ZERO
-            }
-            // else {
-            // TODO: try to transform result to shifted int
-            // }
-        }
+        return fpdec_dyn_adjust_to_prec(fpdec, dec_prec, rounding);
     }
     else {
-        int dec_shift = dec_prec - FPDEC_DEC_PREC(fpdec);
-        uint128_t shifted = {fpdec->lo, fpdec->hi};
-        u128_idecshift(&shifted, FPDEC_SIGN(fpdec), dec_shift, rounding);
-        if (!U128_FITS_SHINT(shifted)) {
-            fpdec_t dyn_src;
-            rc = fpdec_dyn_from_shint(&dyn_src, src);
-            if (rc != FPDEC_OK)
-                return rc;
-            return fpdec_adjusted(fpdec, &dyn_src, dec_prec, rounding);
-        }
-        else {
-            if (shifted.lo > 0 || shifted.hi > 0) {
-                fpdec->lo = shifted.lo;
-                fpdec->hi = shifted.hi;
-            }
-            else {
-                FPDEC_SIGN(fpdec) = FPDEC_SIGN_ZERO;
-                fpdec->lo = 0;
-                fpdec->hi = 0;
-            }
-        }
+        return fpdec_shint_adjust_to_prec(fpdec, dec_prec, rounding);
     }
-    FPDEC_DEC_PREC(fpdec) = dec_prec;
-    return FPDEC_OK;
 }
 
 // Deallocator
