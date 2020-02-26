@@ -38,17 +38,14 @@ fpdec_set_default_rounding_mode(enum FPDEC_ROUNDING_MODE rnd) {
 
 
 fpdec_digit_t
-round_to_multiple(const fpdec_sign_t sign, const fpdec_digit_t num,
-                  const fpdec_digit_t quant,
-                  const enum FPDEC_ROUNDING_MODE rounding) {
+round_to_multiple(fpdec_sign_t sign, fpdec_digit_t num, bool delta,
+                  fpdec_digit_t quant, enum FPDEC_ROUNDING_MODE rounding) {
     fpdec_digit_t rem;
 
     rem = num % quant;
-    if (rem == 0)
+    if (rem == 0 && !delta)
         return num;
-    else {
-        return num +
-                round_qr(sign, num / quant, rem, quant, rounding) * quant -
-                rem;
-    }
+    else
+        return num - rem + quant *
+                round_qr(sign, num / quant, rem, delta, quant, rounding);
 }

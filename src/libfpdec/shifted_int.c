@@ -410,7 +410,7 @@ u128_idivr_10_pow_n(uint128_t *x, const fpdec_sign_t sign, const uint8_t n,
             rem = x->lo % divisor;
             x->lo /= divisor;
     }
-    if (round_qr(sign, x->lo, rem, divisor, rounding) > 0) {
+    if (round_qr(sign, x->lo, rem, false, divisor, rounding) > 0) {
         u128_incr(x);
     }
 }

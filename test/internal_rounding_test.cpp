@@ -23,10 +23,10 @@ void check_rounding(fpdec_digit_t num, fpdec_digit_t quant,
                     enum FPDEC_ROUNDING_MODE rnd, fpdec_digit_t res_neg,
                     fpdec_digit_t res_pos) {
     //SECTION("neg") {
-        REQUIRE(round_to_multiple(-1, num, quant, rnd) == res_neg);
+        REQUIRE(round_to_multiple(-1, num, false, quant, rnd) == res_neg);
     //}
     //SECTION("pos") {
-        REQUIRE(round_to_multiple(1, num, quant, rnd) == res_pos);
+        REQUIRE(round_to_multiple(1, num, false, quant, rnd) == res_pos);
     //}
 }
 

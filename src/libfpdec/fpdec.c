@@ -204,7 +204,7 @@ fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
                 FPDEC_DYN_EXP(fpdec) += dec_shift / DEC_DIGITS_PER_DIGIT;
                 dec_shift %= DEC_DIGITS_PER_DIGIT;
                 quant = _10_POW_N(dec_shift);
-                if (round_qr(FPDEC_SIGN(fpdec), 0UL, 1UL, quant,
+                if (round_qr(FPDEC_SIGN(fpdec), 0UL, 0UL, true, quant,
                              rounding) == 0UL) {
                     FPDEC_DYN_N_DIGITS(fpdec) = 0;
                 }

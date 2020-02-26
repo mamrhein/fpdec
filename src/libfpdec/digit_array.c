@@ -210,7 +210,6 @@ digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
     fpdec_n_digits_t digit_idx;
     fpdec_digit_t *digit;
     size_t n_dec_digits;
-    fpdec_digit_t quot;
 
     assert(digit_array->n_signif > 0);
     assert(n_dec_shift > 0);
@@ -223,19 +222,20 @@ digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
     n_dec_digits = MOD(n_dec_shift, DEC_DIGITS_PER_DIGIT);
     if (n_dec_digits == 0) {
         // need to round the previous digit ...
-        if (!digits_all_zero(digit_array->digits, digit_idx)) {
-            // ... but only if there is a remainder
-            quot = (digit_idx < digit_array->n_signif) ? *digit : 0;
-            digit_idx--;
-            digit--;
-            if (*digit == 0)
-                (*digit)++;
-            *digit = round_qr(sign, quot, *digit, RADIX, rounding) * RADIX;
+        fpdec_digit_t quot = (digit_idx < digit_array->n_signif) ? *digit : 0;
+        digit--;
+        digit_idx--;
+        // ... but only if there is a remainder
+        if (*digit != 0 || digit_idx > 0) {
+            *digit = RADIX * round_qr(sign, quot, *digit, digit_idx > 0,
+                                      RADIX, rounding);
         }
     }
-    else
-        *digit = round_to_multiple(sign, *digit, _10_POW_N(n_dec_digits),
+    else {
+        *digit = round_to_multiple(sign, *digit, digit_idx > 0,
+                                   _10_POW_N(n_dec_digits),
                                    rounding);
+    }
     // set all skiped digits to zero
     if (digit_idx > 0)
         digits_set_zero(digit_array->digits, digit_idx);
