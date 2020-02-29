@@ -140,19 +140,19 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
     chunk_start = MAX(chunk_stop + n_dec_shift - DEC_DIGITS_PER_DIGIT, coeff);
     while (chunk_stop > coeff) {
         *digit = dec_digits_to_digit(chunk_start, chunk_stop);
-        if (*digit == 0) {
-            (*exp)++;
-            n_digits--;
-        }
-        else {
-            digit++;
-        }
+        digit++;
         chunk_stop = chunk_start;
         chunk_start = MAX(chunk_start - DEC_DIGITS_PER_DIGIT, coeff);
     }
     // least significant digit to be shifted?
     if (n_dec_shift > 0) {
         (*digit_array)->digits[0] *= _10_POW_N(n_dec_shift);
+    }
+    // cut-off leading zeroes
+    digit = (*digit_array)->digits + n_digits - 1;
+    while (n_digits > 0 && *digit == 0) {
+        n_digits--;
+        digit--;
     }
     (*digit_array)->n_signif = n_digits;
     return FPDEC_OK;
