@@ -91,8 +91,7 @@ typedef struct {
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
 
-// TODO: rename to FPDEC_ITER_DIGITS
-#define FPDEC_DIGITS(fpdec) \
+#define FPDEC_ITER_DIGITS(fpdec) \
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             digits_iter_digits(fpdec->digit_array) : \
             shint_iter_digits(fpdec->lo, fpdec->hi))

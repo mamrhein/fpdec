@@ -65,7 +65,7 @@ $Revision$
 
 void
 fpdec_dump(fpdec_t *fpdec) {
-    digit_iter it = FPDEC_DIGITS(fpdec);
+    digit_iter it = FPDEC_ITER_DIGITS(fpdec);
 
     printf("flags:\n  dyn_alloc: %d\n  normalized: %d\n",
            FPDEC_IS_DYN_ALLOC(fpdec), FPDEC_IS_NORMALIZED(fpdec));
