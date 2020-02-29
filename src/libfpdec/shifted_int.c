@@ -30,7 +30,7 @@ $Revision$
 // Bit arithmetic
 
 static inline unsigned
-u64_most_signif_bit(uint64_t x) {
+u64_most_signif_bit_pos(uint64_t x) {
     unsigned n = 0;
     uint64_t t = x >> 32U;
     if (t != 0) {
@@ -75,7 +75,7 @@ u128_n_signif_u32(const uint128_t *x) {
 static inline unsigned
 u64_n_leading_0_bits(uint64_t x) {
     if (x == 0) return 64;
-    return 64 - u64_most_signif_bit(x);
+    return 64 - u64_most_signif_bit_pos(x);
 }
 
 static inline void
