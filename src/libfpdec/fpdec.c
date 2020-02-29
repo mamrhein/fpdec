@@ -33,6 +33,11 @@ $Revision$
 
 #define FPDEC_DYN_N_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->n_signif)
 
+#define FPDEC_DYN_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->digits)
+
+#define FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) \
+        (FPDEC_DYN_DIGITS(fpdec)[FPDEC_DYN_N_DIGITS(fpdec) - 1])
+
 #define FPDEC_IS_ZEROED(fpdec) (!FPDEC_IS_DYN_ALLOC(fpdec) && \
                                 !FPDEC_IS_NORMALIZED(fpdec) && \
                                 FPDEC_SIGN(fpdec) == 0 && \
@@ -42,8 +47,15 @@ $Revision$
 
 #define ASSERT_FPDEC_IS_ZEROED(fpdec) assert(FPDEC_IS_ZEROED(fpdec))
 
-#define DISPATCH_FUNC(vtab, fpdec, ...) \
+#define DISPATCH_FUNC(vtab, fpdec) \
+        (vtab[FPDEC_IS_DYN_ALLOC(fpdec)])(fpdec)
+
+#define DISPATCH_FUNC_VA(vtab, fpdec, ...) \
         (vtab[FPDEC_IS_DYN_ALLOC(fpdec)])(fpdec, __VA_ARGS__)
+
+#define DISPATCH_BIN_OP_VA(vtab, x, y, ...) \
+        (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1) + FPDEC_IS_DYN_ALLOC(y)]) \
+                (x, y, __VA_ARGS__)
 
 /*****************************************************************************
 *  Functions
@@ -145,6 +157,34 @@ fpdec_from_long_long(fpdec_t *fpdec, const long long val) {
         fpdec->lo = -val;
     }
     return FPDEC_OK;
+}
+
+// Properties
+
+static int
+fpdec_shint_magnitude(fpdec_t *fpdec) {
+    if (fpdec->hi == 0)
+        return U64_MAGNITUDE(fpdec->lo) - fpdec->dec_prec;
+    else
+        return U128_MAGNITUDE(fpdec->lo, fpdec->hi) - fpdec->dec_prec;
+}
+
+static int
+fpdec_dyn_magnitude(fpdec_t *fpdec) {
+    int rel_pos_radix_point = FPDEC_DYN_N_DIGITS(fpdec) + FPDEC_EXP(fpdec);
+    return (rel_pos_radix_point - 1) * DEC_DIGITS_PER_DIGIT +
+            U64_MAGNITUDE(FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec));
+}
+
+typedef int (*v_magnitude)(fpdec_t *);
+
+const v_magnitude vtab_magnitude[2] = {fpdec_shint_magnitude,
+                                       fpdec_dyn_magnitude};
+
+int
+fpdec_magnitude(fpdec_t *fpdec) {
+    if (FPDEC_EQ_ZERO(fpdec)) ERROR_RETVAL(ERANGE, -1);
+    return DISPATCH_FUNC(vtab_magnitude, fpdec);
 }
 
 // Converter
@@ -280,7 +320,7 @@ fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
     if (FPDEC_DEC_PREC(fpdec) == dec_prec)
         return FPDEC_OK;
 
-    return DISPATCH_FUNC(vtab_adjust_to_prec, fpdec, dec_prec, rounding);
+    return DISPATCH_FUNC_VA(vtab_adjust_to_prec, fpdec, dec_prec, rounding);
 }
 
 // Deallocator

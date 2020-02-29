@@ -17,6 +17,7 @@ $Revision$
 #ifndef FPDEC_SHIFTED_INT__H
 #define FPDEC_SHIFTED_INT__H
 
+#include <math.h>
 
 #include "common_.h"
 #include "shifted_int.h"
@@ -40,6 +41,10 @@ $Revision$
 #define U64_LO(x) (((uint64_t)x) & 0xFFFFFFFF)
 
 #define U128_FITS_SHINT(x) (U64_HI(x.hi) == 0)
+
+#define U64_MAGNITUDE(x) ((int) log10(x))
+#define U128_MAGNITUDE(lo, hi) ((int) log10(((double) hi) * 0x100000000UL \
+                                * 0x100000000UL + (double) lo))
 
 /*****************************************************************************
 *  Functions

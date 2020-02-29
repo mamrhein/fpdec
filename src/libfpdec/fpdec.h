@@ -143,6 +143,11 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
 error_t
 fpdec_from_long_long(fpdec_t *fpdec, long long val);
 
+// Properties
+
+int
+fpdec_magnitude(fpdec_t *fpdec);
+
 // Converter
 
 error_t
