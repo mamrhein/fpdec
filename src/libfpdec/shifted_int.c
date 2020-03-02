@@ -404,10 +404,10 @@ u128_idivr_10_pow_n(uint128_t *x, const fpdec_sign_t sign, const uint8_t n,
 
     divisor = _10_POW_N(n);
     if (x->hi != 0)
-            rem = u128_idiv_u64(x, divisor);
+        rem = u128_idiv_u64(x, divisor);
     else {
-            rem = x->lo % divisor;
-            x->lo /= divisor;
+        rem = x->lo % divisor;
+        x->lo /= divisor;
     }
     if (round_qr(sign, x->lo, rem, false, divisor, rounding) > 0) {
         u128_incr(x);
@@ -455,19 +455,44 @@ shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
     return FPDEC_OK;
 }
 
-void
-shint_to_digits(uint64_t *digit, size_t n_digits, uint64_t b,
-                uint64_t lo, uint32_t hi, int prec) {
+fpdec_n_digits_t
+shint_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
+                uint64_t b, uint64_t lo, uint32_t hi, int prec) {
     uint128_t t = {lo, hi};
+    fpdec_n_digits_t n_digits = 0;
 
+    assert(lo != 0 || hi != 0);
     assert(prec <= UINT64_10_POW_N_CUTOFF);
 
+    *n_trailing_zeros_skipped = 0;
     if (prec > 0) {
-        *digit = u128_idiv_u64(&t, _10_POW_N(prec)) *
-                _10_POW_N(UINT64_10_POW_N_CUTOFF - prec);
+        *digit = u128_idiv_u64(&t, _10_POW_N(prec));
+        if (*digit != 0) {
+            *digit *= _10_POW_N(UINT64_10_POW_N_CUTOFF - prec);
+            n_digits++;
+            digit++;
+        }
+        else {
+            (*n_trailing_zeros_skipped)++;
+        }
+    }
+    if (t.hi == 0) {
+        *digit = t.lo % b;
+        t.lo /= b;
+    }
+    else {
+        *digit = u128_idiv_u64(&t, b);
+    }
+    if (*digit != 0 || (n_digits > 0 && t.lo != 0)) {
+        n_digits++;
         digit++;
     }
-    *digit = u128_idiv_u64(&t, b);
-    digit++;
-    *digit = t.lo;
+    else {
+        (*n_trailing_zeros_skipped)++;
+    }
+    if (t.lo != 0) {
+        *digit = t.lo;
+        n_digits++;
+    }
+    return n_digits;
 }

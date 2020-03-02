@@ -1125,12 +1125,24 @@ TEST_CASE("Adjust presision") {
 
     SECTION("Shifted int to digit array") {
 
-        struct test_data tests[1] = {
+        struct test_data tests[3] = {
                 {
                         .literal = "999999999999999999999999.99999",
                         .dec_prec = 4,
                         .exp = 1,
                         .digits = {100000UL}
+                },
+                {
+                        .literal = "900000000000.000000000",
+                        .dec_prec = 17,
+                        .exp = 0,
+                        .digits = {900000000000UL}
+                },
+                {
+                        .literal = "100000000000000000000000.00000",
+                        .dec_prec = 9,
+                        .exp = 1,
+                        .digits = {10000UL}
                 },
         };
 

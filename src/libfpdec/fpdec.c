@@ -204,17 +204,20 @@ fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
 static error_t
 fpdec_shint_to_dyn(fpdec_t *fpdec) {
     fpdec_digit_t digits[3];
+    unsigned n_trailing_zeros;
+    fpdec_n_digits_t n_digits;
     error_t rc;
 
     assert(!FPDEC_IS_DYN_ALLOC(fpdec));
 
-    shint_to_digits(digits, 3, RADIX, fpdec->lo, fpdec->hi,
-                    FPDEC_DEC_PREC(fpdec));
-    rc = digits_from_digits(&fpdec->digit_array, digits, 3);
+    n_digits = shint_to_digits(digits, &n_trailing_zeros, RADIX, fpdec->lo,
+                               fpdec->hi, FPDEC_DEC_PREC(fpdec));
+    rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
     if (rc == FPDEC_OK) {
         fpdec->dyn_alloc = true;
         fpdec->normalized = true;
-        fpdec->exp = -CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
+        fpdec->exp = (fpdec_exp_t) n_trailing_zeros -
+                CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
     }
     return rc;
 }
