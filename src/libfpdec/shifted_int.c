@@ -255,12 +255,11 @@ u128_idiv_u64_special(uint64_t *xlo, uint64_t *xhi, uint64_t y) {
     // Normalize dividend and divisor, so that y > 2^63 (i.e. highest bit set)
     n_bits = u64_n_leading_0_bits(y);
     y <<= n_bits;
-    yn0 = U64_LO(y);
     yn1 = U64_HI(y);
-    t = *xlo << n_bits;
-    xn10 = U64_LO(t);
-    xn32 = (*xhi << n_bits) + U64_HI(t);
+    yn0 = U64_LO(y);
 
+    xn32 = (*xhi << n_bits) | (n_bits == 0 ? 0 : *xlo >> (64 - n_bits));
+    xn10 = *xlo << n_bits;
     xn0 = U64_LO(xn10);
     xn1 = U64_HI(xn10);
 
