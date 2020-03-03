@@ -27,6 +27,11 @@ $Revision$
 *  Functions
 *****************************************************************************/
 
+// Forward declarations
+
+static inline void
+u128_imul_10_pow_n(uint128_t *, uint8_t);
+
 // Bit arithmetic
 
 static inline unsigned
@@ -60,7 +65,6 @@ u64_most_signif_bit_pos(uint64_t x) {
     t = x >> 1U;
     if (t != 0) {
         n += 1;
-        x = t;
     }
     return n + (uint8_t) t;
 }
@@ -109,6 +113,16 @@ static inline int
 u128_cmp(const uint128_t *x, const uint128_t *y) {
     return ((x->hi > y->hi) || ((x->hi == y->hi) && (x->lo > y->lo))) -
             ((x->hi < y->hi) || ((x->hi == y->hi) && (x->lo < y->lo)));
+}
+
+int
+shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
+              uint128_t y, fpdec_dec_prec_t y_prec) {
+    if (x_prec < y_prec)
+        u128_imul_10_pow_n(&x, y_prec - x_prec);
+    else if (y_prec < x_prec)
+        u128_imul_10_pow_n(&y, x_prec - y_prec);
+    return u128_cmp(&x, &y);
 }
 
 // Addition

@@ -56,6 +56,9 @@ typedef struct _it_t {
 #define MEMERROR_RETVAL(retval) ERROR_RETVAL(ENOMEM, retval)
 #define FREE_N_ERROR(buf, err) {free(buf); ERROR(err)}
 
+// int compare
+#define CMP(a, b) (((a) > (b)) - ((a) < (b)))
+
 // max / min
 #define MAX(a, b) ((a) >= (b) ? (a) : (b))
 #define MIN(a, b) ((a) <= (b) ? (a) : (b))

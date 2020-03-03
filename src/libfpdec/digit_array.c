@@ -247,3 +247,22 @@ digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
     }
     return (digit == stop);
 }
+
+// Comparison
+
+// Pre-condition: radix points adjusted
+int digits_cmp(fpdec_digit_t *x_digits, fpdec_n_digits_t x_n_digits,
+               fpdec_digit_t *y_digits, fpdec_n_digits_t y_n_digits) {
+    fpdec_digit_t *x_digit = x_digits + x_n_digits - 1;
+    fpdec_digit_t *y_digit = y_digits + y_n_digits - 1;
+    while (x_digit >= x_digits && y_digit >= y_digits) {
+        if (*x_digit != *y_digit)
+            return CMP(*x_digit, *y_digit);
+        x_digit--;
+        y_digit--;
+    }
+    if (x_n_digits != y_n_digits)
+        return CMP(x_n_digits, y_n_digits);
+    // x == y
+    return 0;
+}

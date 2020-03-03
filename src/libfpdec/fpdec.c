@@ -53,8 +53,11 @@ $Revision$
 #define DISPATCH_FUNC_VA(vtab, fpdec, ...) \
         (vtab[FPDEC_IS_DYN_ALLOC(fpdec)])(fpdec, __VA_ARGS__)
 
+#define DISPATCH_BIN_OP(vtab, x, y) \
+        (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1U) + FPDEC_IS_DYN_ALLOC(y)])(x, y)
+
 #define DISPATCH_BIN_OP_VA(vtab, x, y, ...) \
-        (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1) + FPDEC_IS_DYN_ALLOC(y)]) \
+        (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1U) + FPDEC_IS_DYN_ALLOC(y)]) \
                 (x, y, __VA_ARGS__)
 
 /*****************************************************************************
@@ -187,6 +190,88 @@ fpdec_magnitude(fpdec_t *fpdec) {
     return DISPATCH_FUNC(vtab_magnitude, fpdec);
 }
 
+// Comparison
+
+// Pre-condition: magnitude(x) == magnitude(y)
+static int
+fpdec_cmp_abs_shint_to_shint(fpdec_t *x, fpdec_t *y) {
+    uint128_t x_shint = {x->lo, x->hi};
+    uint128_t y_shint = {y->lo, y->hi};
+
+    return shint_cmp_abs(x_shint, x->dec_prec, y_shint, y->dec_prec);
+}
+
+// Pre-condition: magnitude(x) == magnitude(y)
+static int
+fpdec_cmp_abs_shint_to_dyn(fpdec_t *x, fpdec_t *y) {
+    fpdec_digit_t x_digits[3];
+    int n_trailing_zeros_skipped;
+    fpdec_n_digits_t x_n_digits;
+
+    x_n_digits = shint_to_digits(x_digits, &n_trailing_zeros_skipped, RADIX,
+                                 x->lo, x->hi, FPDEC_DEC_PREC(x));
+    return digits_cmp(x_digits, x_n_digits,
+                      FPDEC_DYN_DIGITS(y), FPDEC_DYN_N_DIGITS(y));
+}
+
+// Pre-condition: magnitude(x) == magnitude(y)
+static int
+fpdec_cmp_abs_dyn_to_shint(fpdec_t *x, fpdec_t *y) {
+    fpdec_digit_t y_digits[3];
+    int n_trailing_zeros_skipped;
+    fpdec_n_digits_t y_n_digits;
+
+    y_n_digits = shint_to_digits(y_digits, &n_trailing_zeros_skipped, RADIX,
+                                 y->lo, y->hi, FPDEC_DEC_PREC(y));
+    return digits_cmp(FPDEC_DYN_DIGITS(x), FPDEC_DYN_N_DIGITS(x),
+                      y_digits, y_n_digits);
+}
+
+// Pre-condition: magnitude(x) == magnitude(y)
+static int
+fpdec_cmp_abs_dyn_to_dyn(fpdec_t *x, fpdec_t *y) {
+    return digits_cmp(FPDEC_DYN_DIGITS(x), FPDEC_DYN_N_DIGITS(x),
+                      FPDEC_DYN_DIGITS(y), FPDEC_DYN_N_DIGITS(y));
+}
+
+typedef int (*v_cmp)(fpdec_t *, fpdec_t *);
+
+const v_cmp vtab_cmp[4] = {fpdec_cmp_abs_shint_to_shint,
+                           fpdec_cmp_abs_shint_to_dyn,
+                           fpdec_cmp_abs_dyn_to_shint,
+                           fpdec_cmp_abs_dyn_to_dyn};
+
+int
+fpdec_compare(fpdec_t *x, fpdec_t *y, bool ignore_sign) {
+    fpdec_sign_t x_sign, y_sign;
+    int x_magn, y_magn;
+
+    if (ignore_sign) {
+        if (FPDEC_SIGN(x) == 0)
+            return FPDEC_SIGN(y) ? -1 : 0;
+        if (FPDEC_SIGN(y) == 0)
+            return FPDEC_SIGN(x) != 0;
+        x_sign = FPDEC_SIGN_POS;
+        y_sign = FPDEC_SIGN_POS;
+    }
+    else {
+        x_sign = FPDEC_SIGN(x);
+        y_sign = FPDEC_SIGN(y);
+        if (x_sign != y_sign)
+            return CMP(x_sign, y_sign);
+        if (x_sign == 0)
+            return 0;
+    }
+
+    // here: x != 0 and y != 0
+    x_magn = fpdec_magnitude(x);
+    y_magn = fpdec_magnitude(y);
+    if (x_magn != y_magn)
+        return CMP(x_magn, y_magn) * x_sign;
+
+    return DISPATCH_BIN_OP(vtab_cmp, x, y) * x_sign;
+}
+
 // Converter
 
 error_t
@@ -204,7 +289,7 @@ fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
 static error_t
 fpdec_shint_to_dyn(fpdec_t *fpdec) {
     fpdec_digit_t digits[3];
-    unsigned n_trailing_zeros;
+    int n_trailing_zeros;
     fpdec_n_digits_t n_digits;
     error_t rc;
 
@@ -216,7 +301,7 @@ fpdec_shint_to_dyn(fpdec_t *fpdec) {
     if (rc == FPDEC_OK) {
         fpdec->dyn_alloc = true;
         fpdec->normalized = true;
-        fpdec->exp = (fpdec_exp_t) n_trailing_zeros -
+        fpdec->exp = n_trailing_zeros -
                 CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
     }
     return rc;

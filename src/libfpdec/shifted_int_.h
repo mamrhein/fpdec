@@ -55,6 +55,12 @@ $Revision$
 digit_iter
 shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi);
 
+// Comparison
+
+int
+shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
+              uint128_t y, fpdec_dec_prec_t y_prec);
+
 // Converter
 
 error_t

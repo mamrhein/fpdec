@@ -38,6 +38,9 @@ typedef int error_t;
 // sign indicator: =0 -> zero, <0 -> negative, >0 -> positive
 typedef int8_t fpdec_sign_t;
 
+// number of decimal fractional digits
+typedef uint16_t fpdec_dec_prec_t;
+
 // single digit (base 2 ** 64 or 10 ** 19)
 typedef uint64_t fpdec_digit_t;
 

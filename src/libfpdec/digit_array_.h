@@ -70,4 +70,9 @@ bool
 digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
              size_t n_dec_shift, enum FPDEC_ROUNDING_MODE rounding);
 
+// Comparison
+
+int digits_cmp(fpdec_digit_t *x_digits, fpdec_n_digits_t x_n_digits,
+               fpdec_digit_t *y_digits, fpdec_n_digits_t y_n_digits);
+
 #endif //FPDEC_DIGIT_ARRAY__H

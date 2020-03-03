@@ -31,7 +31,6 @@ extern "C" {
 *  Types
 *****************************************************************************/
 
-typedef uint16_t fpdec_dec_prec_t;
 typedef int32_t fpdec_exp_t;
 
 typedef struct {
@@ -146,6 +145,11 @@ fpdec_from_long_long(fpdec_t *fpdec, long long val);
 
 int
 fpdec_magnitude(fpdec_t *fpdec);
+
+// Comparison
+
+int
+fpdec_compare(fpdec_t *x, fpdec_t *y, bool ignore_sign);
 
 // Converter
 
