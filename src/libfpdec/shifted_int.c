@@ -109,12 +109,6 @@ shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi) {
 
 // Comparison
 
-static inline int
-u128_cmp(const uint128_t *x, const uint128_t *y) {
-    return ((x->hi > y->hi) || ((x->hi == y->hi) && (x->lo > y->lo))) -
-            ((x->hi < y->hi) || ((x->hi == y->hi) && (x->lo < y->lo)));
-}
-
 int
 shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
               uint128_t y, fpdec_dec_prec_t y_prec) {
@@ -123,57 +117,6 @@ shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
     else if (y_prec < x_prec)
         u128_imul_10_pow_n(&y, x_prec - y_prec);
     return u128_cmp(&x, &y);
-}
-
-// Addition
-
-static inline void
-u128_iadd_u64(uint128_t *x, const uint64_t y) {
-    uint64_t t = x->lo + y;
-    x->hi += (t < x->lo);
-    x->lo = t;
-}
-
-static inline void
-u128_incr(uint128_t *x) {
-    u128_iadd_u64(x, 1UL);
-}
-
-static inline void
-u128_iadd_u128(uint128_t *x, const uint128_t *y) {
-    uint64_t t = x->lo + y->lo;
-    x->hi += y->hi + (t < x->lo);
-    x->lo = t;
-}
-
-// Subtraction
-
-static inline void
-u128_isub_u64(uint128_t *x, const uint64_t y) {
-    uint64_t t = x->lo - y;
-    x->hi -= (t > x->lo);
-    x->lo = t;
-}
-
-static inline void
-u128_decr(uint128_t *x) {
-    u128_isub_u64(x, 1UL);
-}
-
-static inline void
-u128_isub_u128(uint128_t *x, const uint128_t *y) {
-    assert(u128_cmp(x, y) >= 0);
-    uint64_t t = x->lo - y->lo;
-    x->hi -= y->hi + (t > x->lo);
-    x->lo = t;
-}
-
-static inline void
-u128_sub_u128(uint128_t *z, const uint128_t *x, const uint128_t *y) {
-    assert(u128_cmp(x, y) >= 0);
-    uint64_t t = x->lo - y->lo;
-    z->hi = x->hi - y->hi - (t > x->lo);
-    z->lo = t;
 }
 
 // Multiplication

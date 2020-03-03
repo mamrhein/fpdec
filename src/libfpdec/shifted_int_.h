@@ -77,4 +77,63 @@ void
 u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int n_dec_digits,
                enum FPDEC_ROUNDING_MODE rounding);
 
+// Comparison
+
+static inline int
+u128_cmp(const uint128_t *x, const uint128_t *y) {
+    return ((x->hi > y->hi) || ((x->hi == y->hi) && (x->lo > y->lo))) -
+            ((x->hi < y->hi) || ((x->hi == y->hi) && (x->lo < y->lo)));
+}
+
+// Addition
+
+static inline void
+u128_iadd_u64(uint128_t *x, const uint64_t y) {
+    uint64_t t = x->lo + y;
+    x->hi += (t < x->lo);
+    x->lo = t;
+}
+
+static inline void
+u128_incr(uint128_t *x) {
+    u128_iadd_u64(x, 1UL);
+}
+
+static inline void
+u128_iadd_u128(uint128_t *x, const uint128_t *y) {
+    uint64_t t = x->lo + y->lo;
+    x->hi += y->hi + (t < x->lo);
+    x->lo = t;
+}
+
+// Subtraction
+
+static inline void
+u128_isub_u64(uint128_t *x, const uint64_t y) {
+    uint64_t t = x->lo - y;
+    x->hi -= (t > x->lo);
+    x->lo = t;
+}
+
+static inline void
+u128_decr(uint128_t *x) {
+    u128_isub_u64(x, 1UL);
+}
+
+static inline void
+u128_isub_u128(uint128_t *x, const uint128_t *y) {
+    assert(u128_cmp(x, y) >= 0);
+    uint64_t t = x->lo - y->lo;
+    x->hi -= y->hi + (t > x->lo);
+    x->lo = t;
+}
+
+static inline void
+u128_sub_u128(uint128_t *z, const uint128_t *x, const uint128_t *y) {
+    assert(u128_cmp(x, y) >= 0);
+    uint64_t t = x->lo - y->lo;
+    z->hi = x->hi - y->hi - (t > x->lo);
+    z->lo = t;
+}
+
 #endif //FPDEC_SHIFTED_INT__H
