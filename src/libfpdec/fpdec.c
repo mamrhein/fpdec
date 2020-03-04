@@ -95,7 +95,7 @@ static inline error_t
 fpdec_copy(fpdec_t *fpdec, const fpdec_t *src) {
     *fpdec = *src;
     if (src->dyn_alloc) {
-        fpdec->digit_array = digits_copy(src->digit_array);
+        fpdec->digit_array = digits_copy(src->digit_array, 0);
         if (fpdec->digit_array == NULL) return ENOMEM;
     }
     return FPDEC_OK;

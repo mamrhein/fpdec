@@ -48,7 +48,7 @@ digits_iter_digits(fpdec_digit_array_t *digit_array);
 // Constructors
 
 fpdec_digit_array_t *
-digits_copy(fpdec_digit_array_t *src);
+digits_copy(fpdec_digit_array_t *src, fpdec_n_digits_t add_leading_zeros);
 
 error_t
 digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
