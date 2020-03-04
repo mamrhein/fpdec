@@ -55,12 +55,16 @@ $Revision$
 #define DISPATCH_FUNC_VA(vtab, fpdec, ...) \
         (vtab[FPDEC_IS_DYN_ALLOC(fpdec)])(fpdec, __VA_ARGS__)
 
-#define DISPATCH_BIN_OP(vtab, x, y) \
+#define DISPATCH_BIN_EXPR(vtab, x, y) \
         (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1U) + FPDEC_IS_DYN_ALLOC(y)])(x, y)
 
-#define DISPATCH_BIN_OP_VA(vtab, x, y, ...) \
+#define DISPATCH_BIN_OP(vtab, z, x, y) \
         (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1U) + FPDEC_IS_DYN_ALLOC(y)]) \
-                (x, y, __VA_ARGS__)
+                (z, x, y)
+
+#define DISPATCH_BIN_OP_VA(vtab, z, x, y, ...) \
+        (vtab[((FPDEC_IS_DYN_ALLOC(x)) << 1U) + FPDEC_IS_DYN_ALLOC(y)]) \
+                (z, x, y, __VA_ARGS__)
 
 /*****************************************************************************
 *  Functions
@@ -271,7 +275,7 @@ fpdec_compare(fpdec_t *x, fpdec_t *y, bool ignore_sign) {
     if (x_magn != y_magn)
         return CMP(x_magn, y_magn) * x_sign;
 
-    return DISPATCH_BIN_OP(vtab_cmp, x, y) * x_sign;
+    return DISPATCH_BIN_EXPR(vtab_cmp, x, y) * x_sign;
 }
 
 // Converter
