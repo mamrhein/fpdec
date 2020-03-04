@@ -29,6 +29,8 @@ $Revision$
 *  Macros
 *****************************************************************************/
 
+#define U128_FROM_SHINT(x) {x->lo, x->hi}
+
 #define FPDEC_DYN_EXP(fpdec) (((fpdec_t*)fpdec)->exp)
 
 #define FPDEC_DYN_N_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->n_signif)
@@ -195,8 +197,8 @@ fpdec_magnitude(fpdec_t *fpdec) {
 // Pre-condition: magnitude(x) == magnitude(y)
 static int
 fpdec_cmp_abs_shint_to_shint(fpdec_t *x, fpdec_t *y) {
-    uint128_t x_shint = {x->lo, x->hi};
-    uint128_t y_shint = {y->lo, y->hi};
+    uint128_t x_shint = U128_FROM_SHINT(x);
+    uint128_t y_shint = U128_FROM_SHINT(y);
 
     return shint_cmp_abs(x_shint, x->dec_prec, y_shint, y->dec_prec);
 }
@@ -364,7 +366,7 @@ fpdec_shint_adjust_to_prec(fpdec_t *fpdec,
                            const enum FPDEC_ROUNDING_MODE rounding) {
     error_t rc;
     int dec_shift = dec_prec - FPDEC_DEC_PREC(fpdec);
-    uint128_t shifted = {fpdec->lo, fpdec->hi};
+    uint128_t shifted = U128_FROM_SHINT(fpdec);
 
     u128_idecshift(&shifted, FPDEC_SIGN(fpdec), dec_shift, rounding);
     if (!U128_FITS_SHINT(shifted)) {
