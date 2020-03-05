@@ -73,7 +73,7 @@ $Revision$
 // For testing only!
 
 void
-fpdec_dump(fpdec_t *fpdec) {
+fpdec_dump(const fpdec_t *fpdec) {
     digit_iter it = FPDEC_ITER_DIGITS(fpdec);
 
     printf("flags:\n  dyn_alloc: %d\n  normalized: %d\n",
@@ -171,7 +171,7 @@ fpdec_from_long_long(fpdec_t *fpdec, const long long val) {
 // Properties
 
 static int
-fpdec_shint_magnitude(fpdec_t *fpdec) {
+fpdec_shint_magnitude(const fpdec_t *fpdec) {
     if (fpdec->hi == 0)
         return U64_MAGNITUDE(fpdec->lo) - fpdec->dec_prec;
     else
@@ -179,19 +179,19 @@ fpdec_shint_magnitude(fpdec_t *fpdec) {
 }
 
 static int
-fpdec_dyn_magnitude(fpdec_t *fpdec) {
+fpdec_dyn_magnitude(const fpdec_t *fpdec) {
     int rel_pos_radix_point = FPDEC_DYN_N_DIGITS(fpdec) + FPDEC_EXP(fpdec);
     return (rel_pos_radix_point - 1) * DEC_DIGITS_PER_DIGIT +
             U64_MAGNITUDE(FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec));
 }
 
-typedef int (*v_magnitude)(fpdec_t *);
+typedef int (*v_magnitude)(const fpdec_t *);
 
 const v_magnitude vtab_magnitude[2] = {fpdec_shint_magnitude,
                                        fpdec_dyn_magnitude};
 
 int
-fpdec_magnitude(fpdec_t *fpdec) {
+fpdec_magnitude(const fpdec_t *fpdec) {
     if (FPDEC_EQ_ZERO(fpdec)) ERROR_RETVAL(ERANGE, -1);
     return DISPATCH_FUNC(vtab_magnitude, fpdec);
 }
@@ -200,7 +200,7 @@ fpdec_magnitude(fpdec_t *fpdec) {
 
 // Pre-condition: magnitude(x) == magnitude(y)
 static int
-fpdec_cmp_abs_shint_to_shint(fpdec_t *x, fpdec_t *y) {
+fpdec_cmp_abs_shint_to_shint(const fpdec_t *x, const fpdec_t *y) {
     uint128_t x_shint = U128_FROM_SHINT(x);
     uint128_t y_shint = U128_FROM_SHINT(y);
 
@@ -209,7 +209,7 @@ fpdec_cmp_abs_shint_to_shint(fpdec_t *x, fpdec_t *y) {
 
 // Pre-condition: magnitude(x) == magnitude(y)
 static int
-fpdec_cmp_abs_shint_to_dyn(fpdec_t *x, fpdec_t *y) {
+fpdec_cmp_abs_shint_to_dyn(const fpdec_t *x, const fpdec_t *y) {
     fpdec_digit_t x_digits[3];
     int n_trailing_zeros_skipped;
     fpdec_n_digits_t x_n_digits;
@@ -222,7 +222,7 @@ fpdec_cmp_abs_shint_to_dyn(fpdec_t *x, fpdec_t *y) {
 
 // Pre-condition: magnitude(x) == magnitude(y)
 static int
-fpdec_cmp_abs_dyn_to_shint(fpdec_t *x, fpdec_t *y) {
+fpdec_cmp_abs_dyn_to_shint(const fpdec_t *x, const fpdec_t *y) {
     fpdec_digit_t y_digits[3];
     int n_trailing_zeros_skipped;
     fpdec_n_digits_t y_n_digits;
@@ -235,12 +235,12 @@ fpdec_cmp_abs_dyn_to_shint(fpdec_t *x, fpdec_t *y) {
 
 // Pre-condition: magnitude(x) == magnitude(y)
 static int
-fpdec_cmp_abs_dyn_to_dyn(fpdec_t *x, fpdec_t *y) {
+fpdec_cmp_abs_dyn_to_dyn(const fpdec_t *x, const fpdec_t *y) {
     return digits_cmp(FPDEC_DYN_DIGITS(x), FPDEC_DYN_N_DIGITS(x),
                       FPDEC_DYN_DIGITS(y), FPDEC_DYN_N_DIGITS(y));
 }
 
-typedef int (*v_cmp)(fpdec_t *, fpdec_t *);
+typedef int (*v_cmp)(const fpdec_t *, const fpdec_t *);
 
 const v_cmp vtab_cmp[4] = {fpdec_cmp_abs_shint_to_shint,
                            fpdec_cmp_abs_shint_to_dyn,
@@ -248,7 +248,7 @@ const v_cmp vtab_cmp[4] = {fpdec_cmp_abs_shint_to_shint,
                            fpdec_cmp_abs_dyn_to_dyn};
 
 int
-fpdec_compare(fpdec_t *x, fpdec_t *y, bool ignore_sign) {
+fpdec_compare(const fpdec_t *x, const fpdec_t *y, const bool ignore_sign) {
     fpdec_sign_t x_sign, y_sign;
     int x_magn, y_magn;
 
@@ -281,7 +281,7 @@ fpdec_compare(fpdec_t *x, fpdec_t *y, bool ignore_sign) {
 // Converter
 
 error_t
-fpdec_neg(fpdec_t *fpdec, fpdec_t *src) {
+fpdec_neg(fpdec_t *fpdec, const fpdec_t *src) {
     error_t rc;
 
     ASSERT_FPDEC_IS_ZEROED(fpdec);

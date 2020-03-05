@@ -131,7 +131,7 @@ static const fpdec_t FPDEC_MINUS_ONE = {
 // For testing only!
 
 void
-fpdec_dump(fpdec_t *);
+fpdec_dump(const fpdec_t *fpdec);
 
 // Initializer
 
@@ -144,17 +144,17 @@ fpdec_from_long_long(fpdec_t *fpdec, long long val);
 // Properties
 
 int
-fpdec_magnitude(fpdec_t *fpdec);
+fpdec_magnitude(const fpdec_t *fpdec);
 
 // Comparison
 
 int
-fpdec_compare(fpdec_t *x, fpdec_t *y, bool ignore_sign);
+fpdec_compare(const fpdec_t *x, const fpdec_t *y, bool ignore_sign);
 
 // Converter
 
 error_t
-fpdec_neg(fpdec_t *fpdec, fpdec_t *src);
+fpdec_neg(fpdec_t *fpdec, const fpdec_t *src);
 
 error_t
 fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src, fpdec_dec_prec_t dec_prec,
