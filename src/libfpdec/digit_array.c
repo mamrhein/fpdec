@@ -95,19 +95,17 @@ digits_set_zero(fpdec_digit_t *digits, fpdec_n_digits_t n) {
 }
 
 fpdec_digit_array_t *
-digits_copy(fpdec_digit_array_t *src, fpdec_n_digits_t add_leading_zeros) {
+digits_copy(fpdec_digit_array_t *src, fpdec_n_digits_t n_shift,
+            fpdec_n_digits_t n_add_leading_zeros) {
     fpdec_digit_array_t *result;
 
     assert(src != NULL);
 
-    result = digits_alloc(src->n_signif + add_leading_zeros);
+    result = digits_alloc(src->n_signif + n_shift + n_add_leading_zeros);
     if (result != NULL) {
-        result->n_signif = src->n_signif;
-        memcpy(result->digits, src->digits,
+        result->n_signif = src->n_signif + n_shift;
+        memcpy(result->digits + n_shift, src->digits,
                src->n_signif * sizeof(fpdec_digit_t));
-        if (add_leading_zeros > 0)
-            memset((void *) (result->digits + src->n_signif), 0,
-                   add_leading_zeros);
     }
     return result;
 }
