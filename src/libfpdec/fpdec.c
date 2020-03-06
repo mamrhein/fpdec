@@ -96,7 +96,7 @@ fpdec_copy(fpdec_t *fpdec, const fpdec_t *src) {
     *fpdec = *src;
     if (src->dyn_alloc) {
         fpdec->digit_array = digits_copy(src->digit_array, 0, 0);
-        if (fpdec->digit_array == NULL) return ENOMEM;
+        if (fpdec->digit_array == NULL) MEMERROR
     }
     return FPDEC_OK;
 }
