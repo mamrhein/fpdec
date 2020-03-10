@@ -31,7 +31,8 @@ TEST_CASE("Initialize from string") {
         std::vector<fpdec_digit_t> digits;
     };
 
-    SECTION("Coeff <= MAX_N_DEC_DIGITS_IN_SHINT") {
+    SECTION("Length of coeff <= MAX_N_DEC_DIGITS_IN_SHINT and "
+            "(dec_prec <= MAX_DEC_PREC_FOR_SHINT or result == 0)") {
         struct test_data tests[8] = {
                 {
                         .literal = "  000000000000001926.83 \n",
@@ -46,21 +47,15 @@ TEST_CASE("Initialize from string") {
                         .digits = {5387UL, 0UL}
                 },
                 {
-                        .literal = "+5.387E-17",
-                        .sign = 1,
-                        .dec_prec = 20,
-                        .digits = {5387UL, 0UL}
-                },
-                {
                         .literal = "-12345678901234567890e-7",
                         .sign = -1,
                         .dec_prec = 7,
                         .digits = {12345678901234567890UL, 0UL}
                 },
                 {
-                        .literal = "82345678901234567890e-12",
+                        .literal = "82345678901234567890e-9",
                         .sign = 1,
-                        .dec_prec = 12,
+                        .dec_prec = 9,
                         .digits = {8558702606396361426UL, 4UL}
                 },
                 {
@@ -76,11 +71,17 @@ TEST_CASE("Initialize from string") {
                         .digits = {0UL, 0UL}
                 },
                 {
-                        .literal = "-000000",
+                        .literal = "-000000e5",
                         .sign = 0,
                         .dec_prec = 0,
                         .digits = {0UL, 0UL}
-                }
+                },
+                {
+                        .literal = "-000000e-10",
+                        .sign = 0,
+                        .dec_prec = 10,
+                        .digits = {0UL, 0UL}
+                },
         };
 
         for (const auto &test : tests) {
@@ -99,7 +100,56 @@ TEST_CASE("Initialize from string") {
         }
     }
 
-    SECTION("Coeff > MAX_N_DEC_DIGITS_IN_SHINT") {
+    SECTION("Dec_prec > MAX_DEC_PREC_FOR_SHINT") {
+        struct test_data tests[3] = {
+                {
+                        .literal = "+5.387E-17",
+                        .sign = 1,
+                        .dec_prec = 20,
+                        .exp = -2,
+                        .n_digits = 2,
+                        .digits = {7000000000000000000UL, 538UL}
+                },
+                {
+                        .literal = "82345678901234567890e-12",
+                        .sign = 1,
+                        .dec_prec = 12,
+                        .exp = -1,
+                        .n_digits = 2,
+                        .digits = {9012345678900000000UL, 82345678UL}
+                },
+                {
+                        .literal = "-3.0e-9",
+                        .sign = -1,
+                        .dec_prec = 10,
+                        .exp = -1,
+                        .n_digits = 1,
+                        .digits = {30000000000UL}
+                }
+        };
+
+        for (const auto &test : tests) {
+            fpdec_t fpdec = FPDEC_ZERO;
+            const char *literal = test.literal.c_str();
+            error_t rc = fpdec_from_ascii_literal(&fpdec, literal);
+
+            SECTION(test.literal) {
+                REQUIRE(rc == FPDEC_OK);
+                REQUIRE(is_digit_array(&fpdec));
+                CHECK(check_normalized(&fpdec));
+                CHECK(FPDEC_SIGN(&fpdec) == test.sign);
+                CHECK(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
+                CHECK(FPDEC_EXP(&fpdec) == test.exp);
+                REQUIRE(FPDEC_N_DIGITS(&fpdec) == test.n_digits);
+                for (int i = 0; i < test.n_digits; ++i) {
+                    CHECK(fpdec.digit_array->digits[i] == test.digits[i]);
+                }
+            }
+            fpdec_dealloc(&fpdec);
+        }
+    }
+
+    SECTION("Length of coeff > MAX_N_DEC_DIGITS_IN_SHINT") {
         struct test_data tests[4] = {
                 {
                         .literal = "  0001926.837209e26",

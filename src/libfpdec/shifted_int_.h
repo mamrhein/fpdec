@@ -32,6 +32,7 @@ $Revision$
 *****************************************************************************/
 
 #define MAX_N_DEC_DIGITS_IN_SHINT 29
+#define MAX_DEC_PREC_FOR_SHINT 9
 #define UINT64_10_POW_N_CUTOFF 19
 
 #define UINT128_SET_MAX(x) {x->lo = UINT64_MAX; x->hi = UINT64_MAX;}

@@ -22,7 +22,7 @@ TEST_CASE("Negate") {
     SECTION("Shifted int variant") {
 
         std::string literals[3] = {
-            "82345678901234567890e-12",
+            "82345678901234567890e-7",
             "0",
             "-7e4"
         };

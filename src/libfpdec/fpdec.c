@@ -126,7 +126,8 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     fpdec->sign = dec_repr->negative ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
-    if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
+    if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT &&
+                -dec_repr->exp <= MAX_DEC_PREC_FOR_SHINT) {
         rc = shint_from_dec_coeff(&fpdec->lo, &fpdec->hi,
                                   dec_repr->coeff, dec_repr->n_dec_digits,
                                   n_add_zeros);
@@ -143,8 +144,15 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     rc = digits_from_dec_coeff_exp(&(fpdec->digit_array), &(fpdec->exp),
                                    dec_repr->n_dec_digits, dec_repr->coeff,
                                    dec_repr->exp);
+    if (rc != FPDEC_OK)
+        goto EXIT;
     fpdec->dyn_alloc = true;
-    fpdec->normalized = true;
+    if (FPDEC_DYN_N_DIGITS(fpdec) > 0) {
+        fpdec->normalized = true;
+    }
+    else {      // corner case: result == 0
+        fpdec_dealloc(fpdec);
+    }
     fpdec->dec_prec = MAX(0, -dec_repr->exp);
 EXIT:
     if (dec_repr != &st_dec_repr) {
