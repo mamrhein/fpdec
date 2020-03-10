@@ -267,3 +267,91 @@ int digits_cmp(fpdec_digit_t *x_digits, fpdec_n_digits_t x_n_digits,
     // x == y
     return 0;
 }
+
+// Basic arithmetic operations
+
+void
+digits_iadd_digit(fpdec_digit_array_t *x, const fpdec_digit_t y) {
+    fpdec_digit_t *digit = x->digits;
+    fpdec_digit_t *total_carry_over_digit = x->digits + x->n_signif;
+
+    assert(x->n_signif > 0);
+    assert(x->n_alloc > x->n_signif);
+    assert(*total_carry_over_digit == 0);
+
+    *digit += y;
+    if (*digit < y || *digit >= RADIX) {        // carry-over?
+        *digit -= RADIX;
+        // propagate carry
+        while (*(++digit) == MAX_DIGIT)
+            *digit = 0;
+        (*digit)++;
+        if (*total_carry_over_digit != 0)
+            x->n_signif++;
+    }
+}
+
+void
+digits_iadd_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
+    fpdec_digit_t *x_digit = x->digits;
+    fpdec_digit_t *total_carry_over_digit = x->digits + x->n_signif;
+    const fpdec_digit_t *y_digit = y->digits;
+    const fpdec_digit_t *y_over = y->digits + y->n_signif;
+    unsigned carry = 0;
+
+    assert(y->n_signif > 0);
+    assert(x->n_alloc > y->n_signif);
+    assert(x->n_alloc > x->n_signif);
+    assert(*total_carry_over_digit == 0);
+
+    x->n_signif = MAX(x->n_signif, y->n_signif);
+    while (y_digit < y_over) {
+        *x_digit += *y_digit + carry;
+        carry = (*x_digit < *y_digit || *x_digit >= RADIX);
+        if (carry)
+            *x_digit -= RADIX;
+        x_digit++;
+        y_digit++;
+    }
+    // propagate carry
+    if (carry) {
+        while (*x_digit == MAX_DIGIT) {
+            *x_digit = 0;
+            x_digit++;
+        }
+        (*x_digit)++;
+        if (*total_carry_over_digit != 0)
+            x->n_signif++;
+    }
+}
+
+void
+digits_isub_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
+    fpdec_digit_t *x_digit = x->digits;
+    const fpdec_digit_t *y_digit = y->digits;
+    const fpdec_digit_t *y_over = y->digits + y->n_signif;
+    fpdec_digit_t d;
+    unsigned borrow = 0;
+
+    assert(y->n_signif > 0);
+    assert(x->n_signif >= y->n_signif);
+
+    while (y_digit < y_over) {
+        d = *x_digit - (*y_digit + borrow);
+        borrow = (d > *x_digit);
+        *x_digit = borrow ? d + RADIX : d;
+        x_digit++;
+        y_digit++;
+    }
+    // propagate borrow
+    if (borrow) {
+        while (*x_digit == 0) {
+            *x_digit = MAX_DIGIT;
+            x_digit++;
+        }
+        (*x_digit)--;
+    }
+    // total borrow?
+    if (x->digits[x->n_signif - 1] == 0)
+        x->n_signif--;
+}

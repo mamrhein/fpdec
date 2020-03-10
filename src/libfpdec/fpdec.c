@@ -127,7 +127,7 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
     if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT &&
-                -dec_repr->exp <= MAX_DEC_PREC_FOR_SHINT) {
+            -dec_repr->exp <= MAX_DEC_PREC_FOR_SHINT) {
         rc = shint_from_dec_coeff(&fpdec->lo, &fpdec->hi,
                                   dec_repr->coeff, dec_repr->n_dec_digits,
                                   n_add_zeros);
@@ -424,6 +424,292 @@ fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src,
         return FPDEC_OK;
 
     return DISPATCH_FUNC_VA(vtab_adjust_to_prec, fpdec, dec_prec, rounding);
+}
+
+// Basic arithmetic operations
+
+static inline fpdec_dec_prec_t
+make_adjusted_shints(uint128_t *x_shint, uint128_t *y_shint,
+                     const fpdec_dec_prec_t x_dec_prec,
+                     const fpdec_dec_prec_t y_dec_prec) {
+    int shift = x_dec_prec - y_dec_prec;
+    fpdec_dec_prec_t prec;
+
+    if (shift == 0)
+        prec = x_dec_prec;
+    else if (shift > 0) {
+        prec = x_dec_prec;
+        // TODO: use u128_mul_10_pow_n directly
+        u128_idecshift(y_shint, FPDEC_SIGN_POS, shift, FPDEC_ROUND_DEFAULT);
+    }
+    else {
+        prec = y_dec_prec;
+        u128_idecshift(x_shint, FPDEC_SIGN_POS, -shift, FPDEC_ROUND_DEFAULT);
+    }
+    return prec;
+}
+
+static error_t
+fpdec_add_abs_shint_to_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    uint128_t x_shint = U128_FROM_SHINT(x);
+    uint128_t y_shint = U128_FROM_SHINT(y);
+
+    FPDEC_DEC_PREC(z) = make_adjusted_shints(&x_shint, &y_shint,
+                                             FPDEC_DEC_PREC(x),
+                                             FPDEC_DEC_PREC(y));
+    u128_iadd_u128(&x_shint, &y_shint);
+    z->lo = x_shint.lo;
+    z->hi = x_shint.hi;
+    if (U128_FITS_SHINT(x_shint))
+        return FPDEC_OK;
+    else
+        return fpdec_shint_to_dyn(z);
+}
+
+static error_t
+fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    fpdec_n_digits_t n_shift, n_add_zeros;
+    fpdec_digit_array_t *z_digits;
+    const fpdec_digit_array_t *s_digits;
+    fpdec_exp_t z_exp;
+
+    if (FPDEC_DYN_EXP(x) == FPDEC_DYN_EXP(y)) {
+        n_shift = 0;                // no need to adjust exponents
+        n_add_zeros = 1;            // provision for potential carry-over
+        if (FPDEC_DYN_N_DIGITS(x) >= FPDEC_DYN_N_DIGITS(y)) {
+            z_digits = digits_copy(x->digit_array, n_shift, n_add_zeros);
+            if (z_digits == NULL) MEMERROR
+            s_digits = y->digit_array;
+        }
+        else {
+            z_digits = digits_copy(y->digit_array, n_shift, n_add_zeros);
+            if (z_digits == NULL) MEMERROR
+            s_digits = x->digit_array;
+        }
+        z_exp = FPDEC_DYN_EXP(x);
+    }
+    else if (FPDEC_DYN_EXP(x) > FPDEC_DYN_EXP(y)) {
+        n_shift = FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y);
+        n_add_zeros = MAX((int) FPDEC_DYN_N_DIGITS(y) -
+                                  (int) FPDEC_DYN_N_DIGITS(x) -
+                                  (int) n_shift + 1,
+                          1);
+        z_digits = digits_copy(x->digit_array, n_shift, n_add_zeros);
+        if (z_digits == NULL) MEMERROR
+        s_digits = y->digit_array;
+        z_exp = FPDEC_DYN_EXP(y);
+    }
+    else {
+        n_shift = FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x);
+        n_add_zeros = MAX((int) FPDEC_DYN_N_DIGITS(x) -
+                                  (int) FPDEC_DYN_N_DIGITS(y) -
+                                  (int) n_shift + 1,
+                          1);
+        z_digits = digits_copy(y->digit_array, n_shift, n_add_zeros);
+        if (z_digits == NULL) MEMERROR
+        s_digits = x->digit_array;
+        z_exp = FPDEC_DYN_EXP(x);
+    }
+    digits_iadd_digits(z_digits, s_digits);
+    z->exp = z_exp + digits_eliminate_trailing_zeros(z_digits);
+    z->digit_array = z_digits;
+    z->dyn_alloc = true;
+    z->normalized = true;
+    // ???: try to convert to shifted int
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_add_abs_dyn_to_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    fpdec_t s;
+
+    rc = fpdec_copy(&s, x);
+    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_add_abs_dyn_to_dyn(z, &s, y);
+        fpdec_dealloc(&s);
+    }
+    return rc;
+}
+
+static error_t
+fpdec_add_abs_shint_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    fpdec_t s;
+
+    rc = fpdec_copy(&s, y);
+    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_add_abs_dyn_to_dyn(z, x, &s);
+        fpdec_dealloc(&s);
+    }
+    return rc;
+}
+
+typedef error_t (*v_math_op)(fpdec_t *, const fpdec_t *, const fpdec_t *);
+
+const v_math_op vtab_add_abs[4] = {
+        fpdec_add_abs_shint_to_shint,
+        fpdec_add_abs_dyn_to_shint,
+        fpdec_add_abs_shint_to_dyn,
+        fpdec_add_abs_dyn_to_dyn
+};
+
+// pre-condition: x >= y
+static error_t
+fpdec_sub_abs_shint_from_shint(fpdec_t *z, const fpdec_t *x,
+                               const fpdec_t *y) {
+    uint128_t x_shint = U128_FROM_SHINT(x);
+    uint128_t y_shint = U128_FROM_SHINT(y);
+
+    FPDEC_DEC_PREC(z) = make_adjusted_shints(&x_shint, &y_shint,
+                                             FPDEC_DEC_PREC(x),
+                                             FPDEC_DEC_PREC(y));
+    u128_isub_u128(&x_shint, &y_shint);
+    z->lo = x_shint.lo;
+    z->hi = x_shint.hi;
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_sub_abs_dyn_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    fpdec_n_digits_t n_shift;
+    fpdec_digit_array_t *z_digits;
+    fpdec_digit_array_t *s_digits;
+    fpdec_exp_t z_exp;
+
+    if (FPDEC_DYN_EXP(x) == FPDEC_DYN_EXP(y)) {
+        n_shift = 0;                // no need to adjust exponents
+        z_digits = digits_copy(x->digit_array, n_shift, 0);
+        if (z_digits == NULL) MEMERROR
+        s_digits = y->digit_array;
+        z_exp = FPDEC_DYN_EXP(x);
+    }
+    else if (FPDEC_DYN_EXP(x) > FPDEC_DYN_EXP(y)) {
+        n_shift = FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y);
+        z_digits = digits_copy(x->digit_array, n_shift, 0);
+        if (z_digits == NULL) MEMERROR
+        s_digits = y->digit_array;
+        z_exp = FPDEC_DYN_EXP(y);
+    }
+    else {
+        z_digits = digits_copy(x->digit_array, 0, 0);
+        if (z_digits == NULL) MEMERROR
+        n_shift = FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x);
+        s_digits = digits_copy(y->digit_array, n_shift, 0);
+        if (s_digits == NULL) MEMERROR
+        z_exp = FPDEC_DYN_EXP(x);
+    }
+    digits_isub_digits(z_digits, s_digits);
+    z->exp = z_exp + digits_eliminate_trailing_zeros(z_digits);
+    z->digit_array = z_digits;
+    z->dyn_alloc = true;
+    z->normalized = true;
+    // ???: try to convert to shifted int
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_sub_abs_dyn_from_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    fpdec_t s;
+
+    rc = fpdec_copy(&s, x);
+    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_sub_abs_dyn_from_dyn(z, &s, y);
+        fpdec_dealloc(&s);
+    }
+    return rc;
+}
+
+static error_t
+fpdec_sub_abs_shint_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    fpdec_t s;
+
+    rc = fpdec_copy(&s, y);
+    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_sub_abs_dyn_from_dyn(z, x, &s);
+        fpdec_dealloc(&s);
+    }
+    return rc;
+}
+
+const v_math_op vtab_sub_abs[4] = {
+        fpdec_sub_abs_shint_from_shint,
+        fpdec_sub_abs_dyn_from_shint,
+        fpdec_sub_abs_shint_from_dyn,
+        fpdec_sub_abs_dyn_from_dyn
+};
+
+error_t
+fpdec_add(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    int cmp;
+
+    ASSERT_FPDEC_IS_ZEROED(z);
+
+    if (FPDEC_EQ_ZERO(x))
+        return fpdec_copy(z, y);
+    if (FPDEC_EQ_ZERO(y))
+        return fpdec_copy(z, x);
+
+    FPDEC_DEC_PREC(z) = MAX(FPDEC_DEC_PREC(x), FPDEC_DEC_PREC(y));
+    if (FPDEC_SIGN(x) == FPDEC_SIGN(y)) {
+        // same sign => x + y = sign(x) (|x| + |y|)
+        FPDEC_SIGN(z) = FPDEC_SIGN(x);
+        return DISPATCH_BIN_OP(vtab_add_abs, z, x, y);
+    }
+    // sign(x) != sign(y) ...
+    cmp = fpdec_compare(x, y, true);
+    if (cmp == 1) {
+        // ... and |x| > |y| => x + y = sign(x) (|x| - |y|)
+        FPDEC_SIGN(z) = FPDEC_SIGN(x);
+        return DISPATCH_BIN_OP(vtab_sub_abs, z, x, y);
+    }
+    if (cmp == -1) {
+        // ... and |x| < |y| => x + y = sign(y) (|y| - |x|)
+        FPDEC_SIGN(z) = FPDEC_SIGN(y);
+        return DISPATCH_BIN_OP(vtab_sub_abs, z, y, x);
+    }
+    // ... and |x| = |y| => x + y = 0
+    return FPDEC_OK;
+}
+
+error_t
+fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    int cmp;
+
+    ASSERT_FPDEC_IS_ZEROED(z);
+
+    if (FPDEC_EQ_ZERO(x))
+        return fpdec_neg(z, y);
+    if (FPDEC_EQ_ZERO(y))
+        return fpdec_copy(z, x);
+
+    FPDEC_DEC_PREC(z) = MAX(FPDEC_DEC_PREC(x), FPDEC_DEC_PREC(y));
+    if (FPDEC_SIGN(x) != FPDEC_SIGN(y)) {
+        // sign(x) != sign(y) => x - y = sign(x) (|x| + |y|)
+        FPDEC_SIGN(z) = FPDEC_SIGN(x);
+        return DISPATCH_BIN_OP(vtab_add_abs, z, x, y);
+    }
+    // same sign ...
+    cmp = fpdec_compare(x, y, true);
+    if (cmp == 1) {
+        // ... and |x| > |y| => x - y = sign(x) (|x| - |y|)
+        FPDEC_SIGN(z) = FPDEC_SIGN(x);
+        return DISPATCH_BIN_OP(vtab_sub_abs, z, x, y);
+    }
+    if (cmp == -1) {
+        // ... and |x| < |y| => x - y = ~sign(y) (|y| - |x|)
+        FPDEC_SIGN(z) = FPDEC_SIGN(y) * -1;
+        return DISPATCH_BIN_OP(vtab_sub_abs, z, y, x);
+    }
+    // ... and |x| = |y| => x - y = 0
+    return FPDEC_OK;
+
 }
 
 // Deallocator

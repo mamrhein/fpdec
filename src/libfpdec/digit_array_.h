@@ -73,7 +73,19 @@ digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
 
 // Comparison
 
-int digits_cmp(fpdec_digit_t *x_digits, fpdec_n_digits_t x_n_digits,
-               fpdec_digit_t *y_digits, fpdec_n_digits_t y_n_digits);
+int
+digits_cmp(fpdec_digit_t *x_digits, fpdec_n_digits_t x_n_digits,
+           fpdec_digit_t *y_digits, fpdec_n_digits_t y_n_digits);
+
+// Basic arithmetic operations
+
+void
+digits_iadd_digit(fpdec_digit_array_t *x, fpdec_digit_t y);
+
+void
+digits_iadd_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y);
+
+void
+digits_isub_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y);
 
 #endif //FPDEC_DIGIT_ARRAY__H

@@ -160,6 +160,14 @@ error_t
 fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src, fpdec_dec_prec_t dec_prec,
                enum FPDEC_ROUNDING_MODE rounding);
 
+// Basic arithmetic operations
+
+error_t
+fpdec_add(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
+
+error_t
+fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
+
 // Deallocator
 
 void
