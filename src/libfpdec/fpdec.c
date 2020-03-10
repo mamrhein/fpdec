@@ -147,6 +147,7 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     if (rc != FPDEC_OK)
         goto EXIT;
     fpdec->dyn_alloc = true;
+    fpdec->exp += digits_eliminate_trailing_zeros(fpdec->digit_array);
     if (FPDEC_DYN_N_DIGITS(fpdec) > 0) {
         fpdec->normalized = true;
     }

@@ -150,7 +150,7 @@ TEST_CASE("Initialize from string") {
     }
 
     SECTION("Length of coeff > MAX_N_DEC_DIGITS_IN_SHINT") {
-        struct test_data tests[4] = {
+        struct test_data tests[5] = {
                 {
                         .literal = "  0001926.837209e26",
                         .sign = 1,
@@ -197,6 +197,16 @@ TEST_CASE("Initialize from string") {
                                    3333333333333333333UL,
                                    2222222222222222222UL,
                                    1111111111111111111UL}
+                },
+                {
+                    .literal =
+                            "-53095100000000000000000000000000000000000000"
+                            ".00",
+                            .sign = -1,
+                            .dec_prec = 2,
+                            .exp = 2,
+                            .n_digits = 1,
+                            .digits = {530951UL},
                 },
         };
 
