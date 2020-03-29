@@ -439,8 +439,7 @@ make_adjusted_shints(uint128_t *x_shint, uint128_t *y_shint,
         prec = x_dec_prec;
     else if (shift > 0) {
         prec = x_dec_prec;
-        // TODO: use u128_mul_10_pow_n directly
-        u128_idecshift(y_shint, FPDEC_SIGN_POS, shift, FPDEC_ROUND_DEFAULT);
+        u128_imul_10_pow_n(y_shint, shift);
     }
     else {
         prec = y_dec_prec;

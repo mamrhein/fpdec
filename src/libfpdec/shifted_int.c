@@ -121,7 +121,7 @@ shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
 
 // Multiplication
 
-static void
+void
 u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
     const uint64_t xl = U64_LO(x);
     const uint64_t xh = U64_HI(x);
@@ -138,7 +138,7 @@ u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
     z->hi += xh * yh + U64_HI(t);
 }
 
-static void
+void
 u128_imul_u64(uint128_t *x, const uint64_t y) {
     uint128_t t;
 
@@ -155,16 +155,6 @@ u128_imul_u64(uint128_t *x, const uint64_t y) {
         return;
     }
     x->lo = t.lo;
-}
-
-static inline void
-u128_imul_10_pow_n(uint128_t *x, const uint8_t n) {
-    for (uint64_t k = MIN(n, UINT64_10_POW_N_CUTOFF); k > 0; k = n - k) {
-        if (x->hi == 0)
-            u64_mul_u64(x, x->lo, _10_POW_N(k));
-        else
-            u128_imul_u64(x, _10_POW_N(k));
-    }
 }
 
 // Division
