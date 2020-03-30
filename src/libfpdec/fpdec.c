@@ -322,6 +322,65 @@ fpdec_shint_to_dyn(fpdec_t *fpdec) {
     return rc;
 }
 
+static void
+fpdec_dyn_normalize(fpdec_t *fpdec) {
+    fpdec_dec_prec_t dec_prec = FPDEC_DEC_PREC(fpdec);
+
+    assert(FPDEC_IS_DYN_ALLOC(fpdec));
+
+    if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
+        fpdec_reset_to_zero(fpdec, dec_prec);
+        return;
+    }
+
+    FPDEC_DYN_EXP(fpdec) +=
+            digits_eliminate_trailing_zeros(fpdec->digit_array);
+    if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
+        fpdec_reset_to_zero(fpdec, dec_prec);
+        return;
+    }
+
+    // try to transform dyn fpdec to shifted int
+    if (dec_prec <=MAX_DEC_PREC_FOR_SHINT) {
+        size_t n_dec_digits = MAX(fpdec_magnitude(fpdec), 0) + dec_prec;
+        if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
+            fpdec_sign_t sign = FPDEC_SIGN(fpdec);
+            uint128_t shint = {0, 0};
+            uint128_t f = {0, 0};
+            fpdec_n_digits_t n_digits = FPDEC_DYN_N_DIGITS(fpdec);
+            fpdec_n_digits_t digit_idx = 0;
+            fpdec_digit_t *digits = FPDEC_DYN_DIGITS(fpdec);
+            uint64_t dec_shift = _10_POW_N(dec_prec);
+            switch FPDEC_EXP(fpdec) {
+                case -1:
+                    u64_mul_u64(&shint, digits[digit_idx], dec_shift);
+                    u128_idiv_u64(&shint, RADIX);
+                    if (++digit_idx == n_digits)
+                        break;
+                case 0:
+                    u64_mul_u64(&f, digits[digit_idx], dec_shift);
+                    u128_iadd_u128(&shint, &f);
+                    if (++digit_idx == n_digits)
+                        break;
+                case 1:
+                    u64_mul_u64(&f, digits[digit_idx], dec_shift);
+                    u128_imul_u64(&f, RADIX);
+                    u128_iadd_u128(&shint, &f);
+                    if (++digit_idx == n_digits)
+                        break;
+                default:
+                    assert(digit_idx == n_digits);
+            }
+            if (U128_FITS_SHINT(shint)) {
+                fpdec_reset_to_zero(fpdec, dec_prec);
+                FPDEC_SIGN(fpdec) = sign;
+                fpdec->lo = shint.lo;
+                fpdec->hi = shint.hi;
+            }
+        }
+    }
+}
+
 static error_t
 fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
                          const fpdec_dec_prec_t dec_prec,
@@ -360,20 +419,9 @@ fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
                 fpdec->digit_array->digits[0] = 1UL;
                 FPDEC_DYN_N_DIGITS(fpdec) = 1;
             }
-            else {
-                FPDEC_DYN_EXP(fpdec) +=
-                        digits_eliminate_trailing_zeros(
-                                fpdec->digit_array);
-            }
         }
-        if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
-            fpdec_reset_to_zero(fpdec, 0);
-            // *fpdec = FPDEC_ZERO
-        }
-        // else {
-        // TODO: try to transform result to shifted int
-        // }
         FPDEC_DEC_PREC(fpdec) = dec_prec;
+        fpdec_dyn_normalize(fpdec);
     }
     return FPDEC_OK;
 }
