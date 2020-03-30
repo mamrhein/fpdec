@@ -27,11 +27,6 @@ $Revision$
 *  Functions
 *****************************************************************************/
 
-// Forward declarations
-
-static inline void
-u128_imul_10_pow_n(uint128_t *, uint8_t);
-
 // Bit arithmetic
 
 static inline unsigned
