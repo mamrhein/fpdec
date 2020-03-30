@@ -327,7 +327,12 @@ fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
                          const fpdec_dec_prec_t dec_prec,
                          const enum FPDEC_ROUNDING_MODE rounding) {
     size_t radix_point_at = -FPDEC_DYN_EXP(fpdec) * DEC_DIGITS_PER_DIGIT;
-    if (dec_prec <= FPDEC_DEC_PREC(fpdec) && dec_prec < radix_point_at) {
+
+    if (dec_prec >= FPDEC_DEC_PREC(fpdec) || dec_prec >= radix_point_at) {
+        // no need to adjust digits
+        FPDEC_DEC_PREC(fpdec) = dec_prec;
+    }
+    else {
         // need to shorten / round digits
         size_t dec_shift = radix_point_at - dec_prec;
         if (dec_shift >
@@ -368,8 +373,8 @@ fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
         // else {
         // TODO: try to transform result to shifted int
         // }
+        FPDEC_DEC_PREC(fpdec) = dec_prec;
     }
-    FPDEC_DEC_PREC(fpdec) = dec_prec;
     return FPDEC_OK;
 }
 
