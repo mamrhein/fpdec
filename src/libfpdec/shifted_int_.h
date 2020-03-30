@@ -155,4 +155,9 @@ u128_imul_10_pow_n(uint128_t *x, const uint8_t n) {
     }
 }
 
+// Division
+
+uint64_t
+u128_idiv_u64(uint128_t *x, uint64_t y);
+
 #endif //FPDEC_SHIFTED_INT__H

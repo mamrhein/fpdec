@@ -245,8 +245,8 @@ u128_idiv_u64_special(uint64_t *xlo, uint64_t *xhi, uint64_t y) {
     return ((t << 32U) + xn0 - *xlo * y) >> n_bits;
 }
 
-static uint64_t
-u128_idiv_u64(uint128_t *x, uint64_t y) {
+uint64_t
+u128_idiv_u64(uint128_t *x, const uint64_t y) {
     uint64_t t;
 
     assert(y != 0);
