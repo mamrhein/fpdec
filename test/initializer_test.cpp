@@ -145,7 +145,7 @@ TEST_CASE("Initialize from string") {
                     CHECK(fpdec.digit_array->digits[i] == test.digits[i]);
                 }
             }
-            fpdec_dealloc(&fpdec);
+            fpdec_reset_to_zero(&fpdec);
         }
     }
 
@@ -227,7 +227,7 @@ TEST_CASE("Initialize from string") {
                     CHECK(fpdec.digit_array->digits[i] == test.digits[i]);
                 }
             }
-            fpdec_dealloc(&fpdec);
+            fpdec_reset_to_zero(&fpdec);
         }
     }
 
