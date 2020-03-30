@@ -72,8 +72,8 @@ TEST_CASE("Negate") {
                           src.digit_array->digits[i]);
                 }
             }
-            fpdec_reset_to_zero(&src);
-            fpdec_reset_to_zero(&negated);
+            fpdec_reset_to_zero(&src, 0);
+            fpdec_reset_to_zero(&negated, 0);
         }
     }
 

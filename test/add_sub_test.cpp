@@ -539,17 +539,17 @@ TEST_CASE("Addition / Subtraction") {
 
             fpdec_add(&z, &x, &y);
             REQUIRE(fpdec_compare(&z, &s, false) == 0);
-            fpdec_reset_to_zero(&z);
+            fpdec_reset_to_zero(&z, 0);
 
             fpdec_sub(&z, &x, &y);
             REQUIRE(fpdec_compare(&z, &d, false) == 0);
-            fpdec_reset_to_zero(&z);
+            fpdec_reset_to_zero(&z, 0);
         }
 
-        fpdec_reset_to_zero(&x);
-        fpdec_reset_to_zero(&y);
-        fpdec_reset_to_zero(&s);
-        fpdec_reset_to_zero(&d);
+        fpdec_reset_to_zero(&x, 0);
+        fpdec_reset_to_zero(&y, 0);
+        fpdec_reset_to_zero(&s, 0);
+        fpdec_reset_to_zero(&d, 0);
     }
 }
 

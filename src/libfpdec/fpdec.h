@@ -171,7 +171,7 @@ fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
 // Deallocator
 
 void
-fpdec_reset_to_zero(fpdec_t *fpdec);
+fpdec_reset_to_zero(fpdec_t *fpdec, fpdec_dec_prec_t dec_prec);
 
 #ifdef __cplusplus
 }

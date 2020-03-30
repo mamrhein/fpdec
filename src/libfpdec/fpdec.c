@@ -152,7 +152,7 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
         fpdec->normalized = true;
     }
     else {      // corner case: result == 0
-        fpdec_reset_to_zero(fpdec);
+        fpdec_reset_to_zero(fpdec, 0);
     }
     fpdec->dec_prec = MAX(0, -dec_repr->exp);
 EXIT:
@@ -367,7 +367,7 @@ fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
             }
         }
         if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
-            fpdec_reset_to_zero(fpdec);
+            fpdec_reset_to_zero(fpdec, 0);
             // *fpdec = FPDEC_ZERO
         }
         // else {
@@ -532,7 +532,7 @@ fpdec_add_abs_dyn_to_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_add_abs_dyn_to_dyn(z, &s, y);
-        fpdec_reset_to_zero(&s);
+        fpdec_reset_to_zero(&s, 0);
     }
     return rc;
 }
@@ -546,7 +546,7 @@ fpdec_add_abs_shint_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_add_abs_dyn_to_dyn(z, x, &s);
-        fpdec_reset_to_zero(&s);
+        fpdec_reset_to_zero(&s, 0);
     }
     return rc;
 }
@@ -623,7 +623,7 @@ fpdec_sub_abs_dyn_from_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_sub_abs_dyn_from_dyn(z, &s, y);
-        fpdec_reset_to_zero(&s);
+        fpdec_reset_to_zero(&s, 0);
     }
     return rc;
 }
@@ -637,7 +637,7 @@ fpdec_sub_abs_shint_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_sub_abs_dyn_from_dyn(z, x, &s);
-        fpdec_reset_to_zero(&s);
+        fpdec_reset_to_zero(&s, 0);
     }
     return rc;
 }
@@ -719,9 +719,10 @@ fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
 // Deallocator
 
 void
-fpdec_reset_to_zero(fpdec_t *fpdec) {
+fpdec_reset_to_zero(fpdec_t *fpdec, fpdec_dec_prec_t dec_prec) {
     if (FPDEC_IS_DYN_ALLOC(fpdec)) {
         free((void *) fpdec->digit_array);
     }
     memset((void *) fpdec, 0, sizeof(fpdec_t));
+    FPDEC_DEC_PREC(fpdec) = dec_prec;
 }
