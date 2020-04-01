@@ -79,8 +79,9 @@ u64_n_leading_0_bits(uint64_t x) {
 
 static inline void
 u128_imul10(uint128_t *x) {
-    x->hi = x->hi * 10 + U64_HI(U64_HI(x->lo) * 10);
-    x->lo *= 10;
+    x->hi = x->hi * 10 +
+            U64_HI((U64_HI(x->lo) + U64_HI(U64_LO(x->lo) * 10UL)) * 10UL);
+    x->lo *= 10UL;
 }
 
 // Digit iterator

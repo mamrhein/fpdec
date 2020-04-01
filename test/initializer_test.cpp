@@ -33,7 +33,7 @@ TEST_CASE("Initialize from string") {
 
     SECTION("Length of coeff <= MAX_N_DEC_DIGITS_IN_SHINT and "
             "(dec_prec <= MAX_DEC_PREC_FOR_SHINT or result == 0)") {
-        struct test_data tests[8] = {
+        struct test_data tests[] = {
                 {
                         .literal = "  000000000000001926.83 \n",
                         .sign = 1,
@@ -101,7 +101,7 @@ TEST_CASE("Initialize from string") {
     }
 
     SECTION("Dec_prec > MAX_DEC_PREC_FOR_SHINT") {
-        struct test_data tests[3] = {
+        struct test_data tests[] = {
                 {
                         .literal = "+5.387E-17",
                         .sign = 1,
@@ -150,7 +150,7 @@ TEST_CASE("Initialize from string") {
     }
 
     SECTION("Length of coeff > MAX_N_DEC_DIGITS_IN_SHINT") {
-        struct test_data tests[5] = {
+        struct test_data tests[] = {
                 {
                         .literal = "  0001926.837209e26",
                         .sign = 1,
@@ -199,14 +199,24 @@ TEST_CASE("Initialize from string") {
                                    1111111111111111111UL}
                 },
                 {
-                    .literal =
-                            "-53095100000000000000000000000000000000000000"
-                            ".00",
-                            .sign = -1,
-                            .dec_prec = 2,
-                            .exp = 2,
-                            .n_digits = 1,
-                            .digits = {530951UL},
+                        .literal =
+                        "-53095100000000000000000000000000000000000000"
+                        ".00",
+                        .sign = -1,
+                        .dec_prec = 2,
+                        .exp = 2,
+                        .n_digits = 1,
+                        .digits = {530951UL}
+                },
+                {
+                        .literal = "792281625142643375935439504.11",
+                        .sign = 1,
+                        .dec_prec = 2,
+                        .exp = -1,
+                        .n_digits = 3,
+                        .digits = {1100000000000000000UL,
+                                   5142643375935439504UL,
+                                   79228162UL}
                 },
         };
 
@@ -232,7 +242,7 @@ TEST_CASE("Initialize from string") {
     }
 
     SECTION("Invalid input") {
-        std::string literals[7] = {
+        std::string literals[] = {
                 " 1.23.5", "1.24e", "--4.92", "", "   ", "3,49E-3",
                 "\t+   \r\n"
         };
@@ -249,7 +259,7 @@ TEST_CASE("Initialize from string") {
 
 TEST_CASE("Initialize from long long.") {
 
-    long long test_vals[4] = {INT64_MIN, -290382, 0, INT64_MAX};
+    long long test_vals[] = {INT64_MIN, -290382, 0, INT64_MAX};
     char buf[30];
 
     for (long long test_val : test_vals) {
