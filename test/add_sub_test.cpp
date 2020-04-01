@@ -28,7 +28,7 @@ TEST_CASE("Addition / Subtraction") {
         std::string lit_diff;
     };
 
-    struct test_data tests[81] = {
+    struct test_data tests[] = {
             {
                     .lit_x = "0.00",
                     .lit_y = "0.00",
@@ -549,6 +549,57 @@ TEST_CASE("Addition / Subtraction") {
         fpdec_reset_to_zero(&x, 0);
         fpdec_reset_to_zero(&y, 0);
         fpdec_reset_to_zero(&s, 0);
+        fpdec_reset_to_zero(&d, 0);
+    }
+}
+
+TEST_CASE("Subtraction with change of variant") {
+
+    struct test_data {
+        std::string lit_x;
+        std::string lit_y;
+        std::string lit_diff;
+    };
+
+    struct test_data tests[] = {
+            {
+                    .lit_x = "1792281625142643375935439503.35",
+                    .lit_y = "1000000000000000000000000000.00",
+                    .lit_diff = "792281625142643375935439503.35",
+            },
+            {
+                    .lit_x = "1000000000000000000000000000",
+                    .lit_y = "792281625142643375935439504.11",
+                    .lit_diff = "207718374857356624064560495.89",
+            },
+    };
+    error_t rc;
+
+    for (const auto &test : tests) {
+        fpdec_t x = FPDEC_ZERO;
+        fpdec_t y = FPDEC_ZERO;
+        fpdec_t z = FPDEC_ZERO;
+        fpdec_t d = FPDEC_ZERO;
+
+        const std::string section_name = test.lit_x + " / " + test.lit_y;
+
+        SECTION(section_name) {
+            rc = fpdec_from_ascii_literal(&x, test.lit_x.c_str());
+            REQUIRE(rc == FPDEC_OK);
+            rc = fpdec_from_ascii_literal(&y, test.lit_y.c_str());
+            REQUIRE(rc == FPDEC_OK);
+            REQUIRE((is_digit_array(&x) || is_digit_array(&y)));
+            rc = fpdec_from_ascii_literal(&d, test.lit_diff.c_str());
+            REQUIRE(rc == FPDEC_OK);
+
+            fpdec_sub(&z, &x, &y);
+            REQUIRE(fpdec_compare(&z, &d, false) == 0);
+            REQUIRE(is_shint(&z));
+        }
+
+        fpdec_reset_to_zero(&x, 0);
+        fpdec_reset_to_zero(&y, 0);
+        fpdec_reset_to_zero(&z, 0);
         fpdec_reset_to_zero(&d, 0);
     }
 }

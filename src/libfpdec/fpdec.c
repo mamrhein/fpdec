@@ -339,6 +339,8 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
         fpdec_reset_to_zero(fpdec, dec_prec);
         return;
     }
+    else
+        fpdec->normalized = true;
 
     // try to transform dyn fpdec to shifted int
     if (dec_prec <=MAX_DEC_PREC_FOR_SHINT) {
@@ -567,7 +569,6 @@ fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     z->digit_array = z_digits;
     z->dyn_alloc = true;
     z->normalized = true;
-    // ???: try to convert to shifted int
     return FPDEC_OK;
 }
 
@@ -654,11 +655,10 @@ fpdec_sub_abs_dyn_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
         z_exp = FPDEC_DYN_EXP(x);
     }
     digits_isub_digits(z_digits, s_digits);
-    z->exp = z_exp + digits_eliminate_trailing_zeros(z_digits);
+    z->exp = z_exp;
     z->digit_array = z_digits;
     z->dyn_alloc = true;
-    z->normalized = true;
-    // ???: try to convert to shifted int
+    fpdec_dyn_normalize(z);
     return FPDEC_OK;
 }
 
