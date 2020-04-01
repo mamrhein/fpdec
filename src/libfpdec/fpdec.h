@@ -65,14 +65,6 @@ typedef struct {
 
 #define FPDEC_IS_NORMALIZED(fpdec) (((fpdec_t*)fpdec)->normalized)
 
-
-/* TODO: shifted int variant
-#define FPDEC_IS_INT(fpdec) (((fpdec_t*)fpdec)->dec_prec == 0 || \
-                             FPDEC_IS_DYN_ALLOC(fpdec) && \
-                             ((fpdec_t*)fpdec)->normalized && \
-                             ((fpdec_t*)fpdec)->exp >= 0)
-*/
-
 #define FPDEC_EQ_ZERO(fpdec) (((fpdec_t*)fpdec)->sign == FPDEC_SIGN_ZERO)
 
 #define FPDEC_IS_NEGATIVE(fpdec) (((fpdec_t*)fpdec)->sign == FPDEC_SIGN_NEG)
