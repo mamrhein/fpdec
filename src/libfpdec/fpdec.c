@@ -321,6 +321,18 @@ fpdec_shint_to_dyn(fpdec_t *fpdec) {
     return rc;
 }
 
+static error_t
+fpdec_copy_shint_as_dyn(fpdec_t *cpy, const fpdec_t *src) {
+    error_t rc;
+
+    assert(!FPDEC_IS_DYN_ALLOC(src));
+
+    rc = fpdec_copy(cpy, src);
+    if (rc == FPDEC_OK)
+        rc = fpdec_shint_to_dyn(cpy);
+    return rc;
+}
+
 static void
 fpdec_dyn_normalize(fpdec_t *fpdec) {
     fpdec_dec_prec_t dec_prec = FPDEC_DEC_PREC(fpdec);
@@ -576,9 +588,7 @@ fpdec_add_abs_dyn_to_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     error_t rc;
     fpdec_t s;
 
-    rc = fpdec_copy(&s, x);
-    if (rc == FPDEC_OK)
-        rc = fpdec_shint_to_dyn(&s);
+    rc = fpdec_copy_shint_as_dyn(&s, x);
     if (rc == FPDEC_OK) {
         rc = fpdec_add_abs_dyn_to_dyn(z, &s, y);
         fpdec_reset_to_zero(&s, 0);
@@ -591,9 +601,7 @@ fpdec_add_abs_shint_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     error_t rc;
     fpdec_t s;
 
-    rc = fpdec_copy(&s, y);
-    if (rc == FPDEC_OK)
-        rc = fpdec_shint_to_dyn(&s);
+    rc = fpdec_copy_shint_as_dyn(&s, y);
     if (rc == FPDEC_OK) {
         rc = fpdec_add_abs_dyn_to_dyn(z, x, &s);
         fpdec_reset_to_zero(&s, 0);
@@ -668,9 +676,7 @@ fpdec_sub_abs_dyn_from_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     error_t rc;
     fpdec_t s;
 
-    rc = fpdec_copy(&s, x);
-    if (rc == FPDEC_OK)
-        rc = fpdec_shint_to_dyn(&s);
+    rc = fpdec_copy_shint_as_dyn(&s, x);
     if (rc == FPDEC_OK) {
         rc = fpdec_sub_abs_dyn_from_dyn(z, &s, y);
         fpdec_reset_to_zero(&s, 0);
@@ -683,9 +689,7 @@ fpdec_sub_abs_shint_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     error_t rc;
     fpdec_t s;
 
-    rc = fpdec_copy(&s, y);
-    if (rc == FPDEC_OK)
-        rc = fpdec_shint_to_dyn(&s);
+    rc = fpdec_copy_shint_as_dyn(&s, y);
     if (rc == FPDEC_OK) {
         rc = fpdec_sub_abs_dyn_from_dyn(z, x, &s);
         fpdec_reset_to_zero(&s, 0);
