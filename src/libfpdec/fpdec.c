@@ -201,7 +201,7 @@ const v_magnitude vtab_magnitude[2] = {fpdec_shint_magnitude,
 
 int
 fpdec_magnitude(const fpdec_t *fpdec) {
-    if (FPDEC_EQ_ZERO(fpdec)) ERROR_RETVAL(ERANGE, -1);
+    if (FPDEC_EQ_ZERO(fpdec)) ERROR_RETVAL(ERANGE, -1)
     return DISPATCH_FUNC(vtab_magnitude, fpdec);
 }
 
@@ -267,7 +267,6 @@ fpdec_compare(const fpdec_t *x, const fpdec_t *y, const bool ignore_sign) {
         if (FPDEC_SIGN(y) == 0)
             return FPDEC_SIGN(x) != 0;
         x_sign = FPDEC_SIGN_POS;
-        y_sign = FPDEC_SIGN_POS;
     }
     else {
         x_sign = FPDEC_SIGN(x);
@@ -343,7 +342,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
         fpdec->normalized = true;
 
     // try to transform dyn fpdec to shifted int
-    if (dec_prec <=MAX_DEC_PREC_FOR_SHINT) {
+    if (dec_prec <= MAX_DEC_PREC_FOR_SHINT) {
         size_t n_dec_digits = MAX(fpdec_magnitude(fpdec), 0) + dec_prec;
         if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
             fpdec_sign_t sign = FPDEC_SIGN(fpdec);
@@ -578,7 +577,8 @@ fpdec_add_abs_dyn_to_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     fpdec_t s;
 
     rc = fpdec_copy(&s, x);
-    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK)
+        rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_add_abs_dyn_to_dyn(z, &s, y);
         fpdec_reset_to_zero(&s, 0);
@@ -592,7 +592,8 @@ fpdec_add_abs_shint_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     fpdec_t s;
 
     rc = fpdec_copy(&s, y);
-    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK)
+        rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_add_abs_dyn_to_dyn(z, x, &s);
         fpdec_reset_to_zero(&s, 0);
@@ -668,7 +669,8 @@ fpdec_sub_abs_dyn_from_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     fpdec_t s;
 
     rc = fpdec_copy(&s, x);
-    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK)
+        rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_sub_abs_dyn_from_dyn(z, &s, y);
         fpdec_reset_to_zero(&s, 0);
@@ -682,7 +684,8 @@ fpdec_sub_abs_shint_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     fpdec_t s;
 
     rc = fpdec_copy(&s, y);
-    rc = fpdec_shint_to_dyn(&s);
+    if (rc == FPDEC_OK)
+        rc = fpdec_shint_to_dyn(&s);
     if (rc == FPDEC_OK) {
         rc = fpdec_sub_abs_dyn_from_dyn(z, x, &s);
         fpdec_reset_to_zero(&s, 0);
