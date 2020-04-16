@@ -190,8 +190,10 @@ fpdec_shint_magnitude(const fpdec_t *fpdec) {
 static int
 fpdec_dyn_magnitude(const fpdec_t *fpdec) {
     int rel_pos_radix_point = FPDEC_DYN_N_DIGITS(fpdec) + FPDEC_EXP(fpdec);
+    fpdec_digit_t most_signif_digit = FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec);
+    assert(most_signif_digit != 0);
     return (rel_pos_radix_point - 1) * DEC_DIGITS_PER_DIGIT +
-            U64_MAGNITUDE(FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec));
+            U64_MAGNITUDE(most_signif_digit);
 }
 
 typedef int (*v_magnitude)(const fpdec_t *);
@@ -344,6 +346,9 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
         return;
     }
 
+    for (; FPDEC_DYN_N_DIGITS(fpdec) > 0 &&
+                   FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0;
+           --(FPDEC_DYN_N_DIGITS(fpdec)));
     FPDEC_DYN_EXP(fpdec) +=
             digits_eliminate_trailing_zeros(fpdec->digit_array);
     if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
