@@ -35,16 +35,6 @@ $Revision$
 *  Functions
 *****************************************************************************/
 
-// Digit getter
-
-fpdec_digit_t
-digits_get_digit(fpdec_digit_array_t *digit_array, fpdec_n_digits_t idx);
-
-// Digit iterator
-
-digit_iter
-digits_iter_digits(fpdec_digit_array_t *digit_array);
-
 // Constructors
 
 fpdec_digit_array_t *

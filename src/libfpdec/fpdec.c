@@ -74,17 +74,20 @@ $Revision$
 
 void
 fpdec_dump(const fpdec_t *fpdec) {
-    digit_iter it = FPDEC_ITER_DIGITS(fpdec);
-
     printf("flags:\n  dyn_alloc: %d\n  normalized: %d\n",
            FPDEC_IS_DYN_ALLOC(fpdec), FPDEC_IS_NORMALIZED(fpdec));
     printf("sign: %d\n", FPDEC_SIGN(fpdec));
     printf("dec_prec: %u\n", FPDEC_DEC_PREC(fpdec));
-    printf("exp: %d\n", FPDEC_EXP(fpdec));
-    printf("n digits: %u\n", it.limit);
-    printf("digits: ");
-    while (it.next_idx < it.limit) {
-        printf("%lu, ", it.next(&it));
+    if (FPDEC_IS_DYN_ALLOC(fpdec)) {
+        printf("exp: %d\n", FPDEC_EXP(fpdec));
+        printf("n digits: %u\n", FPDEC_DYN_N_DIGITS(fpdec));
+        printf("digits: ");
+        for (int i = 0; i < FPDEC_DYN_N_DIGITS(fpdec); ++i) {
+            printf("%lu, ", FPDEC_DYN_DIGITS(fpdec)[i]);
+        }
+    }
+    else {
+        printf("digits: %lu %u\n", fpdec->lo, fpdec->hi);
     }
     printf("\n\n");
 }

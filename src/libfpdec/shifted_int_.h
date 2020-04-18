@@ -44,11 +44,6 @@ $Revision$
 *  Functions
 *****************************************************************************/
 
-// Digit iterator
-
-digit_iter
-shint_iter_digits(fpdec_digit_t lo, fpdec_digit_t hi);
-
 // Comparison
 
 int

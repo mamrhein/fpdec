@@ -28,26 +28,9 @@ $Revision$
 
 typedef unsigned char dec_digit_t;
 
-struct _it_t;
-
-typedef fpdec_digit_t (*get_next)(struct _it_t *iter);
-
-typedef struct _it_t {
-    fpdec_n_digits_t limit;
-    size_t next_idx;
-    get_next next;
-    union {
-        fpdec_digit_t *ptr_to_digits;
-        fpdec_digit_t digits[2];
-    };
-} digit_iter;
-
 /*****************************************************************************
 *  Macros
 *****************************************************************************/
-
-// limits
-#define FPDEC_DIGIT_MAX UINT64_MAX
 
 // error return
 #define ERROR(err) {errno = err; return err;}

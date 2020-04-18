@@ -15,7 +15,6 @@ $Revision$
 
 #include <assert.h>
 #include <malloc.h>
-#include <stddef.h>
 #include <string.h>
 
 #include "basemath.h"
@@ -48,33 +47,6 @@ digits_alloc(size_t n_digits) {
         digit_array->n_alloc = n_digits;
     }
     return digit_array;
-}
-
-// Digit getter
-
-fpdec_digit_t
-digits_get_digit(fpdec_digit_array_t *digit_array, fpdec_n_digits_t idx) {
-    return idx < digit_array->n_signif ? digit_array->digits[idx] :
-           (fpdec_digit_t) FPDEC_DIGIT_MAX;
-}
-
-// Digit iterator
-
-fpdec_digit_t
-_digits_get_next_digit(digit_iter *it) {
-    return it->next_idx < it->limit ? it->ptr_to_digits[it->next_idx++] :
-           (fpdec_digit_t) FPDEC_DIGIT_MAX;
-}
-
-digit_iter
-digits_iter_digits(fpdec_digit_array_t *digit_array) {
-    digit_iter it = {
-            .limit = digit_array->n_signif,
-            .next_idx = 0,
-            .next = _digits_get_next_digit,
-            .ptr_to_digits = digit_array->digits
-    };
-    return it;
 }
 
 // Tests
