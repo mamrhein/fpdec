@@ -18,6 +18,7 @@ $Revision$
 #include <stddef.h>
 #include <string.h>
 
+#include "basemath.h"
 #include "digit_array_.h"
 #include "rounding_.h"
 
@@ -354,4 +355,71 @@ digits_isub_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
     // total borrow?
     if (x->digits[x->n_signif - 1] == 0)
         x->n_signif--;
+}
+
+void
+digits_imul_digit(fpdec_digit_array_t *x, fpdec_digit_t y) {
+    fpdec_digit_t *x_over = x->digits + x->n_signif;
+    uint128_t t;
+    fpdec_digit_t k = 0;
+
+    assert(x->n_signif > 0);
+    assert(x->n_alloc > x->n_signif);
+
+    for (fpdec_digit_t *d = x->digits; d < x_over; ++d) {
+        // *d <= RADIX - 1 and y <= RADIX - 1 and k <= RADIX - 1
+        u64_mul_u64(&t, *d, y);
+        // t <= RADIX * RADIX - 2 * RADIX + 1
+        u128_iadd_u64(&t, k);
+        // t <= RADIX * RADIX - RADIX
+        *d = u128_idiv_u64(&t, RADIX);
+        // t <= RADIX - 1
+        // *d <= RADIX - 1
+        k = t.lo;
+        // k <=RADIX - 1
+    }
+    if (k > 0) {
+        *x_over = k;
+        x->n_signif++;
+    }
+}
+
+// See D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.3.1,
+// Algorithm M
+fpdec_digit_array_t *
+digits_mul(const fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
+    fpdec_digit_array_t *z;
+    fpdec_digit_t *z_digit;
+    fpdec_digit_t *z_carry;
+    uint128_t t;
+
+    assert(x->n_signif > 0);
+    assert(y->n_signif > 0);
+
+    z = digits_alloc(x->n_signif + y->n_signif);
+    if (z == NULL) MEMERROR_RETVAL(NULL)
+
+    z_carry = z->digits + x->n_signif;
+    for (int j = 0; j < y->n_signif; ++j) {
+        z_digit = z->digits + j;
+        for (int i = 0; i < x->n_signif; ++i) {
+            // x->digits[i] <= RADIX - 1 and y->digits[j] <= RADIX - 1 and
+            // *z_digit <= RADIX - 1 and *z_carry <= RADIX - 1
+            u64_mul_u64(&t, x->digits[i], y->digits[j]);
+            // t <= RADIX * RADIX - 2 * RADIX + 1
+            u128_iadd_u64(&t, *z_digit);
+            // t <= RADIX * RADIX - RADIX
+            u128_iadd_u64(&t, *z_carry);
+            // t <= RADIX * RADIX - 1
+            *z_digit = u128_idiv_u64(&t, RADIX);
+            // t <= RADIX - 1
+            // *z_digit <= RADIX - 1
+            *z_carry = t.lo;
+            // *z_carry <= RADIX - 1
+            z_digit++;
+        }
+        z_carry++;
+    }
+    z->n_signif = z->n_alloc;
+    return z;
 }

@@ -82,6 +82,7 @@ typedef struct {
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
 
+// TODO: refactor iterators to give pointers to digits
 #define FPDEC_ITER_DIGITS(fpdec) \
         (FPDEC_IS_DYN_ALLOC(fpdec) ? \
             digits_iter_digits(fpdec->digit_array) : \
@@ -159,6 +160,9 @@ fpdec_add(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
 
 error_t
 fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
+
+error_t
+fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
 
 // Deallocator
 

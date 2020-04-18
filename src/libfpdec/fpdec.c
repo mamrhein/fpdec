@@ -341,14 +341,13 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
 
     assert(FPDEC_IS_DYN_ALLOC(fpdec));
 
+    while (FPDEC_DYN_N_DIGITS(fpdec) > 0 &&
+            FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0)
+        (FPDEC_DYN_N_DIGITS(fpdec))--;
     if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
         fpdec_reset_to_zero(fpdec, dec_prec);
         return;
     }
-
-    for (; FPDEC_DYN_N_DIGITS(fpdec) > 0 &&
-                   FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0;
-           --(FPDEC_DYN_N_DIGITS(fpdec)));
     FPDEC_DYN_EXP(fpdec) +=
             digits_eliminate_trailing_zeros(fpdec->digit_array);
     if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
@@ -780,6 +779,121 @@ fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     // ... and |x| = |y| => x - y = 0
     return FPDEC_OK;
 
+}
+
+static error_t
+fpdec_mul_abs_dyn_by_u64(fpdec_t *z, const fpdec_t *x, const uint64_t y) {
+    fpdec_digit_array_t *z_digits = digits_copy(x->digit_array, 0, 1);
+
+    if (z_digits == NULL) MEMERROR
+
+    digits_imul_digit(z_digits, y);
+    z->digit_array = z_digits;
+    FPDEC_IS_DYN_ALLOC(z) = true;
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_mul_abs_shint_by_u64(fpdec_t *z, const fpdec_t *x, const uint64_t y) {
+    uint128_t z_shint = U128_FROM_SHINT(x);
+
+    u128_imul_u64(&z_shint, y);
+    if (U128_FITS_SHINT(z_shint)) {
+        z->lo = z_shint.lo;
+        z->hi = z_shint.hi;
+        return FPDEC_OK;
+    }
+    return FPDEC_N_DIGITS_LIMIT_EXCEEDED;
+}
+
+static error_t
+fpdec_mul_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    fpdec_digit_array_t *z_digits;
+
+    z_digits = digits_mul(x->digit_array, y->digit_array);
+    if (z_digits == NULL) MEMERROR
+    z->digit_array = z_digits;
+    z->exp = FPDEC_EXP(x) + FPDEC_EXP(y);
+    FPDEC_IS_DYN_ALLOC(z) = true;
+    return FPDEC_OK;
+}
+
+static error_t
+fpdec_mul_abs_shint_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    fpdec_t x_dyn;
+
+    rc = fpdec_copy_shint_as_dyn(&x_dyn, x);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_mul_abs_dyn_by_dyn(z, &x_dyn, y);
+        fpdec_reset_to_zero(&x_dyn, 0);
+    }
+    return rc;
+}
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "ArgumentSelectionDefects"
+
+static error_t
+fpdec_mul_abs_dyn_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    return fpdec_mul_abs_shint_by_dyn(z, y, x);
+}
+
+#pragma clang diagnostic pop
+
+static error_t
+fpdec_mul_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    fpdec_t y_dyn;
+
+    if (x->hi == 0 && fpdec_mul_abs_shint_by_u64(z, y, x->lo) == FPDEC_OK)
+        return FPDEC_OK;
+    if (y->hi == 0 && fpdec_mul_abs_shint_by_u64(z, x, y->lo) == FPDEC_OK)
+        return FPDEC_OK;
+
+    rc = fpdec_copy_shint_as_dyn(&y_dyn, y);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_mul_abs_shint_by_dyn(z, x, &y_dyn);
+        fpdec_reset_to_zero(&y_dyn, 0);
+    }
+    return rc;
+}
+
+const v_math_op vtab_mul_abs[4] = {
+        fpdec_mul_abs_shint_by_shint,
+        fpdec_mul_abs_shint_by_dyn,
+        fpdec_mul_abs_dyn_by_shint,
+        fpdec_mul_abs_dyn_by_dyn
+};
+
+error_t
+fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+
+    ASSERT_FPDEC_IS_ZEROED(z);
+
+    if (FPDEC_EQ_ZERO(x) || FPDEC_EQ_ZERO(y))
+        return FPDEC_OK;
+
+    FPDEC_SIGN(z) = FPDEC_SIGN(x) * FPDEC_SIGN(y);
+    FPDEC_DEC_PREC(z) = FPDEC_DEC_PREC(x) + FPDEC_DEC_PREC(y);
+    if (FPDEC_DEC_PREC(z) <= MAX_DEC_PREC_FOR_SHINT ||
+            FPDEC_IS_DYN_ALLOC(x) || FPDEC_IS_DYN_ALLOC(y)) {
+        rc = DISPATCH_BIN_OP(vtab_mul_abs, z, x, y);
+    }
+    else {
+        // force result to dyn variant
+        fpdec_t x_dyn;
+        rc = fpdec_copy_shint_as_dyn(&x_dyn, x);
+        if (rc == FPDEC_OK) {
+            rc = DISPATCH_BIN_OP(vtab_mul_abs, z, &x_dyn, y);
+            fpdec_reset_to_zero(&x_dyn, 0);
+        }
+    }
+    if (FPDEC_IS_DYN_ALLOC(z)) {
+        fpdec_dyn_normalize(z);
+    }
+    return rc;
 }
 
 // Deallocator

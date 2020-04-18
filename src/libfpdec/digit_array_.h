@@ -88,4 +88,10 @@ digits_iadd_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y);
 void
 digits_isub_digits(fpdec_digit_array_t *x, const fpdec_digit_array_t *y);
 
+void
+digits_imul_digit(fpdec_digit_array_t *x, fpdec_digit_t y);
+
+fpdec_digit_array_t *
+digits_mul(const fpdec_digit_array_t *x, const fpdec_digit_array_t *y);
+
 #endif //FPDEC_DIGIT_ARRAY__H
