@@ -1149,6 +1149,7 @@ check_adjusted_shint(const enum FPDEC_ROUNDING_MODE rnd, const char *literal,
     CHECK(FPDEC_DEC_PREC(&adj) == dec_prec);
     CHECK(adj.lo == digits[0]);
     CHECK(adj.hi == digits[1]);
+    fpdec_reset_to_zero(&fpdec, 0);
 }
 
 void
@@ -1169,4 +1170,7 @@ check_adjusted_digit_array(enum FPDEC_ROUNDING_MODE rnd, const char *literal,
     for (int i = 0; i < FPDEC_N_DIGITS(&adj); ++i) {
         CHECK(adj.digit_array->digits[i] == digits[i]);
     }
+    fpdec_reset_to_zero(&fpdec, 0);
+    fpdec_reset_to_zero(&adj, 0);
+
 }

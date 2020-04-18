@@ -69,6 +69,7 @@ TEST_CASE("Magnitude") {
                 REQUIRE(is_digit_array(&fpdec));
                 CHECK(fpdec_magnitude(&fpdec) == test.magnitude);
             }
+            fpdec_reset_to_zero(&fpdec, 0);
         }
     }
 

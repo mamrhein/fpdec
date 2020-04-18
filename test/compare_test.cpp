@@ -56,7 +56,9 @@ TEST_CASE("Compare") {
                 SECTION(buf) {
                     CHECK(fpdec_compare(&x, &y, false) == CMP(i, j));
                 }
+                fpdec_reset_to_zero(&y, 0);
             }
+            fpdec_reset_to_zero(&x, 0);
         }
     }
 
@@ -89,7 +91,9 @@ TEST_CASE("Compare") {
                 SECTION(buf) {
                     CHECK(fpdec_compare(&x, &y, true) == CMP(i, j));
                 }
+                fpdec_reset_to_zero(&y, 0);
             }
+            fpdec_reset_to_zero(&x, 0);
         }
     }
 }
