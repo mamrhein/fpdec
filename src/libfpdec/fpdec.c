@@ -652,6 +652,7 @@ fpdec_sub_abs_dyn_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     fpdec_n_digits_t n_shift;
     fpdec_digit_array_t *z_digits;
     fpdec_digit_array_t *s_digits;
+    bool s_digits_is_copy = false;
     fpdec_exp_t z_exp;
 
     if (FPDEC_DYN_EXP(x) == FPDEC_DYN_EXP(y)) {
@@ -674,9 +675,12 @@ fpdec_sub_abs_dyn_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
         n_shift = FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x);
         s_digits = digits_copy(y->digit_array, n_shift, 0);
         if (s_digits == NULL) MEMERROR
+        s_digits_is_copy = true;
         z_exp = FPDEC_DYN_EXP(x);
     }
     digits_isub_digits(z_digits, s_digits);
+    if (s_digits_is_copy)
+        free((void *) s_digits);
     z->exp = z_exp;
     z->digit_array = z_digits;
     z->dyn_alloc = true;
