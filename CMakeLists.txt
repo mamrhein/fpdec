@@ -25,7 +25,9 @@ set(APPLICATION_VERSION_STRING "${APPLICATION_VERSION_MAJOR}.${APPLICATION_VERSI
 #
 set(PROJECT_BUILD_STATIC 0)
 set(PROJECT_BUILD_SHARED 1)
-
+# add options for coverage
+add_compile_options(--coverage)
+add_link_options(--coverage)
 
 #
 # Debugging Options
