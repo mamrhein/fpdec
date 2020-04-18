@@ -1097,6 +1097,14 @@ TEST_CASE("Adjust presision") {
                         .digits = {900000000000UL}
                 },
                 {
+                        .literal = "100000000000000000000000.1",
+                        .dec_prec = 9,
+                        .exp = -1,
+                        .digits = {1000000000000000000UL,
+                                   0UL,
+                                   10000UL}
+                },
+                {
                         .literal = "100000000000000000000000.00000",
                         .dec_prec = 9,
                         .exp = 1,
