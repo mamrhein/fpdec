@@ -1085,6 +1085,12 @@ TEST_CASE("Adjust presision") {
 
         struct test_data tests[] = {
                 {
+                        .literal = "0.0000007",
+                        .dec_prec = 10,
+                        .exp = -1,
+                        .digits = {7000000000000UL}
+                },
+                {
                         .literal = "900000000000.000000000",
                         .dec_prec = 17,
                         .exp = 0,
