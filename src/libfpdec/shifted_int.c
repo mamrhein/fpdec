@@ -119,13 +119,13 @@ shint_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
     else {
         *digit = u128_idiv_u64(&t, b);
     }
-    if (*digit != 0) {
+    if (*digit != 0 || t.lo != 0 && n_digits > 0) {
         n_digits++;
         digit++;
     }
-    else if (t.lo != 0)
-        (*n_trailing_zeros_skipped)++;
     if (t.lo != 0) {
+        if (n_digits == 0)
+            (*n_trailing_zeros_skipped)++;
         *digit = t.lo;
         n_digits++;
     }
