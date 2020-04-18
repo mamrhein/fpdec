@@ -145,7 +145,7 @@ static uint64_t
 u128_idiv_u64_special(uint64_t *xlo, uint64_t *xhi, uint64_t y) {
     const uint64_t b = 1UL << 32U;
     unsigned n_bits;
-    uint64_t xn0, xn1, xn10, xn32, yn0, yn1, t, rhat;
+    uint64_t xn0, xn1, xn10, xn32, yn0, yn1, q0, q1, t, rhat;
 
     assert(U64_HI(y) != 0);
     assert(*xhi < y);
@@ -161,44 +161,44 @@ u128_idiv_u64_special(uint64_t *xlo, uint64_t *xhi, uint64_t y) {
     xn0 = U64_LO(xn10);
     xn1 = U64_HI(xn10);
 
-    *xhi = xn32 / yn1;
+    q1 = xn32 / yn1;
     rhat = xn32 % yn1;
     // Now we have
-    // xhi * yn1 + rhat = xn32
+    // q1 * yn1 + rhat = xn32
     // so that
-    // xhi * yn1 * 2^32 + rhat * 2^32 + xn1 = xn32 * 2^32 + xn1
-    while (*xhi >= b || *xhi * yn0 > (rhat << 32U) + xn1) {
-        (*xhi)--;
+    // q1 * yn1 * 2^32 + rhat * 2^32 + xn1 = xn32 * 2^32 + xn1
+    while (q1 >= b || q1 * yn0 > rhat * b + xn1) {
+        q1--;
         rhat += yn1;
         if (rhat >= b)
             break;
     }
     // The loop did not change the equation given above. It was terminated if
-    // either xhi < 2^32 or rhat >= 2^32 or xhi * yn0 > rhat * 2^32 + xn1.
+    // either q1 < 2^32 or rhat >= 2^32 or q1 * yn0 > rhat * 2^32 + xn1.
     // In these cases follows:
-    // xhi * yn0 <= rhat * 2^32 + xn1, therefor
-    // xhi * yn1 * 2^32 + xhi * yn0 <= xn32 * 2^32 + xn1, and
-    // xhi * y <= xn32 * 2^32 + xn1, and
-    // xn32 * 2^32 + xn1 - xhi * y >= 0.
+    // q1 * yn0 <= rhat * 2^32 + xn1, therefor
+    // q1 * yn1 * 2^32 + q1 * yn0 <= xn32 * 2^32 + xn1, and
+    // q1 * y <= xn32 * 2^32 + xn1, and
+    // xn32 * 2^32 + xn1 - q1 * y >= 0.
     // That means that the add-back step in Knuth's algorithm is not required.
 
     // Since the final quotient is < 2^64, this must also be true for
-    // xn32 * 2^32 + xn1 - xhi * y. Thus, in the following we can safely
-    // ignore any possible overflow in xn32 * 2^32 or xhi * y.
-    t = (xn32 << 32U) + xn1 - *xhi * y;
-
-    *xlo = t / yn1;
+    // xn32 * 2^32 + xn1 - q1 * y. Thus, in the following we can safely
+    // ignore any possible overflow in xn32 * 2^32 or q1 * y.
+    t = xn32 * b + xn1 - q1 * y;
+    q0 = t / yn1;
     rhat = t % yn1;
-    while (*xlo >= b ||
-            *xlo * yn0 > (rhat << 32U) + xn0) {
-        (*xlo)--;
+    while (q0 >= b || q0 * yn0 > rhat * b + xn0) {
+        q0--;
         rhat += yn1;
         if (rhat >= b)
             break;
     }
-
+    // Write back result
+    *xhi = 0;
+    *xlo = q1 * b + q0;
     // Denormalize remainder
-    return ((t << 32U) + xn0 - *xlo * y) >> n_bits;
+    return (t * b + xn0 - q0 * y) >> n_bits;
 }
 
 uint64_t
