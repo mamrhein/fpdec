@@ -31,8 +31,8 @@ struct test_data {
     std::string lit_mult;
 };
 
-void
-do_test(const test_variant &variant, const test_data &test) {
+static void
+do_mul_test(const test_variant &variant, const test_data &test) {
     error_t rc;
     fpdec_t x = FPDEC_ZERO;
     fpdec_t y = FPDEC_ZERO;
@@ -103,7 +103,7 @@ TEST_CASE("Multiplication") {
             const std::string section_name = test.lit_x + " * " + test.lit_y;
 
             SECTION(section_name) {
-                do_test(tv, test);
+                do_mul_test(tv, test);
             }
         }
     }
@@ -140,7 +140,7 @@ TEST_CASE("Multiplication") {
             const std::string section_name = test.lit_x + " * " + test.lit_y;
 
             SECTION(section_name) {
-                do_test(tv, test);
+                do_mul_test(tv, test);
             }
         }
     }
@@ -178,7 +178,7 @@ TEST_CASE("Multiplication") {
             const std::string section_name = test.lit_x + " * " + test.lit_y;
 
             SECTION(section_name) {
-                do_test(tv, test);
+                do_mul_test(tv, test);
             }
         }
     }
@@ -216,7 +216,7 @@ TEST_CASE("Multiplication") {
             const std::string section_name = test.lit_x + " * " + test.lit_y;
 
             SECTION(section_name) {
-                do_test(tv, test);
+                do_mul_test(tv, test);
             }
         }
     }
