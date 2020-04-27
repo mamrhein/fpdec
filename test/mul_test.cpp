@@ -19,20 +19,20 @@ $Revision$
 #include "checks.hpp"
 
 
-struct test_variant {
+struct mul_test_variant {
     bool dyn_x;
     bool dyn_y;
     bool dyn_mult;
 };
 
-struct test_data {
+struct mul_test_data {
     std::string lit_x;
     std::string lit_y;
     std::string lit_mult;
 };
 
 static void
-do_mul_test(const test_variant &variant, const test_data &test) {
+do_mul_test(const mul_test_variant &variant, const mul_test_data &test) {
     error_t rc;
     fpdec_t x = FPDEC_ZERO;
     fpdec_t y = FPDEC_ZERO;
@@ -69,13 +69,13 @@ TEST_CASE("Multiplication") {
 
     SECTION("shint * shint -> shint") {
 
-        const struct test_variant tv = {
+        const struct mul_test_variant tv = {
                 .dyn_x = false,
                 .dyn_y = false,
                 .dyn_mult = false
         };
 
-        struct test_data tests[] = {
+        struct mul_test_data tests[] = {
                 {
                         .lit_x = "17.84",
                         .lit_y = "0.00",
@@ -110,13 +110,13 @@ TEST_CASE("Multiplication") {
 
     SECTION("shint * shint -> dyn") {
 
-        const struct test_variant tv = {
+        const struct mul_test_variant tv = {
                 .dyn_x = false,
                 .dyn_y = false,
                 .dyn_mult = true
         };
 
-        struct test_data tests[] = {
+        struct mul_test_data tests[] = {
                 {
                         .lit_x = "-123456789.012345678",
                         .lit_y = "-1.00",
@@ -147,13 +147,13 @@ TEST_CASE("Multiplication") {
 
     SECTION("shint * dyn -> dyn") {
 
-        const struct test_variant tv = {
+        const struct mul_test_variant tv = {
                 .dyn_x = false,
                 .dyn_y = true,
                 .dyn_mult = true
         };
 
-        struct test_data tests[] = {
+        struct mul_test_data tests[] = {
                 {
                         .lit_x = "-0.00000001",
                         .lit_y = "-123456789012345678901234567890",
@@ -185,13 +185,13 @@ TEST_CASE("Multiplication") {
 
     SECTION("dyn * dyn -> dyn") {
 
-        const struct test_variant tv = {
+        const struct mul_test_variant tv = {
                 .dyn_x = true,
                 .dyn_y = true,
                 .dyn_mult = true
         };
 
-        struct test_data tests[] = {
+        struct mul_test_data tests[] = {
                 {
                         .lit_x = "-0.0000000001",
                         .lit_y = "-123456789012345678901234567890",
