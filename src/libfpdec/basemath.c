@@ -25,36 +25,16 @@ $Revision$
 static inline unsigned
 u64_most_signif_bit_pos(uint64_t x) {
     unsigned n = 0;
-    uint64_t t = x >> 32U;
-    if (t != 0) {
-        n += 32;
-        x = t;
+    uint64_t t;
+
+    for (unsigned shift = 32U; shift > 0; shift >>= 1) {
+        t = x >> shift;
+        if (t != 0) {
+            n += shift;
+            x = t;
+        }
     }
-    t = x >> 16U;
-    if (t != 0) {
-        n += 16;
-        x = t;
-    }
-    t = x >> 8U;
-    if (t != 0) {
-        n += 8;
-        x = t;
-    }
-    t = x >> 4U;
-    if (t != 0) {
-        n += 4;
-        x = t;
-    }
-    t = x >> 2U;
-    if (t != 0) {
-        n += 2;
-        x = t;
-    }
-    t = x >> 1U;
-    if (t != 0) {
-        n += 1;
-    }
-    return n + (uint8_t) t;
+    return n;
 }
 
 static inline unsigned
@@ -67,7 +47,7 @@ u128_n_signif_u32(const uint128_t *x) {
 static inline unsigned
 u64_n_leading_0_bits(uint64_t x) {
     if (x == 0) return 64;
-    return 64 - u64_most_signif_bit_pos(x);
+    return 63 - u64_most_signif_bit_pos(x);
 }
 
 // Multiplication
