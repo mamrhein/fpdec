@@ -38,7 +38,7 @@ $Revision$
 // Constructors
 
 fpdec_digit_array_t *
-digits_copy(fpdec_digit_array_t *src, fpdec_n_digits_t n_shift,
+digits_copy(const fpdec_digit_array_t *src, fpdec_n_digits_t n_shift,
             fpdec_n_digits_t n_add_leading_zeros);
 
 error_t
@@ -83,5 +83,15 @@ digits_imul_digit(fpdec_digit_array_t *x, fpdec_digit_t y);
 
 fpdec_digit_array_t *
 digits_mul(const fpdec_digit_array_t *x, const fpdec_digit_array_t *y);
+
+fpdec_digit_array_t *
+digits_div_digit(const fpdec_digit_array_t *x,
+                 const fpdec_n_digits_t n_shift_x,
+                 const fpdec_digit_t y, fpdec_digit_t *rem);
+
+fpdec_digit_array_t *
+digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t n_shift_x,
+              const fpdec_digit_array_t *y, const fpdec_n_digits_t n_shift_y,
+              fpdec_digit_array_t **rem);
 
 #endif //FPDEC_DIGIT_ARRAY__H

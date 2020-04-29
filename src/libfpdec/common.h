@@ -68,6 +68,7 @@ typedef struct {
 #define FPDEC_EXP_LIMIT_EXCEEDED 2
 #define FPDEC_N_DIGITS_LIMIT_EXCEEDED 3
 #define FPDEC_INVALID_DECIMAL_LITERAL 4
+#define FPDEC_DIVIDE_BY_ZERO 5
 
 #ifdef __cplusplus
 }

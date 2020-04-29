@@ -68,7 +68,7 @@ digits_set_zero(fpdec_digit_t *digits, fpdec_n_digits_t n) {
 }
 
 fpdec_digit_array_t *
-digits_copy(fpdec_digit_array_t *src, fpdec_n_digits_t n_shift,
+digits_copy(const fpdec_digit_array_t *src, fpdec_n_digits_t n_shift,
             fpdec_n_digits_t n_add_leading_zeros) {
     fpdec_digit_array_t *result;
 
@@ -394,4 +394,131 @@ digits_mul(const fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
     }
     z->n_signif = z->n_alloc;
     return z;
+}
+
+// See D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.3.1,
+// Exercise 16
+fpdec_digit_array_t *
+digits_div_digit(const fpdec_digit_array_t *x,
+                 const fpdec_n_digits_t n_shift_x,
+                 const fpdec_digit_t y, fpdec_digit_t *rem) {
+    const fpdec_digit_array_t *xhat;
+    fpdec_digit_array_t *q;
+    fpdec_digit_t r = 0;
+    uint128_t t;
+
+    assert(x->n_signif > 0);
+    assert(y > 0);
+
+    q = digits_alloc(x->n_signif + n_shift_x);
+    if (q == NULL) MEMERROR_RETVAL(NULL)
+
+    if (n_shift_x > 0) {
+        xhat = digits_copy(x, n_shift_x, 0);
+        if (xhat == NULL) MEMERROR_RETVAL(NULL)
+    }
+    else
+        xhat = x;
+    for (int i = xhat->n_signif - 1; i >= 0; --i) {
+        u64_mul_u64(&t, r, RADIX);
+        u128_iadd_u64(&t, xhat->digits[i]);
+        r = u128_idiv_u64(&t, y);
+        assert(t.hi == 0);
+        q->digits[i] = t.lo;
+    }
+    q->n_signif = q->n_alloc;
+    if (rem != NULL)
+        *rem = r;
+    if (xhat != x)
+        free((void*) xhat);
+    return q;
+}
+
+// See D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.3.1,
+// Algorithm D
+fpdec_digit_array_t *
+digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t n_shift_x,
+              const fpdec_digit_array_t *y, const fpdec_n_digits_t n_shift_y,
+              fpdec_digit_array_t **rem) {
+    const fpdec_n_digits_t m = x->n_signif + n_shift_x;
+    const fpdec_n_digits_t n = y->n_signif + n_shift_y;
+    const fpdec_n_digits_t n_1 = n - 1;
+    const fpdec_n_digits_t n_2 = n - 2;
+    fpdec_digit_t d, qhat, rhat, carry, borrow;
+    fpdec_digit_array_t *xd, *yd, *q;
+    uint128_t t1, t2;
+
+    assert(y->n_signif > 1 || (y->n_signif == 1 && n_shift_y > 0));
+    assert(y->digits[y->n_signif - 1] > 0);
+    assert(m >= n);
+
+    q = digits_alloc(m - n + 1);
+    if (q == NULL) MEMERROR_RETVAL(NULL)
+
+    // D1: normalize, so that yd[n - 1] >= RADIX / 2
+    d = RADIX / (y->digits[y->n_signif - 1] + 1);
+    xd = digits_copy(x, n_shift_x, 1);
+    if (xd == NULL) MEMERROR_RETVAL(NULL)
+    digits_imul_digit(xd, d);
+    yd = digits_copy(y, n_shift_y, 1);
+    if (yd == NULL) MEMERROR_RETVAL(NULL)
+    digits_imul_digit(yd, d);
+
+    // D2: loop j from m - n to 0
+    for (int j = m - n; j >= 0; --j) {
+        // D3: calculate qhat and rhat
+        u64_mul_u64(&t1, xd->digits[j + n], RADIX);
+        u128_iadd_u64(&t1, xd->digits[j + n_1]);
+        rhat = u128_idiv_u64(&t1, yd->digits[n_1]);
+        assert(t1.hi == 0);
+        qhat = t1.lo;
+        u64_mul_u64(&t1, qhat, yd->digits[n_2]);
+        u64_mul_u64(&t2, rhat, RADIX);
+        u128_iadd_u64(&t2, xd->digits[j + n_2]);
+        while (qhat >= RADIX || u128_cmp(&t1, &t2) == 1) {
+            --qhat;
+            rhat += yd->digits[n_1];
+            if (rhat >= RADIX)
+                break;
+            u128_isub_u64(&t1, yd->digits[n_2]);
+            u64_mul_u64(&t2, rhat, RADIX);
+            u128_iadd_u64(&t2, xd->digits[j + n_2]);
+        }
+        // D4: multiply and subtract
+        carry = 0;
+        borrow = 0;
+        for (int i = 0; i < n + 1; ++i) {
+            u64_mul_u64(&t1, qhat, yd->digits[i]);
+            u128_iadd_u64(&t1, carry);
+            rhat = u128_idiv_u64(&t1, RADIX);
+            carry = t1.lo;
+            rhat = xd->digits[j + i] - (rhat + borrow);
+            borrow = (rhat > xd->digits[j + i]);
+            xd->digits[j + i] = borrow ? rhat + RADIX : rhat;
+        }
+        // D5: test remainder
+        if (borrow == 0)
+            q->digits[j] = qhat;
+        else {
+            // D6: add back
+            q->digits[j] = qhat - 1;
+            carry = 0;
+            for (int i = 0; i < n_1; ++i) {
+                xd->digits[j + i] += yd->digits[i] + carry;
+                carry = (xd->digits[j + i] < yd->digits[i] ||
+                        xd->digits[j + i] >= RADIX);
+                if (carry)
+                    xd->digits[j + i] -= RADIX;
+            }
+        }
+    } // D7: loop j
+    q->n_signif = q->n_alloc;
+    // D8: unnormalize (if remainder is wanted)
+    if (rem != NULL)
+        *rem = digits_div_digit(xd, 0, d, NULL);
+    // clean-up
+    free((void *) xd);
+    free((void *) yd);
+    // return quotient
+    return q;
 }

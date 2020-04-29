@@ -158,6 +158,9 @@ fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
 error_t
 fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
 
+error_t
+fpdec_divmod(fpdec_t *q, fpdec_t *r, const fpdec_t *x, const fpdec_t *y);
+
 // Deallocator
 
 void

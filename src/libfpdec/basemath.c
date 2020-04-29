@@ -247,7 +247,7 @@ u128_idiv_u128_special(uint128_t *r, uint128_t *x, const uint128_t *y) {
     }
 }
 
-static void
+void
 u128_idiv_u128(uint128_t *r, uint128_t *x, const uint128_t *y) {
     int cmp;
 

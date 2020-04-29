@@ -118,4 +118,7 @@ u128_imul_10_pow_n(uint128_t *x, const uint8_t n) {
 uint64_t
 u128_idiv_u64(uint128_t *x, uint64_t y);
 
+void
+u128_idiv_u128(uint128_t *r, uint128_t *x, const uint128_t *y);
+
 #endif //FPDEC_BASEMATH_H

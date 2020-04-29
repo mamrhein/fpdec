@@ -897,9 +897,155 @@ fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
             fpdec_reset_to_zero(&x_dyn, 0);
         }
     }
-    if (FPDEC_IS_DYN_ALLOC(z)) {
+    if (FPDEC_IS_DYN_ALLOC(z))
         fpdec_dyn_normalize(z);
+    return rc;
+}
+
+error_t
+fpdec_divmod_abs_dyn_by_dyn(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
+                            const fpdec_t *y) {
+    const fpdec_n_digits_t n_shift_x =
+            MAX(0, FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y));
+    const fpdec_n_digits_t n_shift_y =
+            MAX(0, FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x));
+    fpdec_digit_array_t *q_digits, *r_digits;
+
+    if (FPDEC_N_DIGITS(y) == 1 && n_shift_y == 0) {
+        q_digits = digits_div_digit(x->digit_array, n_shift_x,
+                                    FPDEC_DYN_DIGITS(y)[0], &r->lo);
+        if (q_digits == NULL) MEMERROR
     }
+    else {
+        q_digits = digits_divmod(x->digit_array, n_shift_x, y->digit_array,
+                                 n_shift_y, &r_digits);
+        if (q_digits == NULL) MEMERROR
+        if (r_digits == NULL) MEMERROR
+        r->digit_array = r_digits;
+        r->dyn_alloc = true;
+        FPDEC_DYN_EXP(r) = MIN(FPDEC_DYN_EXP(y), FPDEC_DYN_EXP(x));
+    }
+    q->digit_array = q_digits;
+    q->dyn_alloc = true;
+    FPDEC_DYN_EXP(q) = 0;
+    return FPDEC_OK;
+}
+
+error_t
+fpdec_divmod_abs_dyn_by_shint(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
+                              const fpdec_t *y) {
+    error_t rc;
+    fpdec_t y_dyn;
+
+    rc = fpdec_copy_shint_as_dyn(&y_dyn, y);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_divmod_abs_dyn_by_dyn(q, r, x, &y_dyn);
+        fpdec_reset_to_zero(&y_dyn, 0);
+    }
+    return rc;
+}
+
+error_t
+fpdec_divmod_abs_shint_by_dyn(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
+                              const fpdec_t *y) {
+    error_t rc;
+    fpdec_t x_dyn;
+
+    rc = fpdec_copy_shint_as_dyn(&x_dyn, x);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_divmod_abs_dyn_by_dyn(q, r, &x_dyn, y);
+        fpdec_reset_to_zero(&x_dyn, 0);
+    }
+    return rc;
+}
+
+error_t
+fpdec_divmod_abs_shint_by_shint(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
+                                const fpdec_t *y) {
+    uint128_t q_shint = U128_FROM_SHINT(x);
+    uint128_t y_shint = U128_FROM_SHINT(y);
+    uint128_t r_shint;
+
+    FPDEC_DEC_PREC(r) = make_adjusted_shints(&q_shint, &y_shint,
+                                             FPDEC_DEC_PREC(x),
+                                             FPDEC_DEC_PREC(y));
+    if (y_shint.hi == 0) {
+        r_shint.hi = 0;
+        r_shint.lo = u128_idiv_u64(&q_shint, y_shint.lo);
+    }
+    else
+        u128_idiv_u128(&r_shint, &q_shint, &y_shint);
+    if (U128_FITS_SHINT(q_shint)) {
+        q->lo = q_shint.lo;
+        q->hi = q_shint.hi;
+        r->lo = r_shint.lo;
+        r->hi = r_shint.hi;
+        return FPDEC_OK;
+    }
+    else {
+        error_t rc;
+        fpdec_t x_dyn;
+        rc = fpdec_copy_shint_as_dyn(&x_dyn, x);
+        if (rc == FPDEC_OK) {
+            rc = fpdec_divmod_abs_dyn_by_shint(q, r, &x_dyn, y);
+            fpdec_reset_to_zero(&x_dyn, 0);
+        }
+        return rc;
+    }
+}
+
+typedef error_t (*v_divmod_op)(fpdec_t *, fpdec_t *, const fpdec_t *,
+                               const fpdec_t *);
+
+const v_divmod_op vtab_divmod_abs[4] = {
+        fpdec_divmod_abs_shint_by_shint,
+        fpdec_divmod_abs_shint_by_dyn,
+        fpdec_divmod_abs_dyn_by_shint,
+        fpdec_divmod_abs_dyn_by_dyn
+};
+
+error_t
+fpdec_divmod(fpdec_t *q, fpdec_t *r, const fpdec_t *x, const fpdec_t *y) {
+    error_t rc;
+    int cmp;
+
+    ASSERT_FPDEC_IS_ZEROED(q);
+    ASSERT_FPDEC_IS_ZEROED(r);
+
+    if (FPDEC_EQ_ZERO(y)) ERROR(FPDEC_DIVIDE_BY_ZERO)
+
+    if (FPDEC_EQ_ZERO(x))
+        return FPDEC_OK;
+
+    cmp = fpdec_compare(x, y, true);
+    if (cmp < 0) {                                  // x < y
+        if (FPDEC_SIGN(x) == FPDEC_SIGN(y))
+            return fpdec_copy(r, x);
+        else {
+            fpdec_copy(q, &FPDEC_MINUS_ONE);
+            return fpdec_add(r, x, y);
+        }
+    }
+    if (cmp == 0) {                                 // x = y
+        if (FPDEC_SIGN(x) == FPDEC_SIGN(y))
+            return fpdec_copy(q, &FPDEC_ONE);
+        else
+            return fpdec_copy(q, &FPDEC_MINUS_ONE);
+    }
+
+    // X > Y
+    FPDEC_SIGN(q) = FPDEC_SIGN(x) * FPDEC_SIGN(y);
+    FPDEC_SIGN(r) = FPDEC_SIGN(x);
+    FPDEC_DEC_PREC(r) = MAX(FPDEC_DEC_PREC(x), FPDEC_DEC_PREC(y));
+    rc = vtab_divmod_abs[((FPDEC_IS_DYN_ALLOC(x)) << 1U) +
+            FPDEC_IS_DYN_ALLOC(y)](q, r, x, y);
+
+    if (FPDEC_IS_DYN_ALLOC(q))
+        fpdec_dyn_normalize(q);
+    if (FPDEC_IS_DYN_ALLOC(r))
+        fpdec_dyn_normalize(r);
+    else if (r->lo == 0 && r->hi == 0)
+        FPDEC_SIGN(r) = 0;
     return rc;
 }
 
