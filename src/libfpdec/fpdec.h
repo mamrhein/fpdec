@@ -34,8 +34,8 @@ extern "C" {
 typedef int32_t fpdec_exp_t;
 
 typedef struct {
-    bool dyn_alloc:1;           // true indicates digit array
-    bool normalized:1;          // true if digit array is normalized
+    bool dyn_alloc: 1;           // true indicates digit array
+    bool normalized: 1;          // true if digit array is normalized
     fpdec_sign_t sign;          // sign indicator
     fpdec_dec_prec_t dec_prec;  // number of decimal fractional digits
     //                             variants:
@@ -87,28 +87,28 @@ typedef struct {
 *****************************************************************************/
 
 static const fpdec_t FPDEC_ZERO = {
-    .dyn_alloc = false,
-    .normalized = false,
-    .sign = 0,
-    .dec_prec = 0,
-    .hi = 0,
-    .lo = 0,
+        .dyn_alloc = false,
+        .normalized = false,
+        .sign = 0,
+        .dec_prec = 0,
+        .hi = 0,
+        .lo = 0,
 };
 static const fpdec_t FPDEC_ONE = {
-    .dyn_alloc = false,
-    .normalized = false,
-    .sign = 1,
-    .dec_prec = 0,
-    .hi = 0,
-    .lo = 1,
+        .dyn_alloc = false,
+        .normalized = false,
+        .sign = 1,
+        .dec_prec = 0,
+        .hi = 0,
+        .lo = 1,
 };
 static const fpdec_t FPDEC_MINUS_ONE = {
-    .dyn_alloc = false,
-    .normalized = false,
-    .sign = -1,
-    .dec_prec = 0,
-    .hi = 0,
-    .lo = 1,
+        .dyn_alloc = false,
+        .normalized = false,
+        .sign = -1,
+        .dec_prec = 0,
+        .hi = 0,
+        .lo = 1,
 };
 
 /*****************************************************************************
@@ -157,6 +157,10 @@ fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
 
 error_t
 fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y);
+
+error_t
+fpdec_div(fpdec_t *z, const fpdec_t *x, const fpdec_t *y, int prec_limit,
+          enum FPDEC_ROUNDING_MODE rounding);
 
 error_t
 fpdec_divmod(fpdec_t *q, fpdec_t *r, const fpdec_t *x, const fpdec_t *y);

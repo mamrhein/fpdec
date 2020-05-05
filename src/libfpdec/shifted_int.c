@@ -129,9 +129,8 @@ u128_idivr_10_pow_n(uint128_t *x, const fpdec_sign_t sign, const uint8_t n,
         rem = x->lo % divisor;
         x->lo /= divisor;
     }
-    if (round_qr(sign, x->lo, rem, false, divisor, rounding) > 0) {
+    if (round_qr(sign, x->lo, rem, false, divisor, rounding) > 0)
         u128_incr(x);
-    }
 }
 
 void
@@ -145,4 +144,19 @@ u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int n_dec_digits,
         u128_imul_10_pow_n(ui, n_dec_digits);
     else
         u128_idivr_10_pow_n(ui, sign, -n_dec_digits, rounding);
+}
+
+unsigned
+u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max) {
+    unsigned n_trailing_zeros = 0;
+
+    while (ui->lo % 10 == 0 && ui->hi != 0 && n_trailing_zeros < n_max) {
+        u128_idiv_10(ui);
+        n_trailing_zeros++;
+    }
+    while (ui->lo % 10 == 0 && n_trailing_zeros < n_max) {
+        ui->lo /= 10;
+        n_trailing_zeros++;
+    }
+    return n_trailing_zeros;
 }

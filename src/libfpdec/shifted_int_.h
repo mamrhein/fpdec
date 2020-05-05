@@ -22,6 +22,7 @@ $Revision$
 #include "common_.h"
 #include "basemath.h"
 #include "shifted_int.h"
+#include "rounding_.h"
 
 /*****************************************************************************
 *  Types
@@ -33,6 +34,8 @@ $Revision$
 
 #define MAX_N_DEC_DIGITS_IN_SHINT 29
 #define MAX_DEC_PREC_FOR_SHINT 9
+
+#define U128_NE_ZERO(x) (x.lo != 0 || x.hi != 0)
 
 #define U128_FITS_SHINT(x) (U64_HI(x.hi) == 0)
 
@@ -65,5 +68,8 @@ shint_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
 void
 u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int n_dec_digits,
                enum FPDEC_ROUNDING_MODE rounding);
+
+unsigned
+u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max);
 
 #endif //FPDEC_SHIFTED_INT__H

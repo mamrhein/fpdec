@@ -18,7 +18,6 @@ $Revision$
 #include <assert.h>
 
 #include "common_.h"
-#include "rounding_.h"
 
 /*****************************************************************************
 *  Macros
@@ -120,5 +119,20 @@ u128_idiv_u64(uint128_t *x, uint64_t y);
 
 void
 u128_idiv_u128(uint128_t *r, uint128_t *x, const uint128_t *y);
+
+static inline uint64_t
+u128_idiv_10(uint128_t *x) {
+    uint64_t th, tl, r;
+    th = U64_HI(x->hi);
+    r = th % 10;
+    tl = (r << 32U) + U64_LO(x->hi);
+    x->hi = ((th / 10) << 32U) + tl / 10;
+    r = tl % 10;
+    th = (r << 32U) + U64_HI(x->lo);
+    r = th % 10;
+    tl = (r << 32U) + U64_LO(x->lo);
+    x->lo = ((th / 10) << 32U) + tl / 10;
+    return tl % 10;
+}
 
 #endif //FPDEC_BASEMATH_H
