@@ -522,3 +522,54 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t n_shift_x,
     // return quotient
     return q;
 }
+
+fpdec_digit_array_t *
+digits_div_max_prec(const fpdec_digit_array_t *x,
+                    const fpdec_digit_array_t *y,
+                    int *exp) {
+    fpdec_digit_array_t *q;
+    unsigned shift = MAX(0, y->n_signif + 1 - x->n_signif);
+    unsigned accel = 1;
+    int max_shift = -FPDEC_MIN_EXP + *exp;
+
+    if (y->n_signif == 1) {
+        fpdec_digit_t d = y->digits[0];
+        fpdec_digit_t r;
+        while (true) {
+            q = digits_div_digit(x, shift, d, &r);
+            if (shift >= max_shift || r == 0)
+                break;
+            accel++;
+            shift = MIN(shift + accel * accel, max_shift);
+        }
+        if (r == 0)
+            *exp -= shift;
+        else
+            *exp = FPDEC_MIN_EXP - 1;       // signal precision limit exceeded
+    }
+    else {
+        fpdec_digit_array_t *r;
+        while (true) {
+            q = digits_divmod(x, shift, y, 0, &r);
+            if (shift >= max_shift || digits_all_zero(r->digits, r->n_signif))
+                break;
+            accel++;
+            shift = MIN(shift + accel * accel, max_shift);
+        }
+        if (digits_all_zero(r->digits, r->n_signif))
+            *exp -= shift;
+        else
+            *exp = FPDEC_MIN_EXP - 1;       // signal precision limit exceeded
+    }
+    return q;
+}
+
+fpdec_digit_array_t *
+digits_div_limit_prec(const fpdec_digit_array_t *x,
+                      const fpdec_digit_array_t *y,
+                      const int n_shift) {
+    if (y->n_signif == 1 && n_shift <= 0)
+        return digits_div_digit(x, MAX(0, -n_shift), y->digits[0], NULL);
+    else
+        return digits_divmod(x, MAX(0, -n_shift), y, MAX(0, n_shift), NULL);
+}

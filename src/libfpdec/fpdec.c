@@ -1053,7 +1053,46 @@ error_t
 fpdec_div_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
                          const int prec_limit,
                          const enum FPDEC_ROUNDING_MODE rounding) {
+    fpdec_digit_array_t *q_digits, *r_digits;
+    int exp = FPDEC_EXP(x) - FPDEC_EXP(y);
 
+    if (prec_limit == -1) {
+        q_digits = digits_div_max_prec(x->digit_array, y->digit_array,
+                                       &exp);
+        if (q_digits == NULL) MEMERROR
+        if (exp > FPDEC_MAX_EXP) ERROR(FPDEC_EXP_LIMIT_EXCEEDED)
+        if (exp < FPDEC_MIN_EXP) ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
+        FPDEC_DYN_EXP(z) = exp;
+        // calculate decimal precision
+        FPDEC_DEC_PREC(z) = MAX(0, -exp * DEC_DIGITS_PER_DIGIT);
+        if (FPDEC_DEC_PREC(z) > 0) {
+            for (fpdec_digit_t *d = q_digits->digits;; ++d) {
+                if (*d == 0)
+                    FPDEC_DEC_PREC(z) -= DEC_DIGITS_PER_DIGIT;
+                else {
+                    fpdec_digit_t t = *d;
+                    while (t % 10 == 0) {
+                        t /= 10;
+                        FPDEC_DEC_PREC(z)--;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    else {
+        int d_shift = prec_limit % DEC_DIGITS_PER_DIGIT;
+        FPDEC_DYN_EXP(z) = -prec_limit / DEC_DIGITS_PER_DIGIT - 1;
+        q_digits = digits_div_limit_prec(x->digit_array, y->digit_array,
+                                         FPDEC_DYN_EXP(z) + exp);
+        if (q_digits == NULL) MEMERROR
+        digits_round(q_digits, FPDEC_SIGN(z), DEC_DIGITS_PER_DIGIT - d_shift,
+                     rounding);
+        FPDEC_DEC_PREC(z) = prec_limit;
+    }
+    z->digit_array = q_digits;
+    z->dyn_alloc = true;
+    return FPDEC_OK;
 }
 
 error_t

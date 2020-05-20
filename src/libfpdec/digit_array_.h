@@ -94,4 +94,14 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t n_shift_x,
               const fpdec_digit_array_t *y, const fpdec_n_digits_t n_shift_y,
               fpdec_digit_array_t **rem);
 
+fpdec_digit_array_t *
+digits_div_max_prec(const fpdec_digit_array_t *x,
+                    const fpdec_digit_array_t *y,
+                    int *exp);
+
+fpdec_digit_array_t *
+digits_div_limit_prec(const fpdec_digit_array_t *x,
+                      const fpdec_digit_array_t *y,
+                      const int n_shift);
+
 #endif //FPDEC_DIGIT_ARRAY__H

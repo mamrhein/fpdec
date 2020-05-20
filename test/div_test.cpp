@@ -54,7 +54,9 @@ do_div_test(const div_test_variant &variant,
     rc = fpdec_div(&q, &x, &y, test.prec_limit, FPDEC_ROUND_DEFAULT);
     REQUIRE(rc == FPDEC_OK);
     CHECK(FPDEC_IS_DYN_ALLOC(&q) == variant.dyn_quot);
-    if (test.prec_limit != -1)
+    if (test.prec_limit == -1)
+        CHECK(FPDEC_DEC_PREC(&q) == FPDEC_DEC_PREC(&quot));
+    else
         CHECK(FPDEC_DEC_PREC(&q) == test.prec_limit);
     CHECK((int) FPDEC_SIGN(&q) == (int) FPDEC_SIGN(&quot));
     CHECK(fpdec_compare(&q, &quot, true) == 0);
@@ -100,6 +102,40 @@ TEST_CASE("Div (w/o limit and default rounding)") {
             }
         }
     }
+
+    SECTION("shint /% shint -> dyn") {
+
+        const struct div_test_variant tv = {
+                .dyn_x = false,
+                .dyn_y = false,
+                .dyn_quot = true,
+        };
+
+
+        struct div_test_data tests[] = {
+                {
+                        .lit_x = "173.849428",
+                        .lit_y = "10000.00",
+                        .lit_quot = "0.0173849428",
+                        .prec_limit = -1,
+                },
+                {
+                        .lit_x = "3459999896e19",
+                        .lit_y = "-0.4199029",
+                        .lit_quot = "-82400000000000000000000000000",
+                        .prec_limit = -1,
+                },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test
+                    .lit_y;
+
+            SECTION(section_name) {
+                do_div_test(tv, test);
+            }
+        }
+    }
 }
 
 TEST_CASE("Div (with limit and default rounding)") {
@@ -125,6 +161,40 @@ TEST_CASE("Div (with limit and default rounding)") {
                         .lit_y = "41.99",
                         .lit_quot = "4.1204",
                         .prec_limit = 4,
+                },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test
+                    .lit_y;
+
+            SECTION(section_name) {
+                do_div_test(tv, test);
+            }
+        }
+    }
+
+    SECTION("shint /% shint -> dyn") {
+
+        const struct div_test_variant tv = {
+                .dyn_x = false,
+                .dyn_y = false,
+                .dyn_quot = true,
+        };
+
+
+        struct div_test_data tests[] = {
+                {
+                        .lit_x = "1",
+                        .lit_y = "3",
+                        .lit_quot = "0.333333333333",
+                        .prec_limit = 12,
+                },
+                {
+                        .lit_x = "2.00",
+                        .lit_y = "3.0000000",
+                        .lit_quot = "0.6666666666666666666666666666666667",
+                        .prec_limit = 34,
                 },
         };
         for (const auto &test : tests) {
