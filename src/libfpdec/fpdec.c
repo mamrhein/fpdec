@@ -1176,6 +1176,14 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
                                                              shift);
             FPDEC_DEC_PREC(z) = MAX_DEC_PREC_FOR_SHINT - n_trailing_zeros;
         }
+        else if (prec_limit > MAX_DEC_PREC_FOR_SHINT) {
+            FPDEC_DEC_PREC(z) = MAX_DEC_PREC_FOR_SHINT;
+            z->lo = divident.lo;
+            z->hi = divident.hi;
+            fpdec_shint_to_dyn(z);
+            FPDEC_DEC_PREC(z) = prec_limit;
+            return FPDEC_OK;
+        }
         else
             FPDEC_DEC_PREC(z) = prec_limit;
     }
