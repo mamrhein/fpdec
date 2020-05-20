@@ -69,7 +69,7 @@ do_div_test(const div_test_variant &variant,
 
 TEST_CASE("Div (w/o limit and default rounding)") {
 
-    SECTION("shint /% shint -> shint") {
+    SECTION("shint / shint -> shint") {
 
         const struct div_test_variant tv = {
                 .dyn_x = false,
@@ -103,7 +103,7 @@ TEST_CASE("Div (w/o limit and default rounding)") {
         }
     }
 
-    SECTION("shint /% shint -> dyn") {
+    SECTION("shint / shint -> dyn") {
 
         const struct div_test_variant tv = {
                 .dyn_x = false,
@@ -136,11 +136,45 @@ TEST_CASE("Div (w/o limit and default rounding)") {
             }
         }
     }
+
+    SECTION("shint / dyn -> shint") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = false,
+            .dyn_y = true,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "173.849428",
+                .lit_y = "0.0173849428",
+                .lit_quot = "10000",
+                .prec_limit = -1,
+            },
+            {
+                .lit_x = "3459999896e19",
+                .lit_y = "-82400000000000000000000000000",
+                .lit_quot = "-0.4199029",
+                .prec_limit = -1,
+            },
+        };
+
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test
+                .lit_y;
+
+            SECTION(section_name) {
+                do_div_test(tv, test);
+            }
+        }
+    }
 }
 
 TEST_CASE("Div (with limit and default rounding)") {
 
-    SECTION("shint /% shint -> shint") {
+    SECTION("shint / shint -> shint") {
 
         const struct div_test_variant tv = {
                 .dyn_x = false,
@@ -162,6 +196,12 @@ TEST_CASE("Div (with limit and default rounding)") {
                         .lit_quot = "4.1204",
                         .prec_limit = 4,
                 },
+                {
+                    .lit_x = "3.4",
+                    .lit_y = "6",
+                    .lit_quot = "0.566666667",
+                    .prec_limit = 9,
+                },
         };
         for (const auto &test : tests) {
 
@@ -174,7 +214,7 @@ TEST_CASE("Div (with limit and default rounding)") {
         }
     }
 
-    SECTION("shint /% shint -> dyn") {
+    SECTION("shint / shint -> dyn") {
 
         const struct div_test_variant tv = {
                 .dyn_x = false,
@@ -196,11 +236,57 @@ TEST_CASE("Div (with limit and default rounding)") {
                         .lit_quot = "0.6666666666666666666666666666666667",
                         .prec_limit = 34,
                 },
+                {
+                    .lit_x = "3.4",
+                    .lit_y = "6",
+                    .lit_quot = "0.566666666666666666666666666666667",
+                    .prec_limit = 33,
+                },
+                {
+                    .lit_x = "3.843",
+                    .lit_y = "6.3",
+                    .lit_quot = "0.610000000000",
+                    .prec_limit = 12,
+                },
         };
         for (const auto &test : tests) {
 
             const std::string section_name = test.lit_x + " / " + test
                     .lit_y;
+
+            SECTION(section_name) {
+                do_div_test(tv, test);
+            }
+        }
+    }
+
+    SECTION("shint / dyn -> shint") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = false,
+            .dyn_y = true,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "173.849428",
+                .lit_y = "0.0173849428",
+                .lit_quot = "10000.000",
+                .prec_limit = 3,
+            },
+            {
+                .lit_x = "3459999896e19",
+                .lit_y = "-82400000000000000000000000000",
+                .lit_quot = "-0.419903",
+                .prec_limit = 6,
+            },
+        };
+
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test
+                .lit_y;
 
             SECTION(section_name) {
                 do_div_test(tv, test);
