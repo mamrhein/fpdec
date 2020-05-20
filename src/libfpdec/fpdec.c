@@ -1084,7 +1084,7 @@ fpdec_div_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
         int d_shift = prec_limit % DEC_DIGITS_PER_DIGIT;
         FPDEC_DYN_EXP(z) = -prec_limit / DEC_DIGITS_PER_DIGIT - 1;
         q_digits = digits_div_limit_prec(x->digit_array, y->digit_array,
-                                         FPDEC_DYN_EXP(z) + exp);
+                                         FPDEC_DYN_EXP(z) - exp);
         if (q_digits == NULL) MEMERROR
         digits_round(q_digits, FPDEC_SIGN(z), DEC_DIGITS_PER_DIGIT - d_shift,
                      rounding);
