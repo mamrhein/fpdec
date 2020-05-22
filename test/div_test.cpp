@@ -77,7 +77,6 @@ TEST_CASE("Div (w/o limit and default rounding)") {
                 .dyn_quot = false,
         };
 
-
         struct div_test_data tests[] = {
                 {
                         .lit_x = "0.00",
@@ -170,6 +169,44 @@ TEST_CASE("Div (w/o limit and default rounding)") {
             }
         }
     }
+
+    SECTION("dyn / dyn -> shint") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = true,
+            .dyn_y = true,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "617777772217777777221777777722.1774936",
+                .lit_y = "123456789012345678901234567890.1234",
+                .lit_quot = "5.004",
+                .prec_limit = -1,
+            },
+            {
+                .lit_x = "123456789012345678901234567890.1234",
+                .lit_y = "-4938271560493827156049382715604.936",
+                .lit_quot = "-0.025",
+                .prec_limit = -1,
+            },
+            {
+                .lit_x = "-0.1604196e-36",
+                .lit_y = "-0.396e-37",
+                .lit_quot = "4.051",
+                .prec_limit = -1,
+            },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test.lit_y;
+
+            SECTION(section_name) {
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
+            }
+        }
+    }
 }
 
 TEST_CASE("Div (with limit and default rounding)") {
@@ -181,7 +218,6 @@ TEST_CASE("Div (with limit and default rounding)") {
                 .dyn_y = false,
                 .dyn_quot = false,
         };
-
 
         struct div_test_data tests[] = {
                 {
@@ -290,6 +326,87 @@ TEST_CASE("Div (with limit and default rounding)") {
 
             SECTION(section_name) {
                 do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
+            }
+        }
+    }
+}
+
+TEST_CASE("Div (with limit and explicit rounding mode)") {
+
+    SECTION("dyn / dyn -> shint [ROUND_HALF_UP]") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = true,
+            .dyn_y = true,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "617777772217777777221777777722.1774936",
+                .lit_y = "123456789012345678901234567890.1234",
+                .lit_quot = "5.00400",
+                .prec_limit = 5,
+            },
+            {
+                .lit_x = "123456789012345678901234567890.1234",
+                .lit_y = "331039480691409992146997641.561269171764",
+                .lit_quot = "372.936752905",
+                .prec_limit = 9,
+            },
+            {
+                .lit_x = "0.1604196e-36",
+                .lit_y = "0.396e-37",
+                .lit_quot = "4.1",
+                .prec_limit = 1,
+            },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test.lit_y +
+                    " [ROUND_HALF_UP]";
+
+            SECTION(section_name) {
+                do_div_test(tv, test, FPDEC_ROUND_HALF_UP);
+            }
+        }
+    }
+
+    SECTION("dyn / dyn -> shint") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = true,
+            .dyn_y = true,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "617777772217777777221777777722.1774936",
+                .lit_y = "123456789012345678901234567890.1234",
+                .lit_quot = "5.00",
+                .prec_limit = 2,
+            },
+            {
+                .lit_x = "123456789012345678901234567890.1234",
+                .lit_y = "-4938271560493827156049382715604.936",
+                .lit_quot = "-0.02",
+                .prec_limit = 2,
+            },
+            {
+                .lit_x = "-0.1604196e-36",
+                .lit_y = "-0.396e-37",
+                .lit_quot = "4.051",
+                .prec_limit = 3,
+            },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test.lit_y +
+                                             " [ROUND_HALF_EVEN]";
+
+            SECTION(section_name) {
+                do_div_test(tv, test, FPDEC_ROUND_HALF_EVEN);
             }
         }
     }
