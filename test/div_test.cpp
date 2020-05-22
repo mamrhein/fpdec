@@ -33,8 +33,8 @@ struct div_test_data {
 };
 
 static void
-do_div_test(const div_test_variant &variant,
-            const div_test_data &test) {
+do_div_test(const div_test_variant &variant, const div_test_data &test,
+            FPDEC_ROUNDING_MODE rounding) {
     error_t rc;
     fpdec_t x = FPDEC_ZERO;
     fpdec_t y = FPDEC_ZERO;
@@ -51,7 +51,7 @@ do_div_test(const div_test_variant &variant,
     REQUIRE(rc == FPDEC_OK);
     REQUIRE(FPDEC_IS_DYN_ALLOC(&quot) == variant.dyn_quot);
 
-    rc = fpdec_div(&q, &x, &y, test.prec_limit, FPDEC_ROUND_DEFAULT);
+    rc = fpdec_div(&q, &x, &y, test.prec_limit, rounding);
     REQUIRE(rc == FPDEC_OK);
     CHECK(FPDEC_IS_DYN_ALLOC(&q) == variant.dyn_quot);
     if (test.prec_limit == -1)
@@ -98,7 +98,7 @@ TEST_CASE("Div (w/o limit and default rounding)") {
                     .lit_y;
 
             SECTION(section_name) {
-                do_div_test(tv, test);
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
             }
         }
     }
@@ -132,7 +132,7 @@ TEST_CASE("Div (w/o limit and default rounding)") {
                     .lit_y;
 
             SECTION(section_name) {
-                do_div_test(tv, test);
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
             }
         }
     }
@@ -166,7 +166,7 @@ TEST_CASE("Div (w/o limit and default rounding)") {
                 .lit_y;
 
             SECTION(section_name) {
-                do_div_test(tv, test);
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
             }
         }
     }
@@ -209,7 +209,7 @@ TEST_CASE("Div (with limit and default rounding)") {
                     .lit_y;
 
             SECTION(section_name) {
-                do_div_test(tv, test);
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
             }
         }
     }
@@ -255,7 +255,7 @@ TEST_CASE("Div (with limit and default rounding)") {
                     .lit_y;
 
             SECTION(section_name) {
-                do_div_test(tv, test);
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
             }
         }
     }
@@ -289,7 +289,7 @@ TEST_CASE("Div (with limit and default rounding)") {
                 .lit_y;
 
             SECTION(section_name) {
-                do_div_test(tv, test);
+                do_div_test(tv, test, FPDEC_ROUND_DEFAULT);
             }
         }
     }
