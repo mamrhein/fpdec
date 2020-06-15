@@ -25,11 +25,11 @@ $Revision$
 *  Types
 *****************************************************************************/
 
-typedef struct {
+struct fpdec_digit_array {
     fpdec_n_digits_t n_alloc;
     fpdec_n_digits_t n_signif;
     fpdec_digit_t digits[1];
-} fpdec_digit_array_t;
+};
 
 /*****************************************************************************
 *  Functions

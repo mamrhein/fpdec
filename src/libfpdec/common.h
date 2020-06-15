@@ -53,6 +53,28 @@ typedef struct {
     uint64_t hi;
 } uint128_t;
 
+typedef int32_t fpdec_exp_t;
+
+//forward decl of digit array
+struct fpdec_digit_array;
+typedef struct fpdec_digit_array fpdec_digit_array_t;
+
+typedef struct {
+    bool dyn_alloc: 1;           // true indicates digit array
+    bool normalized: 1;          // true if digit array is normalized
+    fpdec_sign_t sign;          // sign indicator
+    fpdec_dec_prec_t dec_prec;  // number of decimal fractional digits
+    //                             variants:
+    union {                     // shifted int          digit_array
+        uint32_t hi;            // high 32 bits
+        fpdec_exp_t exp;        //                      exponent (base 2**64)
+    };
+    union {
+        fpdec_digit_t lo;       // low  64 bits
+        fpdec_digit_array_t *digit_array;   //          pointer to digit array
+    };
+} fpdec_t;
+
 /*****************************************************************************
 *  Macros
 *****************************************************************************/
