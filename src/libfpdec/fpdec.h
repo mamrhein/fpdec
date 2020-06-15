@@ -101,6 +101,9 @@ fpdec_dump(const fpdec_t *fpdec);
 // Initializer
 
 error_t
+fpdec_copy(fpdec_t *fpdec, const fpdec_t *src);
+
+error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
 
 error_t

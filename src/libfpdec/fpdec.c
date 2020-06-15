@@ -94,7 +94,7 @@ fpdec_dump(const fpdec_t *fpdec) {
 
 // Initializer
 
-static inline error_t
+error_t
 fpdec_copy(fpdec_t *fpdec, const fpdec_t *src) {
     *fpdec = *src;
     if (src->dyn_alloc) {
