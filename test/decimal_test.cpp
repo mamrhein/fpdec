@@ -12,7 +12,6 @@ $Source$
 $Revision$
 */
 
-
 #include "catch.hpp"
 #include "fpdec.hpp"
 
@@ -90,6 +89,14 @@ int sign(T num) {
     return (num > 0 ? 1 : (num < 0 ? -1 : 0));
 }
 
+template<typename T>
+int magn(T num) {
+    static_assert(std::is_arithmetic<T>(), "T must be a number type.");
+    if (num == INT64_MIN)   // special case where std::abs gives wrong value
+        return 18;
+    return (int)std::log10(std::abs((int64_t) num));
+}
+
 TEST_CASE("Decimal from integer") {
 
     for (const auto &val : {INT16_MIN, -14, 0, 328, INT16_MAX}) {
@@ -98,7 +105,8 @@ TEST_CASE("Decimal from integer") {
             Decimal d = {val};
             CHECK(d.sign() == sign(val));
             CHECK(d.precision() == 0);
-            //CHECK(d.magnitude() == test.magnitude);
+            if (val != 0)
+                CHECK(d.magnitude() == magn(val));
         }
     }
 
@@ -108,7 +116,7 @@ TEST_CASE("Decimal from integer") {
             Decimal d = {val};
             CHECK(d.sign() == sign(val));
             CHECK(d.precision() == 0);
-            //CHECK(d.magnitude() == test.magnitude);
+            CHECK(d.magnitude() == magn(val));
         }
     }
 
@@ -118,7 +126,7 @@ TEST_CASE("Decimal from integer") {
             Decimal d = {val};
             CHECK(d.sign() == sign(val));
             CHECK(d.precision() == 0);
-            //CHECK(d.magnitude() == test.magnitude);
+            CHECK(d.magnitude() == magn(val));
         }
     }
 }
