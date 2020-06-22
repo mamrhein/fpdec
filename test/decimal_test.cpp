@@ -18,12 +18,12 @@ $Revision$
 using namespace fpdec;
 
 TEST_CASE("Default constructor / destructor") {
-    Decimal d;
-    Decimal *ptr2d;
     for (int i = 0; i <= 10; i++) {
-        d = Decimal();
-        ptr2d = &d;
+        Decimal d = {};
+        Decimal *ptr2d = &d;
         CHECK(ptr2d != NULL);
+        CHECK(d.sign() == 0);
+        CHECK(d.precision() == 0);
     }
 }
 
