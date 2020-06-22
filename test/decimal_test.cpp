@@ -83,3 +83,42 @@ TEST_CASE("Decimal from string") {
         }
     }
 }
+
+template<typename T>
+int sign(T num) {
+    static_assert(std::is_arithmetic<T>(), "T must be a number type.");
+    return (num > 0 ? 1 : (num < 0 ? -1 : 0));
+}
+
+TEST_CASE("Decimal from integer") {
+
+    for (const auto &val : {INT16_MIN, -14, 0, 328, INT16_MAX}) {
+
+        SECTION(std::to_string(val)) {
+            Decimal d = {val};
+            CHECK(d.sign() == sign(val));
+            CHECK(d.precision() == 0);
+            //CHECK(d.magnitude() == test.magnitude);
+        }
+    }
+
+    for (const auto &val : {INT32_MIN, -143, 1, 320937, INT32_MAX}) {
+
+        SECTION(std::to_string(val)) {
+            Decimal d = {val};
+            CHECK(d.sign() == sign(val));
+            CHECK(d.precision() == 0);
+            //CHECK(d.magnitude() == test.magnitude);
+        }
+    }
+
+    for (const auto &val : {INT64_MIN, -143L, 1L, 640937L, INT64_MAX}) {
+
+        SECTION(std::to_string(val)) {
+            Decimal d = {val};
+            CHECK(d.sign() == sign(val));
+            CHECK(d.precision() == 0);
+            //CHECK(d.magnitude() == test.magnitude);
+        }
+    }
+}
