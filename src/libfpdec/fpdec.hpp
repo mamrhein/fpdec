@@ -62,14 +62,24 @@ namespace fpdec {
         Decimal operator+() const;
         Decimal operator-() const;
         bool operator==(const Decimal&) const;
-        friend bool operator==(const long long int, const Decimal&);
         bool operator!=(const Decimal&) const;
-        friend bool operator!=(const long long int, const Decimal&);
+        bool operator<=(const Decimal&) const;
+        bool operator<(const Decimal&) const;
+        bool operator>=(const Decimal&) const;
+        bool operator>(const Decimal&) const;
 
     private:
         fpdec_t fpdec;
         Decimal(const fpdec_t*);
     };
+
+    // interacting with integers
+    bool operator==(const long long int, const Decimal&);
+    bool operator!=(const long long int, const Decimal&);
+    bool operator<=(const long long int, const Decimal&);
+    bool operator<(const long long int, const Decimal&);
+    bool operator>=(const long long int, const Decimal&);
+    bool operator>(const long long int, const Decimal&);
 
 }; // namespace fpdec
 

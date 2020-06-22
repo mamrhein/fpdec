@@ -91,3 +91,35 @@ bool Decimal::operator!=(const Decimal& rhs) const {
 bool fpdec::operator!=(const long long int lhs, const Decimal& rhs) {
     return !(rhs == lhs);
 }
+
+bool Decimal::operator<=(const Decimal& rhs) const {
+    return fpdec_compare(&fpdec, &(rhs.fpdec), 0) <= 0;
+}
+
+bool fpdec::operator<=(const long long int lhs, const Decimal& rhs) {
+    return rhs >= lhs;
+}
+
+bool Decimal::operator<(const Decimal& rhs) const {
+    return fpdec_compare(&fpdec, &(rhs.fpdec), 0) < 0;
+}
+
+bool fpdec::operator<(const long long int lhs, const Decimal& rhs) {
+    return rhs > lhs;
+}
+
+bool Decimal::operator>=(const Decimal& rhs) const {
+    return fpdec_compare(&fpdec, &(rhs.fpdec), 0) >= 0;
+}
+
+bool fpdec::operator>=(const long long int lhs, const Decimal& rhs) {
+    return rhs <= lhs;
+}
+
+bool Decimal::operator>(const Decimal& rhs) const {
+    return fpdec_compare(&fpdec, &(rhs.fpdec), 0) > 0;
+}
+
+bool fpdec::operator>(const long long int lhs, const Decimal& rhs) {
+    return rhs < lhs;
+}

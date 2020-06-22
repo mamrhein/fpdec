@@ -170,4 +170,31 @@ TEST_CASE("Comparison") {
         CHECK(m == d);
         CHECK(!(m != d));
     }
+
+    SECTION("Ordering") {
+        Decimal a = {"1234567890123456789012345678901234.56789"};
+        Decimal b = {a};
+        long l = {12083L * INT32_MAX};
+        long m = l + 1;
+        Decimal c = {l};
+        Decimal d = {m};
+
+        CHECK(a <= b);
+        CHECK(a >= b);
+        CHECK(!(a < b));
+        CHECK(!(a > b));
+        CHECK(a >= c);
+        CHECK(a > c);
+        CHECK(!(a < c));
+        CHECK(c <= d);
+        CHECK(!(c > d));
+        CHECK(c <= l);
+        CHECK(!(c < l));
+        CHECK(c >= l);
+        CHECK(!(c > l));
+        CHECK(m <= d);
+        CHECK(!(m < d));
+        CHECK(m >= d);
+        CHECK(!(m > d));
+    }
 }
