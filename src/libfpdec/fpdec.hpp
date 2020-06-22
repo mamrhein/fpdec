@@ -31,7 +31,7 @@ namespace fpdec {
     class InvalidDecimalLiteral : std::invalid_argument {
     public:
         std::string invalid_literal;
-        InvalidDecimalLiteral(std::string lit) :
+        InvalidDecimalLiteral(const std::string lit) :
             std::invalid_argument("Invalid Decimal literal"),
             invalid_literal(lit) {
         };
@@ -55,9 +55,10 @@ namespace fpdec {
         // properties
         fpdec_sign_t sign() const;
         fpdec_dec_prec_t precision() const;
+        int magnitude() const;
         // operators
-        Decimal &operator=(const Decimal&) = default;
-        Decimal &operator=(Decimal&&) = default;
+        Decimal& operator=(const Decimal&) = default;
+        Decimal& operator=(Decimal&&) = default;
         Decimal operator+() const;
         Decimal operator-() const;
 

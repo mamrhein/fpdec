@@ -17,13 +17,15 @@ $Revision$
 
 using namespace fpdec;
 
+static_assert(sizeof(Decimal) == 16, "Size of Decimal should be 16!");
+
 Decimal::Decimal(): fpdec(FPDEC_ZERO) {}
 
-Decimal::Decimal(const Decimal &src) {
+Decimal::Decimal(const Decimal& src) {
     fpdec_copy(&fpdec, &src.fpdec);
 }
 
-Decimal::Decimal(const std::string &val) {
+Decimal::Decimal(const std::string& val) {
     fpdec = FPDEC_ZERO;
     error_t err = fpdec_from_ascii_literal(&fpdec, val.c_str());
     if (err == FPDEC_INVALID_DECIMAL_LITERAL)
@@ -37,7 +39,7 @@ Decimal::Decimal(const long long int val) {
     fpdec_from_long_long(&fpdec, val);
 };
 
-Decimal::Decimal(const fpdec_t *src) {
+Decimal::Decimal(const fpdec_t* src) {
     fpdec_copy(&fpdec, src);
 }
 
@@ -53,6 +55,13 @@ fpdec_sign_t Decimal::sign() const {
 
 fpdec_dec_prec_t Decimal::precision() const {
     return fpdec.dec_prec;
+}
+
+int Decimal::magnitude() const {
+    int magn = fpdec_magnitude(&fpdec);
+    if (magn == -1 && errno == ERANGE)
+        throw std::range_error("Result would be -Infinity.");
+    return magn;
 }
 
 // operators
