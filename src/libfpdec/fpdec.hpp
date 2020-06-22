@@ -61,15 +61,10 @@ namespace fpdec {
         Decimal& operator=(Decimal&&) = default;
         Decimal operator+() const;
         Decimal operator-() const;
-        bool operator==(Decimal&);
-        template<typename T>
-        friend bool operator==(Decimal&, T&);
-        template<typename T>
-        friend bool operator==(T&, Decimal&);
-        template<typename T>
-        friend bool operator!=(Decimal&, T&);
-        template<typename T>
-        friend bool operator!=(T&, Decimal&);
+        bool operator==(const Decimal&) const;
+        friend bool operator==(const long long int, const Decimal&);
+        bool operator!=(const Decimal&) const;
+        friend bool operator!=(const long long int, const Decimal&);
 
     private:
         fpdec_t fpdec;

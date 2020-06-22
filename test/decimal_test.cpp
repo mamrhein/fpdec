@@ -148,3 +148,26 @@ TEST_CASE("Decimal from integer") {
         }
     }
 }
+
+TEST_CASE("Comparison") {
+
+    SECTION("Equality") {
+        Decimal a = {"123456789012345678901234567890.1234"};
+        Decimal b = {a};
+        long l = {-2083L * INT32_MAX};
+        long m = l + 1;
+        Decimal c = {l};
+        Decimal d = {m};
+
+        CHECK(a == b);
+        CHECK(!(a != b));
+        CHECK(a != c);
+        CHECK(!(a == c));
+        CHECK(c != d);
+        CHECK(!(c == d));
+        CHECK(c == l);
+        CHECK(!(c != l));
+        CHECK(m == d);
+        CHECK(!(m != d));
+    }
+}

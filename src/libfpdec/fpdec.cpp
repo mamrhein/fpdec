@@ -37,7 +37,7 @@ Decimal::Decimal(const std::string& val) {
 Decimal::Decimal(const long long int val) {
     fpdec = FPDEC_ZERO;
     fpdec_from_long_long(&fpdec, val);
-};
+}
 
 Decimal::Decimal(const fpdec_t* src) {
     fpdec_copy(&fpdec, src);
@@ -76,27 +76,18 @@ Decimal Decimal::operator-() const {
     return dec;
 }
 
-bool Decimal::operator==(Decimal& rhs) {
+bool Decimal::operator==(const Decimal& rhs) const {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) == 0;
 }
 
-template<typename T>
-bool fpdec::operator==(Decimal& lhs, T& rhs) {
-    Decimal other {rhs};
-    return lhs == other;
-}
-
-template<typename T>
-bool fpdec::operator==(T& lhs, Decimal& rhs) {
+bool fpdec::operator==(const long long int lhs, const Decimal& rhs) {
     return rhs == lhs;
 }
 
-template<typename T>
-bool fpdec::operator!=(Decimal& lhs, T& rhs) {
-    return !(lhs == rhs);
+bool Decimal::operator!=(const Decimal& rhs) const {
+    return fpdec_compare(&fpdec, &(rhs.fpdec), 0) != 0;
 }
 
-template<typename T>
-bool fpdec::operator!=(T& lhs, Decimal& rhs) {
+bool fpdec::operator!=(const long long int lhs, const Decimal& rhs) {
     return !(rhs == lhs);
 }
