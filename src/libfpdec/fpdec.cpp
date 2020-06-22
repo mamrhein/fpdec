@@ -75,3 +75,28 @@ Decimal Decimal::operator-() const {
     fpdec_neg(&dec.fpdec, &fpdec);
     return dec;
 }
+
+bool Decimal::operator==(Decimal& rhs) {
+    return fpdec_compare(&fpdec, &(rhs.fpdec), 0) == 0;
+}
+
+template<typename T>
+bool fpdec::operator==(Decimal& lhs, T& rhs) {
+    Decimal other {rhs};
+    return lhs == other;
+}
+
+template<typename T>
+bool fpdec::operator==(T& lhs, Decimal& rhs) {
+    return rhs == lhs;
+}
+
+template<typename T>
+bool fpdec::operator!=(Decimal& lhs, T& rhs) {
+    return !(lhs == rhs);
+}
+
+template<typename T>
+bool fpdec::operator!=(T& lhs, Decimal& rhs) {
+    return !(rhs == lhs);
+}
