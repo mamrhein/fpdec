@@ -56,6 +56,24 @@ TEST_CASE("Decimal from string") {
             .magnitude = -1,
         },
         {
+            .literal = "-3",
+            .sign = -1,
+            .dec_prec = 0,
+            .magnitude = 0,
+        },
+        {
+            .literal = "-0.700",
+            .sign = -1,
+            .dec_prec = 3,
+            .magnitude = -1,
+        },
+        {
+            .literal = "-0.007",
+            .sign = -1,
+            .dec_prec = 3,
+            .magnitude = -3,
+        },
+        {
             .literal = "-1111111111111111111"
                        "2222222222222222222"
                        "3333333333333333333"
@@ -77,7 +95,7 @@ TEST_CASE("Decimal from string") {
             Decimal d = Decimal(test.literal);
             CHECK(d.sign() == test.sign);
             CHECK(d.precision() == test.dec_prec);
-            if (test.magnitude != -1)
+            if (test.sign != 0)
                 CHECK(d.magnitude() == test.magnitude);
         }
     }
