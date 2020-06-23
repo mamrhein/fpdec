@@ -19,27 +19,46 @@ using namespace fpdec;
 
 static_assert(sizeof(Decimal) == 16, "Size of Decimal should be 16!");
 
-Decimal::Decimal(): fpdec(FPDEC_ZERO) {}
-
-Decimal::Decimal(const Decimal& src) {
-    fpdec_copy(&fpdec, &src.fpdec);
+std::exception
+map_err_to_exc(const error_t err, const std::string &val = {}) {
+    switch (err) {
+        case FPDEC_PREC_LIMIT_EXCEEDED:
+        case FPDEC_EXP_LIMIT_EXCEEDED:
+        case FPDEC_N_DIGITS_LIMIT_EXCEEDED:
+            return InternalLimitExceeded(err);
+        case FPDEC_INVALID_DECIMAL_LITERAL:
+            return InvalidDecimalLiteral(val);
+        case FPDEC_DIVIDE_BY_ZERO:
+            return DivisionByZero();
+        case ENOMEM:
+            return std::bad_alloc();
+    }
+    return std::invalid_argument("Unknown error code: "
+                                 + std::to_string(err));
 }
 
-Decimal::Decimal(const std::string& val) {
+Decimal::Decimal() noexcept: fpdec(FPDEC_ZERO) {
+}
+
+Decimal::Decimal(const Decimal &src) {
+    error_t err = fpdec_copy(&fpdec, &src.fpdec);
+    if (err != FPDEC_OK)
+        throw map_err_to_exc(err);
+}
+
+Decimal::Decimal(const std::string &val) {
     fpdec = FPDEC_ZERO;
     error_t err = fpdec_from_ascii_literal(&fpdec, val.c_str());
-    if (err == FPDEC_INVALID_DECIMAL_LITERAL)
-        throw InvalidDecimalLiteral(val);
     if (err != FPDEC_OK)
-        throw InternalLimitExceeded();
+        throw map_err_to_exc(err);
 }
 
-Decimal::Decimal(const long long int val) {
+Decimal::Decimal(const long long int val) noexcept {
     fpdec = FPDEC_ZERO;
     fpdec_from_long_long(&fpdec, val);
 }
 
-Decimal::Decimal(const fpdec_t* src) {
+Decimal::Decimal(const fpdec_t *src) {
     fpdec_copy(&fpdec, src);
 }
 
@@ -49,11 +68,11 @@ Decimal::~Decimal() {
 
 // properties
 
-fpdec_sign_t Decimal::sign() const {
+fpdec_sign_t Decimal::sign() const noexcept {
     return fpdec.sign;
 }
 
-fpdec_dec_prec_t Decimal::precision() const {
+fpdec_dec_prec_t Decimal::precision() const noexcept {
     return fpdec.dec_prec;
 }
 
@@ -66,60 +85,62 @@ int Decimal::magnitude() const {
 
 // operators
 
-Decimal Decimal::operator+() const {
+Decimal Decimal::operator+() const noexcept {
     return *this;
 }
 
 Decimal Decimal::operator-() const {
     auto dec = Decimal();
-    fpdec_neg(&dec.fpdec, &fpdec);
+    error_t err = fpdec_neg(&dec.fpdec, &fpdec);
+    if (err != FPDEC_OK)
+        throw map_err_to_exc(err);
     return dec;
 }
 
-bool Decimal::operator==(const Decimal& rhs) const {
+bool Decimal::operator==(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) == 0;
 }
 
-bool fpdec::operator==(const long long int lhs, const Decimal& rhs) {
+bool fpdec::operator==(const long long int lhs, const Decimal &rhs) noexcept {
     return rhs == lhs;
 }
 
-bool Decimal::operator!=(const Decimal& rhs) const {
+bool Decimal::operator!=(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) != 0;
 }
 
-bool fpdec::operator!=(const long long int lhs, const Decimal& rhs) {
+bool fpdec::operator!=(const long long int lhs, const Decimal &rhs) noexcept {
     return !(rhs == lhs);
 }
 
-bool Decimal::operator<=(const Decimal& rhs) const {
+bool Decimal::operator<=(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) <= 0;
 }
 
-bool fpdec::operator<=(const long long int lhs, const Decimal& rhs) {
+bool fpdec::operator<=(const long long int lhs, const Decimal &rhs) noexcept {
     return rhs >= lhs;
 }
 
-bool Decimal::operator<(const Decimal& rhs) const {
+bool Decimal::operator<(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) < 0;
 }
 
-bool fpdec::operator<(const long long int lhs, const Decimal& rhs) {
+bool fpdec::operator<(const long long int lhs, const Decimal &rhs) noexcept {
     return rhs > lhs;
 }
 
-bool Decimal::operator>=(const Decimal& rhs) const {
+bool Decimal::operator>=(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) >= 0;
 }
 
-bool fpdec::operator>=(const long long int lhs, const Decimal& rhs) {
+bool fpdec::operator>=(const long long int lhs, const Decimal &rhs) noexcept {
     return rhs <= lhs;
 }
 
-bool Decimal::operator>(const Decimal& rhs) const {
+bool Decimal::operator>(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) > 0;
 }
 
-bool fpdec::operator>(const long long int lhs, const Decimal& rhs) {
+bool fpdec::operator>(const long long int lhs, const Decimal &rhs) noexcept {
     return rhs < lhs;
 }

@@ -21,14 +21,16 @@ $Revision$
 
 namespace fpdec {
 
-    class InternalLimitExceeded : std::range_error {
+    class InternalLimitExceeded : public std::range_error {
     public:
-        InternalLimitExceeded() :
-            std::range_error("Internal limit exceeded.") {
+        error_t error;
+        InternalLimitExceeded(error_t err) :
+            std::range_error("Internal limit exceeded."),
+            error(err) {
         };
     };
 
-    class InvalidDecimalLiteral : std::invalid_argument {
+    class InvalidDecimalLiteral : public std::invalid_argument {
     public:
         std::string invalid_literal;
         InvalidDecimalLiteral(const std::string lit) :
@@ -37,7 +39,7 @@ namespace fpdec {
         };
     };
 
-    class DivisionByZero : std::range_error {
+    class DivisionByZero : public std::range_error {
     public:
         DivisionByZero() :
             std::range_error("Division by zero.") {
@@ -46,27 +48,27 @@ namespace fpdec {
 
     class Decimal {
     public:
-        Decimal();
+        Decimal() noexcept;
         Decimal(const Decimal&);
         Decimal(Decimal&&) = default;
         Decimal(const std::string&);
-        Decimal(const long long int);
+        Decimal(const long long int) noexcept;
         ~Decimal();
         // properties
-        fpdec_sign_t sign() const;
-        fpdec_dec_prec_t precision() const;
+        fpdec_sign_t sign() const noexcept;
+        fpdec_dec_prec_t precision() const noexcept;
         int magnitude() const;
         // operators
         Decimal& operator=(const Decimal&) = default;
         Decimal& operator=(Decimal&&) = default;
-        Decimal operator+() const;
+        Decimal operator+() const noexcept;
         Decimal operator-() const;
-        bool operator==(const Decimal&) const;
-        bool operator!=(const Decimal&) const;
-        bool operator<=(const Decimal&) const;
-        bool operator<(const Decimal&) const;
-        bool operator>=(const Decimal&) const;
-        bool operator>(const Decimal&) const;
+        bool operator==(const Decimal&) const noexcept;
+        bool operator!=(const Decimal&) const noexcept;
+        bool operator<=(const Decimal&) const noexcept;
+        bool operator<(const Decimal&) const noexcept;
+        bool operator>=(const Decimal&) const noexcept;
+        bool operator>(const Decimal&) const noexcept;
 
     private:
         fpdec_t fpdec;
@@ -74,12 +76,12 @@ namespace fpdec {
     };
 
     // interacting with integers
-    bool operator==(const long long int, const Decimal&);
-    bool operator!=(const long long int, const Decimal&);
-    bool operator<=(const long long int, const Decimal&);
-    bool operator<(const long long int, const Decimal&);
-    bool operator>=(const long long int, const Decimal&);
-    bool operator>(const long long int, const Decimal&);
+    bool operator==(const long long int, const Decimal&) noexcept;
+    bool operator!=(const long long int, const Decimal&) noexcept;
+    bool operator<=(const long long int, const Decimal&) noexcept;
+    bool operator<(const long long int, const Decimal&) noexcept;
+    bool operator>=(const long long int, const Decimal&) noexcept;
+    bool operator>(const long long int, const Decimal&) noexcept;
 
 }; // namespace fpdec
 
