@@ -37,6 +37,10 @@ map_err_to_exc(const error_t err, const std::string &val = {}) {
                                  + std::to_string(err));
 }
 
+// *** class Decimal *** -----------------------------------------------------
+
+// constructors
+
 Decimal::Decimal() noexcept: fpdec(FPDEC_ZERO) {
 }
 
@@ -110,44 +114,46 @@ bool Decimal::operator==(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) == 0;
 }
 
-bool fpdec::operator==(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs == lhs;
-}
-
 bool Decimal::operator!=(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) != 0;
-}
-
-bool fpdec::operator!=(const long long int lhs, const Decimal &rhs) noexcept {
-    return !(rhs == lhs);
 }
 
 bool Decimal::operator<=(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) <= 0;
 }
 
-bool fpdec::operator<=(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs >= lhs;
-}
-
 bool Decimal::operator<(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) < 0;
-}
-
-bool fpdec::operator<(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs > lhs;
 }
 
 bool Decimal::operator>=(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) >= 0;
 }
 
-bool fpdec::operator>=(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs <= lhs;
-}
-
 bool Decimal::operator>(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) > 0;
+}
+
+// interacting with integers
+
+bool fpdec::operator==(const long long int lhs, const Decimal &rhs) noexcept {
+    return rhs == lhs;
+}
+
+bool fpdec::operator!=(const long long int lhs, const Decimal &rhs) noexcept {
+    return !(rhs == lhs);
+}
+
+bool fpdec::operator<=(const long long int lhs, const Decimal &rhs) noexcept {
+    return rhs >= lhs;
+}
+
+bool fpdec::operator<(const long long int lhs, const Decimal &rhs) noexcept {
+    return rhs > lhs;
+}
+
+bool fpdec::operator>=(const long long int lhs, const Decimal &rhs) noexcept {
+    return rhs <= lhs;
 }
 
 bool fpdec::operator>(const long long int lhs, const Decimal &rhs) noexcept {
