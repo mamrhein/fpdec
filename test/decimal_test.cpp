@@ -112,7 +112,7 @@ int magn(T num) {
     static_assert(std::is_arithmetic<T>(), "T must be a number type.");
     if (num == INT64_MIN)   // special case where std::abs gives wrong value
         return 18;
-    return (int)std::log10(std::abs((int64_t) num));
+    return (int)std::log10(std::abs((int64_t)num));
 }
 
 TEST_CASE("Decimal from integer") {
@@ -146,6 +146,31 @@ TEST_CASE("Decimal from integer") {
             CHECK(d.precision() == 0);
             CHECK(d.magnitude() == magn(val));
         }
+    }
+}
+
+TEST_CASE("Decimal from Decimal") {
+
+    SECTION("Simple copy") {
+        Decimal a = {"123456789012345678901234567890.1234"};
+        Decimal b = Decimal(a);
+        CHECK(a == b);
+    }
+
+    SECTION("With adjusting precision") {
+        Decimal a = {"123456789012345678901234567890.12345678"};
+        Decimal b = Decimal(a, 8);
+        Decimal c = Decimal(a, 12);
+        Decimal d = Decimal(a, 6);
+        Decimal e = Decimal(a, 4, Rounding::round_half_down);
+        CHECK(a == b);
+        CHECK(b.precision() == a.precision());
+        CHECK(a == c);
+        CHECK(c.precision() == 12);
+        CHECK(a != d);
+        CHECK(d.precision() == 6);
+        CHECK(a != e);
+        CHECK(e.precision() == 4);
     }
 }
 

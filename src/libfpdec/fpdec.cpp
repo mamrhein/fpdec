@@ -46,6 +46,15 @@ Decimal::Decimal(const Decimal &src) {
         throw map_err_to_exc(err);
 }
 
+Decimal::Decimal(const Decimal &src, const fpdec_dec_prec_t adjust_to_prec,
+                 const Rounding rnd) {
+    fpdec = FPDEC_ZERO;
+    error_t err = fpdec_adjusted(&fpdec, &src.fpdec, adjust_to_prec,
+                                 (FPDEC_ROUNDING_MODE)rnd);
+    if (err != FPDEC_OK)
+        throw map_err_to_exc(err);
+}
+
 Decimal::Decimal(const std::string &val) {
     fpdec = FPDEC_ZERO;
     error_t err = fpdec_from_ascii_literal(&fpdec, val.c_str());
