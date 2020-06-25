@@ -12,6 +12,8 @@ $Source$
 $Revision$
 */
 
+#include <iostream>
+#include <typeinfo>
 #include "catch.hpp"
 #include "fpdec.hpp"
 
@@ -221,5 +223,90 @@ TEST_CASE("Comparison") {
         CHECK(!(m < d));
         CHECK(m >= d);
         CHECK(!(m > d));
+    }
+}
+
+TEST_CASE("Arithmetic ops") {
+
+    SECTION("Add / sub") {
+
+        struct test_data {
+            std::string lit_x;
+            std::string lit_y;
+            std::string lit_sum;
+            std::string lit_diff;
+        };
+
+        struct test_data tests[] = {
+            {
+                .lit_x = "-0.282763e-7",
+                .lit_y = "9.30001e32",
+                .lit_sum = "930000999999999999999999999999999.9999999717237",
+                .lit_diff = "-930001000000000000000000000000000.0000000282763"
+            },
+            {
+                .lit_x = "1001000000780000030000000000.25",
+                .lit_y = "1000000000700000030000000000.20",
+                .lit_sum = "2001000001480000060000000000.45",
+                .lit_diff = "1000000080000000000000000.05"
+            },
+        };
+        error_t rc;
+
+        for (const auto &test : tests) {
+            auto x = Decimal(test.lit_x);
+            auto y = Decimal(test.lit_y);
+            auto sum = Decimal(test.lit_sum);
+            auto diff = Decimal(test.lit_diff);
+            CHECK(Decimal() + x == x);
+            CHECK(x - x == Decimal());
+            CHECK(x + y == sum);
+            CHECK(x - y == diff);
+        }
+    }
+
+    SECTION("Mul / div") {
+
+        struct test_data {
+            std::string lit_x;
+            std::string lit_y;
+            std::string lit_prod;
+        };
+
+        struct test_data tests[] = {
+            {
+                .lit_x = "-0.2827637",
+                .lit_y = "9.30001e-32",
+                .lit_prod = "-0.00000000000000000000000000000002629705237637",
+            },
+            {
+                .lit_x = "17.4",
+                .lit_y = "-17.4",
+                .lit_prod = "-302.76",
+            },
+        };
+        auto zero = Decimal();
+        error_t rc;
+
+        for (const auto &test : tests) {
+            auto x = Decimal(test.lit_x);
+            auto y = Decimal(test.lit_y);
+            auto prod = Decimal(test.lit_prod);
+            CHECK(Decimal(1) * x == x);
+            CHECK(x / x == Decimal(1));
+            CHECK(x * zero == zero);
+            CHECK(zero * x == zero);
+            CHECK(zero / x == zero);
+            CHECK(x * y == prod);
+            CHECK(y * x == prod);
+            CHECK(prod / x == y);
+            CHECK(prod / y == x);
+        }
+    }
+
+    SECTION("Div by zero") {
+        auto zero = Decimal();
+        auto x = Decimal(5);
+        CHECK_THROWS_AS(x / zero, DivisionByZero);
     }
 }
