@@ -99,10 +99,10 @@ namespace fpdec {
         bool operator<(const Decimal &) const noexcept;
         bool operator>=(const Decimal &) const noexcept;
         bool operator>(const Decimal &) const noexcept;
-        Decimal operator+(const Decimal &);
-        Decimal operator-(const Decimal &);
-        Decimal operator*(const Decimal &);
-        Decimal operator/(const Decimal &);
+        Decimal operator+(const Decimal &) const;
+        Decimal operator-(const Decimal &) const;
+        Decimal operator*(const Decimal &) const;
+        Decimal operator/(const Decimal &) const;
 
     private:
         fpdec_t fpdec{};
