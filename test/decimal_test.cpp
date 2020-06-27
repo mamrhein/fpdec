@@ -12,8 +12,6 @@ $Source$
 $Revision$
 */
 
-#include <iostream>
-#include <typeinfo>
 #include "catch.hpp"
 #include "fpdec.hpp"
 
@@ -122,7 +120,7 @@ TEST_CASE("Decimal from integer") {
     for (const auto &val : {INT16_MIN, -14, 0, 328, INT16_MAX}) {
 
         SECTION(std::to_string(val)) {
-            Decimal d = {val};
+            Decimal d = Decimal{val};
             CHECK(d.sign() == sign(val));
             CHECK(d.precision() == 0);
             if (val != 0)
@@ -133,7 +131,7 @@ TEST_CASE("Decimal from integer") {
     for (const auto &val : {INT32_MIN, -143, 1, 320937, INT32_MAX}) {
 
         SECTION(std::to_string(val)) {
-            Decimal d = {val};
+            Decimal d = Decimal{val};
             CHECK(d.sign() == sign(val));
             CHECK(d.precision() == 0);
             CHECK(d.magnitude() == magn(val));
@@ -143,7 +141,7 @@ TEST_CASE("Decimal from integer") {
     for (const auto &val : {INT64_MIN, -143L, 1L, 640937L, INT64_MAX}) {
 
         SECTION(std::to_string(val)) {
-            Decimal d = {val};
+            Decimal d = Decimal{val};
             CHECK(d.sign() == sign(val));
             CHECK(d.precision() == 0);
             CHECK(d.magnitude() == magn(val));
@@ -154,13 +152,13 @@ TEST_CASE("Decimal from integer") {
 TEST_CASE("Decimal from Decimal") {
 
     SECTION("Simple copy") {
-        Decimal a = {"123456789012345678901234567890.1234"};
+        Decimal a = Decimal{"123456789012345678901234567890.1234"};
         Decimal b = Decimal(a);
         CHECK(a == b);
     }
 
     SECTION("With adjusting precision") {
-        Decimal a = {"123456789012345678901234567890.12345678"};
+        Decimal a = Decimal{"123456789012345678901234567890.12345678"};
         Decimal b = Decimal(a, 8);
         Decimal c = Decimal(a, 12);
         Decimal d = Decimal(a, 6);
@@ -179,12 +177,12 @@ TEST_CASE("Decimal from Decimal") {
 TEST_CASE("Comparison") {
 
     SECTION("Equality") {
-        Decimal a = {"123456789012345678901234567890.1234"};
+        Decimal a = Decimal{"123456789012345678901234567890.1234"};
         Decimal b = {a};
-        long l = {-2083L * INT32_MAX};
-        long m = l + 1;
-        Decimal c = {l};
-        Decimal d = {m};
+        const long long l = {-2083L * INT32_MAX};
+        const long long m = l + 1;
+        Decimal c = Decimal{l};
+        Decimal d = Decimal{m};
 
         CHECK(a == b);
         CHECK(!(a != b));
@@ -192,19 +190,19 @@ TEST_CASE("Comparison") {
         CHECK(!(a == c));
         CHECK(c != d);
         CHECK(!(c == d));
-        CHECK(c == l);
-        CHECK(!(c != l));
+        CHECK(c == Decimal{l});
+        CHECK(!(c != Decimal{l}));
         CHECK(m == d);
         CHECK(!(m != d));
     }
 
     SECTION("Ordering") {
-        Decimal a = {"1234567890123456789012345678901234.56789"};
+        Decimal a = Decimal{"1234567890123456789012345678901234.56789"};
         Decimal b = {a};
         long l = {12083L * INT32_MAX};
         long m = l + 1;
-        Decimal c = {l};
-        Decimal d = {m};
+        Decimal c = Decimal{l};
+        Decimal d = Decimal{m};
 
         CHECK(a <= b);
         CHECK(a >= b);
@@ -215,10 +213,10 @@ TEST_CASE("Comparison") {
         CHECK(!(a < c));
         CHECK(c <= d);
         CHECK(!(c > d));
-        CHECK(c <= l);
-        CHECK(!(c < l));
-        CHECK(c >= l);
-        CHECK(!(c > l));
+        CHECK(c <= Decimal{l});
+        CHECK(!(c < Decimal{l}));
+        CHECK(c >= Decimal{l});
+        CHECK(!(c > Decimal{l}));
         CHECK(m <= d);
         CHECK(!(m < d));
         CHECK(m >= d);
@@ -251,7 +249,6 @@ TEST_CASE("Arithmetic ops") {
                 .lit_diff = "1000000080000000000000000.05"
             },
         };
-        error_t rc;
 
         for (const auto &test : tests) {
             auto x = Decimal(test.lit_x);
@@ -286,7 +283,6 @@ TEST_CASE("Arithmetic ops") {
             },
         };
         auto zero = Decimal();
-        error_t rc;
 
         for (const auto &test : tests) {
             auto x = Decimal(test.lit_x);

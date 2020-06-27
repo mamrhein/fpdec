@@ -171,25 +171,25 @@ Decimal Decimal::operator/(Decimal &rhs) {
 // interacting with integers
 
 bool fpdec::operator==(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs == lhs;
+    return rhs == (Decimal)lhs;
 }
 
 bool fpdec::operator!=(const long long int lhs, const Decimal &rhs) noexcept {
-    return !(rhs == lhs);
+    return !(rhs == (Decimal)lhs);
 }
 
 bool fpdec::operator<=(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs >= lhs;
+    return rhs >= (Decimal)lhs;
 }
 
 bool fpdec::operator<(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs > lhs;
+    return rhs > (Decimal)lhs;
 }
 
 bool fpdec::operator>=(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs <= lhs;
+    return rhs <= (Decimal)lhs;
 }
 
 bool fpdec::operator>(const long long int lhs, const Decimal &rhs) noexcept {
-    return rhs < lhs;
+    return rhs < (Decimal)lhs;
 }

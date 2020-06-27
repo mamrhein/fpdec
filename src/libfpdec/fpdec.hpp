@@ -25,7 +25,7 @@ namespace fpdec {
     public:
         error_t error;
 
-        InternalLimitExceeded(error_t err) :
+        explicit InternalLimitExceeded(error_t err) :
             std::range_error("Internal limit exceeded."),
             error(err) {
         };
@@ -35,7 +35,7 @@ namespace fpdec {
     public:
         std::string invalid_literal;
 
-        InvalidDecimalLiteral(const std::string lit) :
+        explicit InvalidDecimalLiteral(const std::string lit) :
             std::invalid_argument("Invalid Decimal literal"),
             invalid_literal(lit) {
         };
@@ -78,11 +78,11 @@ namespace fpdec {
     public:
         Decimal() noexcept;
         Decimal(const Decimal &);
-        Decimal(const Decimal &, const fpdec_dec_prec_t,
-                const Rounding = Rounding::round_default);
+        Decimal(const Decimal &, fpdec_dec_prec_t,
+                Rounding = Rounding::round_default);
         Decimal(Decimal &&) = default;
-        Decimal(const std::string &);
-        Decimal(const long long int) noexcept;
+        explicit Decimal(const std::string &);
+        explicit Decimal(long long int) noexcept;
         ~Decimal();
         // properties
         fpdec_sign_t sign() const noexcept;
@@ -105,17 +105,17 @@ namespace fpdec {
         Decimal operator/(Decimal &);
 
     private:
-        fpdec_t fpdec;
-        Decimal(const fpdec_t *);
+        fpdec_t fpdec{};
+        explicit Decimal(const fpdec_t *);
     };
 
     // interacting with integers
-    bool operator==(const long long int, const Decimal &) noexcept;
-    bool operator!=(const long long int, const Decimal &) noexcept;
-    bool operator<=(const long long int, const Decimal &) noexcept;
-    bool operator<(const long long int, const Decimal &) noexcept;
-    bool operator>=(const long long int, const Decimal &) noexcept;
-    bool operator>(const long long int, const Decimal &) noexcept;
+    bool operator==(long long int, const Decimal &) noexcept;
+    bool operator!=(long long int, const Decimal &) noexcept;
+    bool operator<=(long long int, const Decimal &) noexcept;
+    bool operator<(long long int, const Decimal &) noexcept;
+    bool operator>=(long long int, const Decimal &) noexcept;
+    bool operator>(long long int, const Decimal &) noexcept;
 
 }; // namespace fpdec
 
