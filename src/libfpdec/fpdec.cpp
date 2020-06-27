@@ -135,7 +135,7 @@ bool Decimal::operator>(const Decimal &rhs) const noexcept {
     return fpdec_compare(&fpdec, &(rhs.fpdec), 0) > 0;
 }
 
-Decimal Decimal::operator+(Decimal &rhs) {
+Decimal Decimal::operator+(const Decimal &rhs) {
     auto dec = Decimal();
     error_t err = fpdec_add(&dec.fpdec, &fpdec, &rhs.fpdec);
     if (err != FPDEC_OK)
@@ -143,7 +143,7 @@ Decimal Decimal::operator+(Decimal &rhs) {
     return dec;
 }
 
-Decimal Decimal::operator-(Decimal &rhs) {
+Decimal Decimal::operator-(const Decimal &rhs) {
     auto dec = Decimal();
     error_t err = fpdec_sub(&dec.fpdec, &fpdec, &rhs.fpdec);
     if (err != FPDEC_OK)
@@ -151,7 +151,7 @@ Decimal Decimal::operator-(Decimal &rhs) {
     return dec;
 }
 
-Decimal Decimal::operator*(Decimal &rhs) {
+Decimal Decimal::operator*(const Decimal &rhs) {
     auto dec = Decimal();
     error_t err = fpdec_mul(&dec.fpdec, &fpdec, &rhs.fpdec);
     if (err != FPDEC_OK)
@@ -159,7 +159,7 @@ Decimal Decimal::operator*(Decimal &rhs) {
     return dec;
 }
 
-Decimal Decimal::operator/(Decimal &rhs) {
+Decimal Decimal::operator/(const Decimal &rhs) {
     auto dec = Decimal();
     error_t err = fpdec_div(&dec.fpdec, &fpdec, &rhs.fpdec, -1,
                             FPDEC_ROUND_DEFAULT);
