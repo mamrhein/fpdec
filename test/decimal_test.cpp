@@ -13,7 +13,7 @@ $Revision$
 */
 
 #include "catch.hpp"
-#include "fpdec.hpp"
+#include "fpdecimal.hpp"
 
 using namespace fpdec;
 

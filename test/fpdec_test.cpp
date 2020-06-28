@@ -19,4 +19,4 @@ $Revision$
 #include "catch.hpp"
 
 #include "fpdec.h"
-#include "fpdec.hpp"
+#include "fpdecimal.hpp"

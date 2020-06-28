@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-Name:        fpdec.cpp
+Name:        fpdecimal.cpp
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -12,7 +12,7 @@ $Source$
 $Revision$
 */
 
-#include "fpdec.hpp"
+#include "fpdecimal.hpp"
 #include "fpdec.h"
 
 using namespace fpdec;

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-Name:        fpdec.hpp
+Name:        fpdecimal.hpp
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -12,8 +12,8 @@ $Source$
 $Revision$
 */
 
-#ifndef FPDEC_FPDEC_HPP
-#define FPDEC_FPDEC_HPP
+#ifndef FPDEC_FPDECIMAL_HPP
+#define FPDEC_FPDECIMAL_HPP
 
 #include <stdexcept>
 #include <string>
@@ -119,4 +119,4 @@ namespace fpdec {
 
 }; // namespace fpdec
 
-#endif //FPDEC_FPDEC_HPP
+#endif //FPDEC_FPDECIMAL_HPP
