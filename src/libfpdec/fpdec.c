@@ -10,8 +10,8 @@ License:     This program is part of a larger application or library.
              For license details please read the file LICENSE provided
              together with the application or library.
 ------------------------------------------------------------------------------
-$Source: src/libfpdec/fpdec.c $
-$Revision: 2020-06-15T16:41:38+02:00 $
+$Source$
+$Revision$
 */
 
 #include <assert.h>

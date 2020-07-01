@@ -12,6 +12,7 @@ $Source$
 $Revision$
 */
 
+#include <sstream>
 #include "fpdecimal.hpp"
 #include "fpdec.h"
 
@@ -166,6 +167,29 @@ Decimal Decimal::operator/(const Decimal &rhs) const {
     if (err != FPDEC_OK)
         throw_exc(err);
     return dec;
+}
+
+// member functions
+
+std::string Decimal::dump() {
+    std::ostringstream buf;
+    buf << "flags:" << std::endl
+        << "  dyn_alloc:  " << FPDEC_IS_DYN_ALLOC(&fpdec) << std::endl
+        << "  normalized: " << FPDEC_IS_NORMALIZED(&fpdec) << std::endl
+        << "sign: " << (int)FPDEC_SIGN(&fpdec) << std::endl
+        << "dec_prec: " << FPDEC_DEC_PREC(&fpdec) << std::endl;
+    if (FPDEC_IS_DYN_ALLOC(&fpdec)) {
+        buf << "exp: " << FPDEC_EXP(&fpdec) << std::endl
+            << "n digits: " << fpdec.digit_array->n_alloc << std::endl
+            << "digits: ";
+        for (int i = 0; i < fpdec.digit_array->n_alloc; ++i)
+            buf << fpdec.digit_array->digits[i] << ", ";
+    }
+    else {
+        buf << "digits: " << fpdec.lo << ", " << fpdec.hi;
+    }
+    buf << std::endl;
+    return buf.str();
 }
 
 // interacting with integers

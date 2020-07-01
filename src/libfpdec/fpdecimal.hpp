@@ -103,6 +103,8 @@ namespace fpdec {
         Decimal operator-(const Decimal &) const;
         Decimal operator*(const Decimal &) const;
         Decimal operator/(const Decimal &) const;
+        // member functions
+        std::string dump();
 
     private:
         fpdec_t fpdec{};
