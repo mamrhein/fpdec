@@ -18,6 +18,7 @@ $Revision$
 #include <stdexcept>
 #include <string>
 #include "common.h"
+#include "mem.h"
 
 namespace fpdec {
 
