@@ -80,7 +80,7 @@ namespace fpdec {
         Decimal(const Decimal &);
         Decimal(const Decimal &, fpdec_dec_prec_t,
                 Rounding = Rounding::round_default);
-        Decimal(Decimal &&) = default;
+        Decimal(Decimal &&) noexcept;
         explicit Decimal(const std::string &);
         explicit Decimal(long long int) noexcept;
         ~Decimal();

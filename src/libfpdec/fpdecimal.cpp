@@ -61,6 +61,12 @@ Decimal::Decimal(const Decimal &src, const fpdec_dec_prec_t adjust_to_prec,
         throw_exc(err);
 }
 
+Decimal::Decimal(Decimal &&src) noexcept {
+    fpdec = std::move(src.fpdec);
+    // steal digit array
+    src.fpdec.dyn_alloc = false;
+}
+
 Decimal::Decimal(const std::string &val) {
     fpdec = FPDEC_ZERO;
     error_t err = fpdec_from_ascii_literal(&fpdec, val.c_str());
