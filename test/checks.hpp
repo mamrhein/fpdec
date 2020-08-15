@@ -16,6 +16,7 @@ $Revision$
 #define FPDEC_CHECKS_HPP
 
 #include "fpdec.h"
+#include "digit_array_.h"
 
 static inline bool
 is_shint(fpdec_t *fpdec) {

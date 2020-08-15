@@ -22,21 +22,13 @@ extern "C" {
 #endif // __cplusplus
 
 #include "common.h"
-#include "digit_array.h"
 #include "mem.h"
 #include "rounding.h"
-#include "shifted_int.h"
 
 
 /*****************************************************************************
 *  Macros
 *****************************************************************************/
-
-// Limits
-
-#define FPDEC_MAX_DEC_PREC UINT16_MAX
-#define FPDEC_MIN_EXP -3450  // -FPDEC_MAX_DEC_PREC / DEC_DIGITS_PER_DIGIT + 1
-#define FPDEC_MAX_EXP INT32_MAX
 
 // Properties
 

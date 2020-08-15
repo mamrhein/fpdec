@@ -18,10 +18,19 @@ $Revision$
 #define FPDEC_DIGIT_ARRAY__H
 
 #include "common_.h"
-#include "digit_array.h"
-#include "fpdec.h"
+#include "mem.h"
 #include "rounding.h"
 
+
+/*****************************************************************************
+*  Types
+*****************************************************************************/
+
+struct fpdec_digit_array {
+    fpdec_n_digits_t n_alloc;
+    fpdec_n_digits_t n_signif;
+    fpdec_digit_t digits[1];
+};
 
 /*****************************************************************************
 *  Macros

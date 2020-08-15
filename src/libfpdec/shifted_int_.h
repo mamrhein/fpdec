@@ -21,7 +21,6 @@ $Revision$
 
 #include "common_.h"
 #include "basemath.h"
-#include "shifted_int.h"
 #include "rounding_.h"
 
 /*****************************************************************************
