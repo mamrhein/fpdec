@@ -79,18 +79,20 @@ typedef struct {
 *  Macros
 *****************************************************************************/
 
-// Limits
+#define DEC_DIGITS_PER_DIGIT 19             // int(log10(2^64))
+#define RADIX 10000000000000000000UL        // 10 ** DEC_DIGITS_PER_DIGIT
 
+// Limits
 #define FPDEC_MAX_DEC_PREC UINT16_MAX
 #define FPDEC_MIN_EXP -3450  // -FPDEC_MAX_DEC_PREC / DEC_DIGITS_PER_DIGIT + 1
 #define FPDEC_MAX_EXP INT32_MAX
 
-// sign
+// Sign constants
 #define FPDEC_SIGN_ZERO 0
 #define FPDEC_SIGN_NEG -1
 #define FPDEC_SIGN_POS 1
 
-// error codes
+// Error codes
 #define FPDEC_OK 0
 #define FPDEC_PREC_LIMIT_EXCEEDED 1
 #define FPDEC_EXP_LIMIT_EXCEEDED 2
