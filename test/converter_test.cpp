@@ -66,8 +66,9 @@ TEST_CASE("Negate") {
                 CHECK(is_digit_array(&negated));
                 CHECK(FPDEC_SIGN(&negated) == -FPDEC_SIGN(&src));
                 CHECK(FPDEC_DEC_PREC(&negated) == FPDEC_DEC_PREC(&src));
-                REQUIRE(FPDEC_N_DIGITS(&negated) == FPDEC_N_DIGITS(&src));
-                for (int i = 0; i < FPDEC_N_DIGITS(&src); ++i) {
+                REQUIRE(FPDEC_DYN_N_DIGITS(&negated) ==
+                        FPDEC_DYN_N_DIGITS(&src));
+                for (int i = 0; i < FPDEC_DYN_N_DIGITS(&src); ++i) {
                     CHECK(negated.digit_array->digits[i] ==
                           src.digit_array->digits[i]);
                 }

@@ -139,8 +139,8 @@ TEST_CASE("Initialize from string") {
                 CHECK(check_normalized(&fpdec));
                 CHECK(FPDEC_SIGN(&fpdec) == test.sign);
                 CHECK(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
-                CHECK(FPDEC_EXP(&fpdec) == test.exp);
-                REQUIRE(FPDEC_N_DIGITS(&fpdec) == test.n_digits);
+                CHECK(FPDEC_DYN_EXP(&fpdec) == test.exp);
+                REQUIRE(FPDEC_DYN_N_DIGITS(&fpdec) == test.n_digits);
                 for (int i = 0; i < test.n_digits; ++i) {
                     CHECK(fpdec.digit_array->digits[i] == test.digits[i]);
                 }
@@ -231,8 +231,8 @@ TEST_CASE("Initialize from string") {
                 CHECK(check_normalized(&fpdec));
                 CHECK(FPDEC_SIGN(&fpdec) == test.sign);
                 CHECK(FPDEC_DEC_PREC(&fpdec) == test.dec_prec);
-                CHECK(FPDEC_EXP(&fpdec) == test.exp);
-                REQUIRE(FPDEC_N_DIGITS(&fpdec) == test.n_digits);
+                CHECK(FPDEC_DYN_EXP(&fpdec) == test.exp);
+                REQUIRE(FPDEC_DYN_N_DIGITS(&fpdec) == test.n_digits);
                 for (int i = 0; i < test.n_digits; ++i) {
                     CHECK(fpdec.digit_array->digits[i] == test.digits[i]);
                 }

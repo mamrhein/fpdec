@@ -63,15 +63,6 @@ const fpdec_t FPDEC_MINUS_ONE = {
 
 #define U128_FROM_SHINT(x) {x->lo, x->hi}
 
-#define FPDEC_DYN_EXP(fpdec) (((fpdec_t*)fpdec)->exp)
-
-#define FPDEC_DYN_N_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->n_signif)
-
-#define FPDEC_DYN_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->digits)
-
-#define FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) \
-        (FPDEC_DYN_DIGITS(fpdec)[FPDEC_DYN_N_DIGITS(fpdec) - 1])
-
 #define FPDEC_IS_ZEROED(fpdec) (!FPDEC_IS_DYN_ALLOC(fpdec) && \
                                 !FPDEC_IS_NORMALIZED(fpdec) && \
                                 FPDEC_SIGN(fpdec) == 0 && \
@@ -111,7 +102,7 @@ fpdec_dump(const fpdec_t *fpdec) {
     printf("sign: %d\n", FPDEC_SIGN(fpdec));
     printf("dec_prec: %u\n", FPDEC_DEC_PREC(fpdec));
     if (FPDEC_IS_DYN_ALLOC(fpdec)) {
-        printf("exp: %d\n", FPDEC_EXP(fpdec));
+        printf("exp: %d\n", FPDEC_DYN_EXP(fpdec));
         printf("n digits: %u\n", FPDEC_DYN_N_DIGITS(fpdec));
         printf("digits: ");
         for (int i = 0; i < FPDEC_DYN_N_DIGITS(fpdec); ++i) {
@@ -169,7 +160,7 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
     n_add_zeros = MAX(0, dec_repr->exp);
     n_dec_digits = dec_repr->n_dec_digits + n_add_zeros;
     if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT &&
-            -dec_repr->exp <= MAX_DEC_PREC_FOR_SHINT) {
+        -dec_repr->exp <= MAX_DEC_PREC_FOR_SHINT) {
         rc = shint_from_dec_coeff(&fpdec->lo, &fpdec->hi,
                                   dec_repr->coeff, dec_repr->n_dec_digits,
                                   n_add_zeros);
@@ -231,11 +222,12 @@ fpdec_shint_magnitude(const fpdec_t *fpdec) {
 
 static int
 fpdec_dyn_magnitude(const fpdec_t *fpdec) {
-    int rel_pos_radix_point = FPDEC_DYN_N_DIGITS(fpdec) + FPDEC_EXP(fpdec);
+    int rel_pos_radix_point = FPDEC_DYN_N_DIGITS(fpdec) +
+                              FPDEC_DYN_EXP(fpdec);
     fpdec_digit_t most_signif_digit = FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec);
     assert(most_signif_digit != 0);
     return (rel_pos_radix_point - 1) * DEC_DIGITS_PER_DIGIT +
-            U64_MAGNITUDE(most_signif_digit);
+           U64_MAGNITUDE(most_signif_digit);
 }
 
 typedef int (*v_magnitude)(const fpdec_t *);
@@ -360,7 +352,7 @@ fpdec_shint_to_dyn(fpdec_t *fpdec) {
         fpdec->dyn_alloc = true;
         fpdec->normalized = true;
         fpdec->exp = n_trailing_zeros -
-                CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
+                     CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
     }
     return rc;
 }
@@ -384,14 +376,14 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
     assert(FPDEC_IS_DYN_ALLOC(fpdec));
 
     while (FPDEC_DYN_N_DIGITS(fpdec) > 0 &&
-            FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0)
+           FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0)
         (FPDEC_DYN_N_DIGITS(fpdec))--;
     if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
         fpdec_reset_to_zero(fpdec, dec_prec);
         return;
     }
     FPDEC_DYN_EXP(fpdec) +=
-            digits_eliminate_trailing_zeros(fpdec->digit_array);
+        digits_eliminate_trailing_zeros(fpdec->digit_array);
     if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
         fpdec_reset_to_zero(fpdec, dec_prec);
         return;
@@ -410,7 +402,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
             fpdec_n_digits_t digit_idx = 0;
             fpdec_digit_t *digits = FPDEC_DYN_DIGITS(fpdec);
             uint64_t dec_shift = _10_POW_N(dec_prec);
-            switch FPDEC_EXP(fpdec) {
+            switch FPDEC_DYN_EXP(fpdec) {
                 case -1:
                     u64_mul_u64(&shint, digits[digit_idx], dec_shift);
                     u128_idiv_u64(&shint, RADIX);
@@ -454,7 +446,7 @@ fpdec_dyn_adjust_to_prec(fpdec_t *fpdec,
         // need to shorten / round digits
         size_t dec_shift = radix_point_at - dec_prec;
         if (dec_shift >
-                FPDEC_DYN_N_DIGITS(fpdec) * DEC_DIGITS_PER_DIGIT) {
+            FPDEC_DYN_N_DIGITS(fpdec) * DEC_DIGITS_PER_DIGIT) {
             fpdec_digit_t quant;
             FPDEC_DYN_EXP(fpdec) += dec_shift / DEC_DIGITS_PER_DIGIT;
             dec_shift %= DEC_DIGITS_PER_DIGIT;
@@ -607,9 +599,9 @@ fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     }
     else if (FPDEC_DYN_EXP(x) > FPDEC_DYN_EXP(y)) {
         n_shift = FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y);
-        n_add_zeros = MAX((int) FPDEC_DYN_N_DIGITS(y) -
-                                  (int) FPDEC_DYN_N_DIGITS(x) -
-                                  (int) n_shift + 1,
+        n_add_zeros = MAX((int)FPDEC_DYN_N_DIGITS(y) -
+                          (int)FPDEC_DYN_N_DIGITS(x) -
+                          (int)n_shift + 1,
                           1);
         z_digits = digits_copy(x->digit_array, n_shift, n_add_zeros);
         if (z_digits == NULL) MEMERROR
@@ -618,9 +610,9 @@ fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     }
     else {
         n_shift = FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x);
-        n_add_zeros = MAX((int) FPDEC_DYN_N_DIGITS(x) -
-                                  (int) FPDEC_DYN_N_DIGITS(y) -
-                                  (int) n_shift + 1,
+        n_add_zeros = MAX((int)FPDEC_DYN_N_DIGITS(x) -
+                          (int)FPDEC_DYN_N_DIGITS(y) -
+                          (int)n_shift + 1,
                           1);
         z_digits = digits_copy(y->digit_array, n_shift, n_add_zeros);
         if (z_digits == NULL) MEMERROR
@@ -664,10 +656,10 @@ fpdec_add_abs_shint_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
 typedef error_t (*v_math_op)(fpdec_t *, const fpdec_t *, const fpdec_t *);
 
 const v_math_op vtab_add_abs[4] = {
-        fpdec_add_abs_shint_to_shint,
-        fpdec_add_abs_dyn_to_shint,
-        fpdec_add_abs_shint_to_dyn,
-        fpdec_add_abs_dyn_to_dyn
+    fpdec_add_abs_shint_to_shint,
+    fpdec_add_abs_dyn_to_shint,
+    fpdec_add_abs_shint_to_dyn,
+    fpdec_add_abs_dyn_to_dyn
 };
 
 // pre-condition: x >= y
@@ -719,7 +711,7 @@ fpdec_sub_abs_dyn_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     }
     digits_isub_digits(z_digits, s_digits);
     if (s_digits_is_copy)
-        fpdec_mem_free((void *) s_digits);
+        fpdec_mem_free((void *)s_digits);
     z->exp = z_exp;
     z->digit_array = z_digits;
     z->dyn_alloc = true;
@@ -754,10 +746,10 @@ fpdec_sub_abs_shint_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
 }
 
 const v_math_op vtab_sub_abs[4] = {
-        fpdec_sub_abs_shint_from_shint,
-        fpdec_sub_abs_dyn_from_shint,
-        fpdec_sub_abs_shint_from_dyn,
-        fpdec_sub_abs_dyn_from_dyn
+    fpdec_sub_abs_shint_from_shint,
+    fpdec_sub_abs_dyn_from_shint,
+    fpdec_sub_abs_shint_from_dyn,
+    fpdec_sub_abs_dyn_from_dyn
 };
 
 error_t
@@ -859,7 +851,7 @@ fpdec_mul_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     z_digits = digits_mul(x->digit_array, y->digit_array);
     if (z_digits == NULL) MEMERROR
     z->digit_array = z_digits;
-    z->exp = FPDEC_EXP(x) + FPDEC_EXP(y);
+    z->exp = FPDEC_DYN_EXP(x) + FPDEC_DYN_EXP(y);
     FPDEC_IS_DYN_ALLOC(z) = true;
     return FPDEC_OK;
 }
@@ -906,10 +898,10 @@ fpdec_mul_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
 }
 
 const v_math_op vtab_mul_abs[4] = {
-        fpdec_mul_abs_shint_by_shint,
-        fpdec_mul_abs_shint_by_dyn,
-        fpdec_mul_abs_dyn_by_shint,
-        fpdec_mul_abs_dyn_by_dyn
+    fpdec_mul_abs_shint_by_shint,
+    fpdec_mul_abs_shint_by_dyn,
+    fpdec_mul_abs_dyn_by_shint,
+    fpdec_mul_abs_dyn_by_dyn
 };
 
 error_t
@@ -924,7 +916,7 @@ fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     FPDEC_SIGN(z) = FPDEC_SIGN(x) * FPDEC_SIGN(y);
     FPDEC_DEC_PREC(z) = FPDEC_DEC_PREC(x) + FPDEC_DEC_PREC(y);
     if (FPDEC_DEC_PREC(z) <= MAX_DEC_PREC_FOR_SHINT ||
-            FPDEC_IS_DYN_ALLOC(x) || FPDEC_IS_DYN_ALLOC(y)) {
+        FPDEC_IS_DYN_ALLOC(x) || FPDEC_IS_DYN_ALLOC(y)) {
         rc = DISPATCH_BIN_OP(vtab_mul_abs, z, x, y);
     }
     else {
@@ -945,12 +937,12 @@ error_t
 fpdec_divmod_abs_dyn_by_dyn(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
                             const fpdec_t *y) {
     const fpdec_n_digits_t n_shift_x =
-            MAX(0, FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y));
+        MAX(0, FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y));
     const fpdec_n_digits_t n_shift_y =
-            MAX(0, FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x));
+        MAX(0, FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x));
     fpdec_digit_array_t *q_digits, *r_digits;
 
-    if (FPDEC_N_DIGITS(y) == 1 && n_shift_y == 0) {
+    if (FPDEC_DYN_N_DIGITS(y) == 1 && n_shift_y == 0) {
         q_digits = digits_div_digit(x->digit_array, n_shift_x,
                                     FPDEC_DYN_DIGITS(y)[0], &r->lo);
         if (q_digits == NULL) MEMERROR
@@ -1037,10 +1029,10 @@ typedef error_t (*v_divmod_op)(fpdec_t *, fpdec_t *, const fpdec_t *,
                                const fpdec_t *);
 
 const v_divmod_op vtab_divmod_abs[4] = {
-        fpdec_divmod_abs_shint_by_shint,
-        fpdec_divmod_abs_shint_by_dyn,
-        fpdec_divmod_abs_dyn_by_shint,
-        fpdec_divmod_abs_dyn_by_dyn
+    fpdec_divmod_abs_shint_by_shint,
+    fpdec_divmod_abs_shint_by_dyn,
+    fpdec_divmod_abs_dyn_by_shint,
+    fpdec_divmod_abs_dyn_by_dyn
 };
 
 error_t
@@ -1077,7 +1069,7 @@ fpdec_divmod(fpdec_t *q, fpdec_t *r, const fpdec_t *x, const fpdec_t *y) {
     FPDEC_SIGN(r) = FPDEC_SIGN(x);
     FPDEC_DEC_PREC(r) = MAX(FPDEC_DEC_PREC(x), FPDEC_DEC_PREC(y));
     rc = vtab_divmod_abs[((FPDEC_IS_DYN_ALLOC(x)) << 1U) +
-            FPDEC_IS_DYN_ALLOC(y)](q, r, x, y);
+                         FPDEC_IS_DYN_ALLOC(y)](q, r, x, y);
 
     if (FPDEC_IS_DYN_ALLOC(q))
         fpdec_dyn_normalize(q);
@@ -1093,7 +1085,7 @@ fpdec_div_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
                          const int prec_limit,
                          const enum FPDEC_ROUNDING_MODE rounding) {
     fpdec_digit_array_t *q_digits, *r_digits;
-    int exp = FPDEC_EXP(x) - FPDEC_EXP(y);
+    int exp = FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y);
 
     if (prec_limit == -1) {
         q_digits = digits_div_max_prec(x->digit_array, y->digit_array,
@@ -1235,10 +1227,10 @@ typedef error_t (*v_div_op)(fpdec_t *, const fpdec_t *, const fpdec_t *,
                             const int, const enum FPDEC_ROUNDING_MODE);
 
 const v_div_op vtab_div_abs[4] = {
-        fpdec_div_abs_shint_by_shint,
-        fpdec_div_abs_shint_by_dyn,
-        fpdec_div_abs_dyn_by_shint,
-        fpdec_div_abs_dyn_by_dyn
+    fpdec_div_abs_shint_by_shint,
+    fpdec_div_abs_shint_by_dyn,
+    fpdec_div_abs_dyn_by_shint,
+    fpdec_div_abs_dyn_by_dyn
 };
 
 error_t
@@ -1268,8 +1260,8 @@ fpdec_div(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
 void
 fpdec_reset_to_zero(fpdec_t *fpdec, fpdec_dec_prec_t dec_prec) {
     if (FPDEC_IS_DYN_ALLOC(fpdec)) {
-        fpdec_mem_free((void *) fpdec->digit_array);
+        fpdec_mem_free((void *)fpdec->digit_array);
     }
-    memset((void *) fpdec, 0, sizeof(fpdec_t));
+    memset((void *)fpdec, 0, sizeof(fpdec_t));
     FPDEC_DEC_PREC(fpdec) = dec_prec;
 }

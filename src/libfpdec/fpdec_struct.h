@@ -65,12 +65,14 @@ struct fpdec_struct {
 
 #define FPDEC_DEC_PREC(fpdec) (((fpdec_t*)fpdec)->dec_prec)
 
-#define FPDEC_EXP(fpdec) \
-        (FPDEC_IS_DYN_ALLOC(fpdec) ? ((fpdec_t*)fpdec)->exp : 0)
+#define FPDEC_DYN_EXP(fpdec) (((fpdec_t*)fpdec)->exp)
 
-#define FPDEC_N_DIGITS(fpdec) \
-        (FPDEC_IS_DYN_ALLOC(fpdec) ? \
-            ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
+#define FPDEC_DYN_N_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->n_signif)
+
+#define FPDEC_DYN_DIGITS(fpdec) (((fpdec_t*)fpdec)->digit_array->digits)
+
+#define FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) \
+        (FPDEC_DYN_DIGITS(fpdec)[FPDEC_DYN_N_DIGITS(fpdec) - 1])
 
 
 #ifdef __cplusplus

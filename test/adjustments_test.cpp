@@ -1165,9 +1165,9 @@ check_adjusted_digit_array(enum FPDEC_ROUNDING_MODE rnd, const char *literal,
     REQUIRE(is_digit_array(&adj));
     CHECK(FPDEC_SIGN(&adj) == FPDEC_SIGN(&fpdec));
     CHECK(FPDEC_DEC_PREC(&adj) == dec_prec);
-    CHECK(FPDEC_EXP(&adj) == exp);
-    CHECK(FPDEC_N_DIGITS(&adj) == digits.size());
-    for (int i = 0; i < FPDEC_N_DIGITS(&adj); ++i) {
+    CHECK(FPDEC_DYN_EXP(&adj) == exp);
+    CHECK(FPDEC_DYN_N_DIGITS(&adj) == digits.size());
+    for (int i = 0; i < FPDEC_DYN_N_DIGITS(&adj); ++i) {
         CHECK(adj.digit_array->digits[i] == digits[i]);
     }
     fpdec_reset_to_zero(&fpdec, 0);

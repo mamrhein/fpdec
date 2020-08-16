@@ -186,7 +186,7 @@ std::string Decimal::dump() {
         << "sign: " << (int)FPDEC_SIGN(&fpdec) << std::endl
         << "dec_prec: " << FPDEC_DEC_PREC(&fpdec) << std::endl;
     if (FPDEC_IS_DYN_ALLOC(&fpdec)) {
-        buf << "exp: " << FPDEC_EXP(&fpdec) << std::endl
+        buf << "exp: " << FPDEC_DYN_EXP(&fpdec) << std::endl
             << "n digits: " << fpdec.digit_array->n_alloc << std::endl
             << "digits: ";
         for (int i = 0; i < fpdec.digit_array->n_alloc; ++i)
