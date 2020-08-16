@@ -16,7 +16,7 @@ $Revision$
 #include <cstdio>
 
 #include "catch.hpp"
-#include "rounding_.h"
+#include "rounding_helper.h"
 
 
 void check_rounding(fpdec_digit_t num, fpdec_digit_t quant,

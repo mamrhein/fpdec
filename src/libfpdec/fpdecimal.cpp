@@ -15,7 +15,7 @@ $Revision$
 #include <sstream>
 #include "fpdecimal.hpp"
 #include "fpdec.h"
-#include "digit_array_.h"
+#include "digit_array_struct.h"
 
 using namespace fpdec;
 

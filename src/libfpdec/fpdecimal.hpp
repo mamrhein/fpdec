@@ -19,6 +19,7 @@ $Revision$
 #include <string>
 #include "common.h"
 #include "mem.h"
+#include "fpdec_struct.h"
 
 namespace fpdec {
 

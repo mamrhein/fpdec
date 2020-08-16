@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------------------
-Name:        digit_array_.h
+Name:        digit_array.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -14,23 +14,13 @@ $Revision$
 */
 
 
-#ifndef FPDEC_DIGIT_ARRAY__H
-#define FPDEC_DIGIT_ARRAY__H
+#ifndef FPDEC_DIGIT_ARRAY_H
+#define FPDEC_DIGIT_ARRAY_H
 
-#include "common_.h"
+#include "helper_macros.h"
 #include "mem.h"
 #include "rounding.h"
 
-
-/*****************************************************************************
-*  Types
-*****************************************************************************/
-
-struct fpdec_digit_array {
-    fpdec_n_digits_t n_alloc;
-    fpdec_n_digits_t n_signif;
-    fpdec_digit_t digits[1];
-};
 
 /*****************************************************************************
 *  Macros
@@ -111,4 +101,4 @@ digits_div_limit_prec(const fpdec_digit_array_t *x,
                       const fpdec_digit_array_t *y,
                       const int n_shift);
 
-#endif //FPDEC_DIGIT_ARRAY__H
+#endif //FPDEC_DIGIT_ARRAY_H

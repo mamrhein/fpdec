@@ -16,16 +16,17 @@ $Revision$
 #define FPDEC_CHECKS_HPP
 
 #include "fpdec.h"
-#include "digit_array_.h"
+#include "fpdec_struct.h"
+#include "digit_array_struct.h"
 
 static inline bool
 is_shint(fpdec_t *fpdec) {
-    return !(fpdec->dyn_alloc && fpdec->normalized);
+    return !(FPDEC_IS_DYN_ALLOC(fpdec) && FPDEC_IS_NORMALIZED(fpdec));
 }
 
 static inline bool
 is_digit_array(fpdec_t *fpdec) {
-    return (fpdec->dyn_alloc && fpdec->normalized);
+    return (FPDEC_IS_DYN_ALLOC(fpdec) && FPDEC_IS_NORMALIZED(fpdec));
 }
 
 static inline bool check_normalized(fpdec_t *fpdec) {

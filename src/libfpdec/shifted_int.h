@@ -1,6 +1,6 @@
 /*
 ------------------------------------------------------------------------------
-Name:        shifted_int_.h
+Name:        shifted_int.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -14,18 +14,14 @@ $Revision$
 */
 
 
-#ifndef FPDEC_SHIFTED_INT__H
-#define FPDEC_SHIFTED_INT__H
+#ifndef FPDEC_SHIFTED_INT_H
+#define FPDEC_SHIFTED_INT_H
 
 #include <math.h>
 
-#include "common_.h"
+#include "helper_macros.h"
 #include "basemath.h"
-#include "rounding_.h"
-
-/*****************************************************************************
-*  Types
-*****************************************************************************/
+#include "rounding_helper.h"
 
 /*****************************************************************************
 *  Macros
@@ -71,4 +67,4 @@ u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int n_dec_digits,
 unsigned
 u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max);
 
-#endif //FPDEC_SHIFTED_INT__H
+#endif //FPDEC_SHIFTED_INT_H

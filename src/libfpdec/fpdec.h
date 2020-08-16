@@ -27,60 +27,12 @@ extern "C" {
 
 
 /*****************************************************************************
-*  Macros
-*****************************************************************************/
-
-// Properties
-
-#define FPDEC_IS_DYN_ALLOC(fpdec) (((fpdec_t*)fpdec)->dyn_alloc)
-
-#define FPDEC_IS_NORMALIZED(fpdec) (((fpdec_t*)fpdec)->normalized)
-
-#define FPDEC_EQ_ZERO(fpdec) (((fpdec_t*)fpdec)->sign == FPDEC_SIGN_ZERO)
-
-#define FPDEC_IS_NEGATIVE(fpdec) (((fpdec_t*)fpdec)->sign == FPDEC_SIGN_NEG)
-
-// Access to members
-
-#define FPDEC_SIGN(fpdec) (((fpdec_t*)fpdec)->sign)
-
-#define FPDEC_DEC_PREC(fpdec) (((fpdec_t*)fpdec)->dec_prec)
-
-#define FPDEC_EXP(fpdec) \
-        (FPDEC_IS_DYN_ALLOC(fpdec) ? ((fpdec_t*)fpdec)->exp : 0)
-
-#define FPDEC_N_DIGITS(fpdec) \
-        (FPDEC_IS_DYN_ALLOC(fpdec) ? \
-            ((fpdec_t*)fpdec)->digit_array->n_signif : 2)
-
-/*****************************************************************************
 *  Constants
 *****************************************************************************/
 
-static const fpdec_t FPDEC_ZERO = {
-        .dyn_alloc = false,
-        .normalized = false,
-        .sign = 0,
-        .dec_prec = 0,
-        .hi = 0,
-        .lo = 0,
-};
-static const fpdec_t FPDEC_ONE = {
-        .dyn_alloc = false,
-        .normalized = false,
-        .sign = 1,
-        .dec_prec = 0,
-        .hi = 0,
-        .lo = 1,
-};
-static const fpdec_t FPDEC_MINUS_ONE = {
-        .dyn_alloc = false,
-        .normalized = false,
-        .sign = -1,
-        .dec_prec = 0,
-        .hi = 0,
-        .lo = 1,
-};
+extern const fpdec_t FPDEC_ZERO;
+extern const fpdec_t FPDEC_ONE;
+extern const fpdec_t FPDEC_MINUS_ONE;
 
 /*****************************************************************************
 *  Functions

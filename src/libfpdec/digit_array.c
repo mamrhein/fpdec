@@ -17,8 +17,9 @@ $Revision$
 #include <string.h>
 
 #include "basemath.h"
-#include "digit_array_.h"
-#include "rounding_.h"
+#include "digit_array.h"
+#include "digit_array_struct.h"
+#include "rounding_helper.h"
 
 
 /*****************************************************************************

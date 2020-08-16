@@ -19,10 +19,43 @@ $Revision$
 #include <string.h>
 
 #include "fpdec.h"
-#include "digit_array_.h"
+#include "fpdec_struct.h"
+#include "digit_array.h"
+#include "digit_array_struct.h"
 #include "parser.h"
-#include "shifted_int_.h"
-#include "rounding_.h"
+#include "shifted_int.h"
+#include "rounding_helper.h"
+
+
+/*****************************************************************************
+*  Constants
+*****************************************************************************/
+
+const fpdec_t FPDEC_ZERO = {
+    .dyn_alloc = false,
+    .normalized = false,
+    .sign = 0,
+    .dec_prec = 0,
+    .hi = 0,
+    .lo = 0,
+};
+const fpdec_t FPDEC_ONE = {
+    .dyn_alloc = false,
+    .normalized = false,
+    .sign = 1,
+    .dec_prec = 0,
+    .hi = 0,
+    .lo = 1,
+};
+const fpdec_t FPDEC_MINUS_ONE = {
+    .dyn_alloc = false,
+    .normalized = false,
+    .sign = -1,
+    .dec_prec = 0,
+    .hi = 0,
+    .lo = 1,
+};
+
 
 /*****************************************************************************
 *  Macros

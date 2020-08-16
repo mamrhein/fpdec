@@ -41,6 +41,9 @@ typedef int8_t fpdec_sign_t;
 // number of decimal fractional digits
 typedef uint16_t fpdec_dec_prec_t;
 
+// single decimal digit
+typedef unsigned char dec_digit_t;
+
 // single digit (base 2 ** 64 or 10 ** 19)
 typedef uint64_t fpdec_digit_t;
 
@@ -55,25 +58,9 @@ typedef struct {
 
 typedef int32_t fpdec_exp_t;
 
-//forward decl of digit array
-struct fpdec_digit_array;
 typedef struct fpdec_digit_array fpdec_digit_array_t;
 
-typedef struct {
-    bool dyn_alloc: 1;           // true indicates digit array
-    bool normalized: 1;          // true if digit array is normalized
-    fpdec_sign_t sign;          // sign indicator
-    fpdec_dec_prec_t dec_prec;  // number of decimal fractional digits
-    //                             variants:
-    union {                     // shifted int          digit_array
-        uint32_t hi;            // high 32 bits
-        fpdec_exp_t exp;        //                      exponent (base 2**64)
-    };
-    union {
-        fpdec_digit_t lo;       // low  64 bits
-        fpdec_digit_array_t *digit_array;   //          pointer to digit array
-    };
-} fpdec_t;
+typedef struct fpdec_struct fpdec_t;
 
 /*****************************************************************************
 *  Macros
