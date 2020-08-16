@@ -264,8 +264,9 @@ TEST_CASE("Initialize from long long.") {
 
     for (long long test_val : test_vals) {
         snprintf((char *) (&buf), 30, "%lld", test_val);
-        fpdec_t fpdec = FPDEC_ZERO;
-        error_t rc = fpdec_from_long_long(&fpdec, test_val);
+        fpdec_t *fpdec = fpdec_new();
+        assert(fpdec != NULL);
+        error_t rc = fpdec_from_long_long(fpdec, test_val);
         long long abs_val = std::abs(test_val);
         fpdec_sign_t sign;
 
@@ -278,11 +279,12 @@ TEST_CASE("Initialize from long long.") {
 
         SECTION(buf) {
             REQUIRE(rc == FPDEC_OK);
-            CHECK(is_shint(&fpdec));
-            CHECK(FPDEC_SIGN(&fpdec) == sign);
-            CHECK(FPDEC_DEC_PREC(&fpdec) == 0);
-            CHECK(fpdec.lo == abs_val);
-            CHECK(fpdec.hi == 0);
+            CHECK(is_shint(fpdec));
+            CHECK(FPDEC_SIGN(fpdec) == sign);
+            CHECK(FPDEC_DEC_PREC(fpdec) == 0);
+            CHECK(fpdec->lo == abs_val);
+            CHECK(fpdec->hi == 0);
         }
+        fpdec_mem_free(fpdec);
     }
 }

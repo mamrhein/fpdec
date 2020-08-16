@@ -124,6 +124,13 @@ fpdec_dump(const fpdec_t *fpdec) {
     printf("\n\n");
 }
 
+// Constructor
+
+fpdec_t *
+fpdec_new() {
+    return (fpdec_t *)fpdec_mem_alloc(sizeof(fpdec_t), 1);
+}
+
 // Initializer
 
 error_t

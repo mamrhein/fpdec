@@ -43,6 +43,11 @@ extern const fpdec_t FPDEC_MINUS_ONE;
 void
 fpdec_dump(const fpdec_t *fpdec);
 
+// Constructor
+
+fpdec_t *
+fpdec_new();
+
 // Initializer
 
 error_t
