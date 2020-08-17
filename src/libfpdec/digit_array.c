@@ -127,7 +127,9 @@ digits_from_digits(fpdec_digit_array_t **digit_array,
     assert(n_digits > 0);
     assert(*digits != 0);
 
+    // eliminate leading zeros
     for (; n_digits > 0 && digits[n_digits - 1] == 0; --n_digits);
+
     *digit_array = digits_alloc(n_digits);
     if (*digit_array == NULL) MEMERROR
 

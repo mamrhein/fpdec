@@ -59,6 +59,12 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
 error_t
 fpdec_from_long_long(fpdec_t *fpdec, long long val);
 
+error_t
+fpdec_from_sign_digits_exp(fpdec_t *fpdec, fpdec_sign_t sign,
+                           size_t n_digits,
+                           const fpdec_digit_t *digits,
+                           fpdec_exp_t exp);
+
 // Properties
 
 int

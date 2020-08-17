@@ -210,6 +210,38 @@ fpdec_from_long_long(fpdec_t *fpdec, const long long val) {
     return FPDEC_OK;
 }
 
+error_t
+fpdec_from_sign_digits_exp(fpdec_t *fpdec, fpdec_sign_t sign, size_t n_digits,
+                           const fpdec_digit_t *digits, fpdec_exp_t exp) {
+    ASSERT_FPDEC_IS_ZEROED(fpdec);
+    assert(sign == FPDEC_SIGN_POS || sign == FPDEC_SIGN_NEG);
+    assert(n_digits > 0);
+    assert(digits != NULL);
+
+    fpdec->sign = sign;
+
+    // eliminate leading zeros
+    for (; n_digits > 0 && digits[n_digits - 1] == 0; --n_digits);
+    // eliminate trailing zeros
+    for (; n_digits > 0 && *digits == 0; --n_digits, ++exp, ++digits);
+
+    // all digits = 0  =>  result = 0
+    if (n_digits == 0)
+        return FPDEC_OK;
+
+    // one digit fits into a shint
+    if (n_digits == 1 && exp == 0) {
+        fpdec->lo = *digits;
+        return FPDEC_OK;
+    }
+
+    fpdec->dyn_alloc = true;
+    fpdec->normalized = true;
+    fpdec->dec_prec = exp >= 0 ? 0 : -exp * DEC_DIGITS_PER_DIGIT;
+    fpdec->exp = exp;
+    return digits_from_digits(&(fpdec->digit_array), digits, n_digits);
+}
+
 // Properties
 
 static int
