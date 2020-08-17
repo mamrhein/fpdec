@@ -20,7 +20,7 @@ $Revision$
 #include "checks.hpp"
 
 
-TEST_CASE("Initialize from string") {
+TEST_CASE("Initialize from ascii literal") {
 
     struct test_data {
         std::string literal;
@@ -241,7 +241,7 @@ TEST_CASE("Initialize from string") {
         }
     }
 
-    SECTION("Invalid input") {
+    SECTION("Invalid ascii input") {
         std::string literals[] = {
             " 1.23.5", "1.24e", "--4.92", "", "   ", "3,49E-3",
             "\t+   \r\n"
@@ -257,12 +257,49 @@ TEST_CASE("Initialize from string") {
     }
 }
 
+TEST_CASE("Initialize from unicode literal") {
+
+    int offsets[] = {0x000006F0, 0x0000A8D0, 0x00011066, 0x0001E950};
+    const fpdec_digit_t abs_val = 9876543210;
+    char buf[30];
+    fpdec_sign_t sign;
+    wchar_t *literal;
+    fpdec_t fpdec = FPDEC_ZERO;
+    int r;
+    error_t rc;
+
+    for (const auto offset : offsets) {
+        snprintf((char *)(&buf), 30, "0x%08X", offset);
+        r = offset % 7;
+        sign = r < 4 ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
+        literal = (wchar_t *)fpdec_mem_alloc(r + 12, sizeof(wchar_t));
+        for (int i = 0; i < r; ++i)
+            literal[i] = ' ';
+        literal[r] = sign < 0 ? '-' : '+';
+        r++;
+        for (int i = 0; i < 10; ++i)
+            literal[i + r] = offset + 9 - i;
+        rc = fpdec_from_unicode_literal(&fpdec, literal);
+
+        SECTION(buf) {
+            REQUIRE(rc == FPDEC_OK);
+            CHECK(is_shint(&fpdec));
+            CHECK(FPDEC_SIGN(&fpdec) == sign);
+            CHECK(FPDEC_DEC_PREC(&fpdec) == 0);
+            CHECK(fpdec.lo == abs_val);
+            CHECK(fpdec.hi == 0);
+        }
+        fpdec_mem_free(literal);
+        fpdec_reset_to_zero(&fpdec, 0);
+    }
+}
+
 TEST_CASE("Initialize from long long.") {
 
     long long test_vals[] = {INT64_MIN, -290382, 0, INT64_MAX};
     char buf[30];
 
-    for (long long test_val : test_vals) {
+    for (const auto test_val : test_vals) {
         snprintf((char *)(&buf), 30, "%lld", test_val);
         fpdec_t *fpdec = fpdec_new();
         assert(fpdec != NULL);

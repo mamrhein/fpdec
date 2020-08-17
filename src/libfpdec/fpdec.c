@@ -17,6 +17,8 @@ $Revision$
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <wchar.h>
+#include <wctype.h>
 
 #include "fpdec.h"
 #include "fpdec_struct.h"
@@ -25,6 +27,7 @@ $Revision$
 #include "parser.h"
 #include "shifted_int.h"
 #include "rounding_helper.h"
+#include "unicode_digits.h"
 
 
 /*****************************************************************************
@@ -192,6 +195,36 @@ EXIT:
     if (dec_repr != &st_dec_repr) {
         fpdec_mem_free(dec_repr);
     }
+    return rc;
+}
+
+error_t
+fpdec_from_unicode_literal(fpdec_t *fpdec, const wchar_t *literal) {
+    size_t size = wcslen(literal);
+    char *buf, *ch;
+    error_t rc;
+
+    if (size == 0)
+        ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
+
+    ch = buf = fpdec_mem_alloc(size + 1, sizeof(char));
+    if (buf == NULL) MEMERROR
+
+    for (; iswspace(*literal); ++literal);
+    for (; *literal != 0; ++literal, ++ch) {
+        if (*literal > 255) {
+            *ch = lookup_unicode_digit(*literal);
+            if (*ch == -1) {
+                fpdec_mem_free(buf);
+                ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
+            }
+        }
+        else
+            *ch = (char)*literal;
+    }
+    *ch = '\0';
+    rc = fpdec_from_ascii_literal(fpdec, buf);
+    fpdec_mem_free(buf);
     return rc;
 }
 

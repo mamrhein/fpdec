@@ -57,6 +57,9 @@ error_t
 fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal);
 
 error_t
+fpdec_from_unicode_literal(fpdec_t *fpdec, const wchar_t *literal);
+
+error_t
 fpdec_from_long_long(fpdec_t *fpdec, long long val);
 
 error_t
