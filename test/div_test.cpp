@@ -466,6 +466,13 @@ TEST_CASE("Div (with limit and default rounding)") {
                         .lit_quot = "-0.419903",
                         .prec_limit = 6,
                 },
+                {
+                        .lit_x = "1",
+                        .lit_y = "4494232837155789769323262976972561834044"
+                                 "9424473557664318357520289433168951375",
+                        .lit_quot = "0",
+                        .prec_limit = 26,
+                },
         };
 
         for (const auto &test : tests) {
