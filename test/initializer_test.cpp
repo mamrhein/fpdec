@@ -263,6 +263,34 @@ TEST_CASE("Initialize from ascii literal") {
             }
         }
     }
+
+    SECTION("Exponent limit exceeded") {
+        std::string literals[] = {
+            " 1.e40802189294", "4.9200835e40802189301",
+        };
+        for (const auto &literal : literals) {
+            fpdec_t fpdec = FPDEC_ZERO;
+
+            SECTION(literal) {
+                CHECK(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
+                          FPDEC_EXP_LIMIT_EXCEEDED);
+            }
+        }
+    }
+
+    SECTION("Precision limit exceeded") {
+        std::string literals[] = {
+            "1e-65536", "4.9200835880e-65526",
+        };
+        for (const auto &literal : literals) {
+            fpdec_t fpdec = FPDEC_ZERO;
+
+            SECTION(literal) {
+                CHECK(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
+                          FPDEC_PREC_LIMIT_EXCEEDED);
+            }
+        }
+    }
 }
 
 TEST_CASE("Initialize from unicode literal") {
