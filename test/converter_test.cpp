@@ -12,6 +12,8 @@ $Source$
 $Revision$
 */
 
+#include <cstring>
+
 #include "catch.hpp"
 #include "fpdec.h"
 #include "checks.hpp"
@@ -88,5 +90,62 @@ TEST_CASE("Negate") {
         CHECK(FPDEC_DEC_PREC(&negated) == 0);
         CHECK(negated.lo == 0);
         CHECK(negated.hi == 0);
+    }
+}
+
+TEST_CASE("As ASCII literal") {
+
+    std::string literals[] = {
+        // shifted int
+        "823456789012345.67890",
+        "-0.00200",
+        "-7000",
+        "0.000000001",
+        "0",
+        "0.0000",
+        // digit arrray
+        "1234567890123456789012345.678901234567890",
+        "-11702439610000.000000293816254000",
+        "700000000000000000000000000000",
+        "-0.0000000004",
+    };
+
+    for (const auto &literal : literals) {
+        fpdec_t dec = FPDEC_ZERO;
+        error_t rc;
+        char *lit = NULL;
+        size_t n;
+        std::string stripped;
+
+        n = literal.size();
+        if (!(literal.find('.') == std::string::npos)) {
+            while (n > 0 && literal[n - 1] == '0')
+                n--;
+            if (literal[n -1] == '.')
+                n--;
+        }
+        stripped = literal.substr(0, n);
+
+        SECTION(literal) {
+
+            rc = fpdec_from_ascii_literal(&dec, literal.c_str());
+            REQUIRE(rc == FPDEC_OK);
+
+            SECTION("with trailing zeroes") {
+                lit = fpdec_as_ascii_literal(&dec, false);
+                CHECK(strcmp(lit, literal.c_str()) == 0);
+                fpdec_mem_free(lit);
+                lit = NULL;
+            }
+
+            SECTION("w/o trailing zeroes") {
+                lit = fpdec_as_ascii_literal(&dec, true);
+                CHECK(strcmp(lit, stripped.c_str()) == 0);
+                fpdec_mem_free(lit);
+                lit = NULL;
+            }
+
+            fpdec_reset_to_zero(&dec, 0);
+        }
     }
 }
