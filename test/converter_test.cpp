@@ -97,6 +97,7 @@ TEST_CASE("As ASCII literal") {
 
     std::string literals[] = {
         // shifted int
+        "15.00",
         "823456789012345.67890",
         "-0.00200",
         "-7000",
