@@ -123,7 +123,7 @@ TEST_CASE("As ASCII literal") {
         if (!(literal.find('.') == std::string::npos)) {
             while (n > 0 && literal[n - 1] == '0')
                 n--;
-            if (literal[n -1] == '.')
+            if (literal[n - 1] == '.')
                 n--;
         }
         stripped = literal.substr(0, n);
@@ -148,6 +148,126 @@ TEST_CASE("As ASCII literal") {
             }
 
             fpdec_reset_to_zero(&dec, 0);
+        }
+    }
+}
+
+TEST_CASE("As sign/coeff/exp") {
+
+    struct test_data {
+        std::string literal;
+        const fpdec_sign_t sign;
+        const uint128_t coeff;
+        const int64_t exp;
+    };
+
+    SECTION("Fitting") {
+
+        struct test_data tests[] = {
+            {
+                .literal = "0.00000",
+                .sign = 0,
+                .coeff = {0ULL, 0ULL},
+                .exp = 0
+            },
+            {
+                .literal = "178.50",
+                .sign = 1,
+                .coeff = {1785ULL, 0ULL},
+                .exp = -1
+            },
+            {
+                .literal = "-12345678901234567890.00",
+                .sign = -1,
+                .coeff = {1234567890123456789ULL, 0ULL},
+                .exp = 1
+            },
+            {
+                .literal = "12345678901234567890.1234567",
+                .sign = 1,
+                .coeff = {17390916765208234887ULL, 6692605ULL},
+                .exp = -7
+            },
+            {
+                .literal = "12345678901234567890.1234567",
+                .sign = 1,
+                .coeff = {17390916765208234887ULL, 6692605ULL},
+                .exp = -7
+            },
+            {
+                .literal = "12345678901234567890.12345678901234567000",
+                .sign = 1,
+                .coeff = {3259073885544336263ULL, 66926059427634869ULL},
+                .exp = -17
+            },
+            {
+                .literal = "-79228162514264337593543950335",
+                .sign = -1,
+                .coeff = {18446744073709551615ULL, 4294967295ULL},
+                .exp = 0
+            },
+            {
+                .literal = "-340282366920938463463374607431768211455",
+                .sign = -1,
+                .coeff = {18446744073709551615ULL, 18446744073709551615ULL},
+                .exp = 0
+            },
+            {
+                .literal = "340282366920938463463374607431768211451e43",
+                .sign = 1,
+                .coeff = {18446744073709551611ULL, 18446744073709551615ULL},
+                .exp = 43
+            },
+        };
+        error_t rc;
+
+        for (const auto &test : tests) {
+            const char *literal = test.literal.c_str();
+            fpdec_t x = FPDEC_ZERO;
+            fpdec_sign_t sign = 0;
+            uint128_t coeff = {0ULL, 0ULL};
+            int64_t exp = 0ULL;
+
+            SECTION(test.literal) {
+                rc = fpdec_from_ascii_literal(&x, test.literal.c_str());
+                REQUIRE(rc == FPDEC_OK);
+                rc = fpdec_as_sign_coeff128_exp(&sign, &coeff, &exp, &x);
+                REQUIRE(rc == 0);
+                CHECK(sign == test.sign);
+                CHECK(coeff.lo == test.coeff.lo);
+                CHECK(coeff.hi == test.coeff.hi);
+                CHECK(exp == test.exp);
+            }
+            fpdec_reset_to_zero(&x, 0);
+        }
+    }
+
+    SECTION("Overflow") {
+
+        struct test_data tests[] = {
+            {
+                .literal = "-340282366920938463463374607431768211456",
+                .sign = 0,
+                .coeff = {0ULL, 0ULL},
+                .exp = 0
+            },
+        };
+        error_t rc;
+
+        for (const auto &test : tests) {
+            const char *literal = test.literal.c_str();
+            fpdec_t x = FPDEC_ZERO;
+            fpdec_sign_t sign = 0;
+            uint128_t coeff = {0ULL, 0ULL};
+            int64_t exp = 0ULL;
+
+            SECTION(test.literal) {
+                rc = fpdec_from_ascii_literal(&x, test.literal.c_str());
+                REQUIRE(rc == FPDEC_OK);
+                rc = fpdec_as_sign_coeff128_exp(&sign, &coeff, &exp, &x);
+                CHECK(rc == -1);
+            }
+            fpdec_reset_to_zero(&x, 0);
         }
     }
 }
