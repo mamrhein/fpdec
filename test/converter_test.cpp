@@ -177,6 +177,12 @@ TEST_CASE("As sign/coeff/exp") {
                 .exp = -1
             },
             {
+                .literal = "-178.0000000000",
+                .sign = -1,
+                .coeff = {178ULL, 0ULL},
+                .exp = 0
+            },
+            {
                 .literal = "-12345678901234567890.00",
                 .sign = -1,
                 .coeff = {1234567890123456789ULL, 0ULL},
