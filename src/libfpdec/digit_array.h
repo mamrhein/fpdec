@@ -66,7 +66,7 @@ digits_cmp(fpdec_digit_t *x_digits, fpdec_n_digits_t x_n_digits,
 
 // Basic arithmetic operations
 
-void
+bool
 digits_iadd_digit(fpdec_digit_array_t *x, fpdec_digit_t y);
 
 void
