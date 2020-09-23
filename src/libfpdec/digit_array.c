@@ -38,16 +38,6 @@ digits_alloc(size_t n_digits) {
     return digit_array;
 }
 
-// Tests
-
-static inline bool
-digits_all_zero(fpdec_digit_t *digits, fpdec_n_digits_t n) {
-    for (fpdec_digit_t *digit = digits; digit < digits + n; ++digit)
-        if (*digit != 0)
-            return false;
-    return true;
-}
-
 // Constructors
 
 static inline void
