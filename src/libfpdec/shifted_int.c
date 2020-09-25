@@ -61,7 +61,7 @@ shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
     }
     for (; coeff < stop; ++coeff) {
         u128_imul10(&accu);
-        accu.lo += *coeff;           // *coeff is < 10, so no overflow here
+        u128_iadd_u64(&accu, *coeff);
     }
     for (int i = 0; i < n_add_zeros; ++i) {
         u128_imul10(&accu);

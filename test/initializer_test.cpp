@@ -88,6 +88,12 @@ TEST_CASE("Initialize from ascii literal") {
                     .dec_prec = 0,
                     .digits = {18446744073709551549UL, 66UL}
                 },
+                {
+                    .literal = "313594649253062377472",
+                    .sign = 1,
+                    .dec_prec = 0,
+                    .digits = {0UL, 17UL}
+                },
         };
 
         for (const auto &test : tests) {
