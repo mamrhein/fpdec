@@ -44,7 +44,7 @@ shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
 static inline void
 u128_imul10(uint128_t *x) {
     x->hi = x->hi * 10 +
-            U64_HI((U64_HI(x->lo) + U64_HI(U64_LO(x->lo) * 10UL)) * 10UL);
+            U64_HI(U64_HI(x->lo) * 10UL + U64_HI(U64_LO(x->lo) * 10UL));
     x->lo *= 10UL;
 }
 
