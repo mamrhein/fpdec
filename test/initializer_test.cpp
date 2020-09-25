@@ -256,8 +256,16 @@ TEST_CASE("Initialize from ascii literal") {
         };
         for (const auto &literal : literals) {
             fpdec_t fpdec = FPDEC_ZERO;
+            int n = literal.length();
+            std::string name;
+            if (literal.empty())
+                name = "empty";
+            else if (literal == "   ")
+                name = "blank";
+            else
+                name = literal;
 
-            SECTION(literal) {
+            SECTION(name) {
                 CHECK(fpdec_from_ascii_literal(&fpdec, literal.c_str()) ==
                               FPDEC_INVALID_DECIMAL_LITERAL);
             }
