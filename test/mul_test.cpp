@@ -221,3 +221,30 @@ TEST_CASE("Multiplication") {
         }
     }
 }
+
+TEST_CASE("Multiplication: Limits exceeded") {
+
+    SECTION("Exponent limit excedded") {
+
+        error_t rc;
+        fpdec_t x = FPDEC_ZERO;
+        fpdec_t z = FPDEC_ZERO;
+
+        rc = fpdec_from_ascii_literal(&x, "1e20401094656");
+        REQUIRE(rc == FPDEC_OK);
+        rc = fpdec_mul(&z, &x, &x);
+        CHECK(rc == FPDEC_EXP_LIMIT_EXCEEDED);
+    }
+
+    SECTION("Precision limit excedded") {
+
+        error_t rc;
+        fpdec_t x = FPDEC_ZERO;
+        fpdec_t z = FPDEC_ZERO;
+
+        rc = fpdec_from_ascii_literal(&x, "1e-32775");
+        REQUIRE(rc == FPDEC_OK);
+        rc = fpdec_mul(&z, &x, &x);
+        CHECK(rc == FPDEC_PREC_LIMIT_EXCEEDED);
+    }
+}
