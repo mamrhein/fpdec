@@ -461,7 +461,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
         fpdec->normalized = true;
 
     // try to transform dyn fpdec to shifted int
-    if (dec_prec <= MAX_DEC_PREC_FOR_SHINT) {
+    if (dec_prec <= MAX_DEC_PREC_FOR_SHINT && FPDEC_DYN_EXP(fpdec) <= 1) {
         size_t n_dec_digits = MAX(fpdec_magnitude(fpdec), 0) + dec_prec;
         if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
             fpdec_sign_t sign = FPDEC_SIGN(fpdec);
