@@ -1210,11 +1210,15 @@ fpdec_mul_abs_shint_by_u64(fpdec_t *z, const fpdec_t *x, const uint64_t y) {
 static error_t
 fpdec_mul_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     fpdec_digit_array_t *z_digits;
+    int64_t exp;
 
     z_digits = digits_mul(x->digit_array, y->digit_array);
     if (z_digits == NULL) MEMERROR
     z->digit_array = z_digits;
-    z->exp = FPDEC_DYN_EXP(x) + FPDEC_DYN_EXP(y);
+    exp = (int64_t)FPDEC_DYN_EXP(x) + (int64_t)FPDEC_DYN_EXP(y);
+    if (exp > FPDEC_MAX_EXP || exp < INT32_MIN)
+        ERROR(FPDEC_EXP_LIMIT_EXCEEDED)
+    z->exp = (fpdec_exp_t)exp;
     FPDEC_IS_DYN_ALLOC(z) = true;
     return FPDEC_OK;
 }
@@ -1278,6 +1282,8 @@ fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
 
     FPDEC_SIGN(z) = FPDEC_SIGN(x) * FPDEC_SIGN(y);
     FPDEC_DEC_PREC(z) = FPDEC_DEC_PREC(x) + FPDEC_DEC_PREC(y);
+    if (FPDEC_DEC_PREC(z) < FPDEC_DEC_PREC(x))
+        ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
     if (FPDEC_DEC_PREC(z) <= MAX_DEC_PREC_FOR_SHINT ||
         FPDEC_IS_DYN_ALLOC(x) || FPDEC_IS_DYN_ALLOC(y)) {
         rc = DISPATCH_BIN_OP(vtab_mul_abs, z, x, y);
@@ -1486,7 +1492,7 @@ fpdec_div_abs_dyn_by_dyn_exact(fpdec_t *z, const fpdec_t *x,
                                    &exp);
     if (q_digits == NULL) MEMERROR
     if (exp > FPDEC_MAX_EXP) ERROR(FPDEC_EXP_LIMIT_EXCEEDED)
-    if (exp < FPDEC_MIN_EXP) ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
+    if (exp <= FPDEC_MIN_EXP) ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
     FPDEC_DYN_EXP(z) = exp;
     // calculate decimal precision
     FPDEC_DEC_PREC(z) = MAX(0, -exp * DEC_DIGITS_PER_DIGIT);
