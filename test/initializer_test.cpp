@@ -238,6 +238,14 @@ TEST_CASE("Initialize from ascii literal") {
                                    5142643375935439504UL,
                                    79228162UL}
                 },
+                {
+                    .literal = "1e20401094656",
+                    .sign = 1,
+                    .dec_prec = 0,
+                    .exp = 1073741824,
+                    .n_digits = 1,
+                    .digits = {1UL}
+                },
         };
 
         for (const auto &test : tests) {
