@@ -137,8 +137,8 @@ void
 u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int n_dec_digits,
                enum FPDEC_ROUNDING_MODE rounding) {
     assert(n_dec_digits != 0);
-    assert(n_dec_digits > -MAX_N_DEC_DIGITS_IN_SHINT);
-    assert(n_dec_digits < MAX_N_DEC_DIGITS_IN_SHINT);
+    assert(n_dec_digits > -UINT64_10_POW_N_CUTOFF);
+    assert(n_dec_digits < UINT64_10_POW_N_CUTOFF);
 
     if (n_dec_digits >= 0)
         u128_imul_10_pow_n(ui, n_dec_digits);
