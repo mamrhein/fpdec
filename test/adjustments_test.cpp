@@ -32,7 +32,7 @@ TEST_CASE("Adjust presision") {
 
     struct test_data {
         std::string literal;
-        const int32_t dec_prec;
+        int32_t dec_prec;
         fpdec_exp_t exp;
         std::vector<fpdec_digit_t> digits;
     };
@@ -1231,4 +1231,55 @@ TEST_CASE("Precision limit exceed") {
         }
     }
 
+}
+
+
+TEST_CASE("Normalize presision") {
+
+    struct test_data {
+        std::string x_lit;
+        std::string z_lit;
+    };
+
+    struct test_data tests[] = {
+        {
+            .x_lit = "0.0000007",
+            .z_lit = "0.0000007"
+        },
+        {
+            .x_lit = "4.00000073400000",
+            .z_lit = "4.000000734"
+        },
+        {
+            .x_lit = "-28.09000300",
+            .z_lit = "-28.090003"
+        },
+        {
+            .x_lit = "123456789012345678901234567890.0000000",
+            .z_lit = "123456789012345678901234567890"
+        },
+        {
+            .x_lit = "100000007000000000000000000000",
+            .z_lit = "100000007000000000000000000000"
+        },
+    };
+
+    fpdec_t x = FPDEC_ZERO;
+    fpdec_t z = FPDEC_ZERO;
+    error_t rc;
+
+    for (const auto &test : tests) {
+        const char *x_lit = test.x_lit.c_str();
+        const char *z_lit = test.z_lit.c_str();
+
+        SECTION(test.x_lit) {
+            rc = fpdec_from_ascii_literal(&x, x_lit);
+            REQUIRE(rc == FPDEC_OK);
+            rc = fpdec_from_ascii_literal(&z, z_lit);
+            REQUIRE(rc == FPDEC_OK);
+            rc = fpdec_normalize_prec(&x);
+            REQUIRE(rc == FPDEC_OK);
+            CHECK(fpdec_compare(&x, &z, false) == 0);
+        }
+    }
 }
