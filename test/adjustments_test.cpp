@@ -20,19 +20,19 @@ $Revision$
 
 void
 check_adjusted_shint(FPDEC_ROUNDING_MODE rnd, const char *literal,
-                     fpdec_dec_prec_t dec_prec,
+                     const int32_t dec_prec,
                      const std::vector<fpdec_digit_t> &digits);
 
 void
 check_adjusted_digit_array(enum FPDEC_ROUNDING_MODE rnd, const char *literal,
-                           fpdec_dec_prec_t dec_prec, fpdec_exp_t exp,
+                           const int32_t dec_prec, const fpdec_exp_t exp,
                            const std::vector<fpdec_digit_t> &digits);
 
 TEST_CASE("Adjust presision") {
 
     struct test_data {
         std::string literal;
-        const fpdec_dec_prec_t dec_prec;
+        const int32_t dec_prec;
         fpdec_exp_t exp;
         std::vector<fpdec_digit_t> digits;
     };
@@ -85,6 +85,26 @@ TEST_CASE("Adjust presision") {
                             .literal = "-0.00000",
                             .dec_prec = 15,
                             .digits = {0UL, 0UL}
+                    },
+                    {
+                        .literal = "-155.90",
+                        .dec_prec = -1,
+                        .digits = {160UL, 0UL}
+                    },
+                    {
+                        .literal = "1234567890123456789012345.6789",
+                        .dec_prec = -20,
+                        .digits = {14759378840838995968UL, 66927UL}
+                    },
+                    {
+                        .literal = "-9e27",
+                        .dec_prec = -28,
+                        .digits = {4477988020393345024UL, 542101086UL}
+                    },
+                    {
+                        .literal = "-6e28",
+                        .dec_prec = -30,
+                        .digits = {0UL, 0UL}
                     },
             };
 
@@ -1075,6 +1095,11 @@ TEST_CASE("Adjust presision") {
                         .digits = {4477988020393345024UL,
                                    542101086UL}
                 },
+                {
+                    .literal = "999999.9999999999999999999999",
+                    .dec_prec = -4,
+                    .digits = {1000000UL, 0UL}
+                },
         };
 
         for (const auto &test : tests) {
@@ -1122,7 +1147,13 @@ TEST_CASE("Adjust presision") {
                         .digits = {5033500000000000000UL,
                                    1625142643375935439UL,
                                    79228UL}
-                }
+                },
+                {
+                        .literal = "-6e28",
+                        .dec_prec = -29,
+                        .exp = 1,
+                        .digits = {10000000000UL}
+                },
         };
 
         for (const auto &test : tests) {
@@ -1137,8 +1168,8 @@ TEST_CASE("Adjust presision") {
 }
 
 void
-check_adjusted_shint(const enum FPDEC_ROUNDING_MODE rnd, const char *literal,
-                     const fpdec_dec_prec_t dec_prec,
+check_adjusted_shint(FPDEC_ROUNDING_MODE rnd, const char *literal,
+                     const int32_t dec_prec,
                      const std::vector<fpdec_digit_t> &digits) {
     fpdec_t fpdec = FPDEC_ZERO;
     fpdec_t adj = FPDEC_ZERO;
@@ -1151,7 +1182,7 @@ check_adjusted_shint(const enum FPDEC_ROUNDING_MODE rnd, const char *literal,
         CHECK(FPDEC_SIGN(&adj) == FPDEC_SIGN_ZERO);
     else
         CHECK(FPDEC_SIGN(&adj) == FPDEC_SIGN(&fpdec));
-    CHECK(FPDEC_DEC_PREC(&adj) == dec_prec);
+    CHECK(FPDEC_DEC_PREC(&adj) == (dec_prec < 0 ? 0 : dec_prec));
     CHECK(adj.lo == digits[0]);
     CHECK(adj.hi == digits[1]);
     fpdec_reset_to_zero(&fpdec, 0);
@@ -1159,7 +1190,7 @@ check_adjusted_shint(const enum FPDEC_ROUNDING_MODE rnd, const char *literal,
 
 void
 check_adjusted_digit_array(enum FPDEC_ROUNDING_MODE rnd, const char *literal,
-                           fpdec_dec_prec_t dec_prec, fpdec_exp_t exp,
+                           const int32_t dec_prec, const fpdec_exp_t exp,
                            const std::vector<fpdec_digit_t> &digits) {
     fpdec_t fpdec = FPDEC_ZERO;
     fpdec_t adj = FPDEC_ZERO;
@@ -1169,7 +1200,7 @@ check_adjusted_digit_array(enum FPDEC_ROUNDING_MODE rnd, const char *literal,
     REQUIRE(rc == FPDEC_OK);
     REQUIRE(is_digit_array(&adj));
     CHECK(FPDEC_SIGN(&adj) == FPDEC_SIGN(&fpdec));
-    CHECK(FPDEC_DEC_PREC(&adj) == dec_prec);
+    CHECK(FPDEC_DEC_PREC(&adj) == (dec_prec < 0 ? 0 : dec_prec));
     CHECK(FPDEC_DYN_EXP(&adj) == exp);
     CHECK(FPDEC_DYN_N_DIGITS(&adj) == digits.size());
     for (int i = 0; i < FPDEC_DYN_N_DIGITS(&adj); ++i) {
@@ -1177,5 +1208,27 @@ check_adjusted_digit_array(enum FPDEC_ROUNDING_MODE rnd, const char *literal,
     }
     fpdec_reset_to_zero(&fpdec, 0);
     fpdec_reset_to_zero(&adj, 0);
+
+}
+
+
+TEST_CASE("Precision limit exceed") {
+
+    fpdec_t fpdec = FPDEC_ZERO;
+    int64_t dec_prec_vals[2] = {FPDEC_MAX_DEC_PREC + 1,
+                                -FPDEC_MAX_DEC_PREC - 1};
+    std::string name;
+
+    for (const auto &dec_prec : dec_prec_vals) {
+        name = dec_prec < 0 ? "LT" : "GT";
+
+        SECTION(name) {
+            CHECK(fpdec_adjust(&fpdec, dec_prec, FPDEC_ROUND_DEFAULT) ==
+                  FPDEC_PREC_LIMIT_EXCEEDED);
+            CHECK(fpdec_adjusted(&fpdec, &FPDEC_ONE, dec_prec,
+                                 FPDEC_ROUND_DEFAULT) ==
+                      FPDEC_PREC_LIMIT_EXCEEDED);
+        }
+    }
 
 }
