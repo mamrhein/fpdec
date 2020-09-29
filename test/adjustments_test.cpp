@@ -41,71 +41,71 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Default rounding") {
             struct test_data tests[] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192684UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689664UL, 5421UL}
-                    },
-                    {
-                            .literal = "-0.00000",
-                            .dec_prec = 15,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                        .literal = "-155.90",
-                        .dec_prec = -1,
-                        .digits = {160UL, 0UL}
-                    },
-                    {
-                        .literal = "1234567890123456789012345.6789",
-                        .dec_prec = -20,
-                        .digits = {14759378840838995968UL, 66927UL}
-                    },
-                    {
-                        .literal = "-9e27",
-                        .dec_prec = -28,
-                        .digits = {4477988020393345024UL, 542101086UL}
-                    },
-                    {
-                        .literal = "-6e28",
-                        .dec_prec = -30,
-                        .digits = {0UL, 0UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192684UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689664UL, 5421UL}
+                },
+                {
+                    .literal = "-0.00000",
+                    .dec_prec = 15,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "-155.90",
+                    .dec_prec = -1,
+                    .digits = {160UL, 0UL}
+                },
+                {
+                    .literal = "1234567890123456789012345.6789",
+                    .dec_prec = -20,
+                    .digits = {14759378840838995968UL, 66927UL}
+                },
+                {
+                    .literal = "-9e27",
+                    .dec_prec = -28,
+                    .digits = {4477988020393345024UL, 542101086UL}
+                },
+                {
+                    .literal = "-6e28",
+                    .dec_prec = -30,
+                    .digits = {0UL, 0UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -119,46 +119,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round 05 up") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689663UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689663UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -172,46 +172,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round ceiling") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19269UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192684UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689664UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19269UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192684UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689664UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -225,46 +225,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round down") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689663UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689663UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -278,46 +278,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round floor") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {3UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689663UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {3UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689663UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -331,46 +331,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round half down") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192684UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689664UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192684UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689664UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -384,46 +384,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round half even") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192684UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689664UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192684UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689664UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -437,46 +437,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round half up") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19268UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192684UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {3UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {0UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689664UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19268UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192684UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {3UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {0UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689664UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -490,46 +490,46 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round up") {
             struct test_data tests[8] = {
-                    {
-                            .literal = "-1926.83",
-                            .dec_prec = 4,
-                            .digits = {19268300UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.83",
-                            .dec_prec = 2,
-                            .digits = {192683UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.8396",
-                            .dec_prec = 1,
-                            .digits = {19269UL, 0UL}
-                    },
-                    {
-                            .literal = "1926.837",
-                            .dec_prec = 2,
-                            .digits = {192684UL, 0UL}
-                    },
-                    {
-                            .literal = "0.00015",
-                            .dec_prec = 4,
-                            .digits = {2UL, 0UL}
-                    },
-                    {
-                            .literal = "-0.00025",
-                            .dec_prec = 4,
-                            .digits = {3UL, 0UL}
-                    },
-                    {
-                            .literal = "0.0001594",
-                            .dec_prec = 3,
-                            .digits = {1UL, 0UL}
-                    },
-                    {
-                            .literal = "999999999999999999.9999999",
-                            .dec_prec = 5,
-                            .digits = {200376420520689664UL, 5421UL}
-                    },
+                {
+                    .literal = "-1926.83",
+                    .dec_prec = 4,
+                    .digits = {19268300UL, 0UL}
+                },
+                {
+                    .literal = "1926.83",
+                    .dec_prec = 2,
+                    .digits = {192683UL, 0UL}
+                },
+                {
+                    .literal = "1926.8396",
+                    .dec_prec = 1,
+                    .digits = {19269UL, 0UL}
+                },
+                {
+                    .literal = "1926.837",
+                    .dec_prec = 2,
+                    .digits = {192684UL, 0UL}
+                },
+                {
+                    .literal = "0.00015",
+                    .dec_prec = 4,
+                    .digits = {2UL, 0UL}
+                },
+                {
+                    .literal = "-0.00025",
+                    .dec_prec = 4,
+                    .digits = {3UL, 0UL}
+                },
+                {
+                    .literal = "0.0001594",
+                    .dec_prec = 3,
+                    .digits = {1UL, 0UL}
+                },
+                {
+                    .literal = "999999999999999999.9999999",
+                    .dec_prec = 5,
+                    .digits = {200376420520689664UL, 5421UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -547,48 +547,48 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Default rounding") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999995",
-                            .dec_prec = 5,
-                            .exp = 2,
-                            .digits = {1UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999995",
+                    .dec_prec = 5,
+                    .exp = 2,
+                    .digits = {1UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -603,50 +603,50 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round 05 up") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999995",
-                            .dec_prec = 5,
-                            .exp = -1,
-                            .digits = {9999900000000000000UL,
-                                       9999999999999999999UL,
-                                       9999999999999999999UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999995",
+                    .dec_prec = 5,
+                    .exp = -1,
+                    .digits = {9999900000000000000UL,
+                               9999999999999999999UL,
+                               9999999999999999999UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -662,48 +662,48 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round ceiling") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460744000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999991",
-                            .dec_prec = 5,
-                            .exp = 2,
-                            .digits = {1UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460744000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999991",
+                    .dec_prec = 5,
+                    .exp = 2,
+                    .digits = {1UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -718,50 +718,50 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round down") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999999",
-                            .dec_prec = 5,
-                            .exp = -1,
-                            .digits = {9999900000000000000UL,
-                                       9999999999999999999UL,
-                                       9999999999999999999UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999999",
+                    .dec_prec = 5,
+                    .exp = -1,
+                    .digits = {9999900000000000000UL,
+                               9999999999999999999UL,
+                               9999999999999999999UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -776,50 +776,50 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round floor") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374700000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999997",
-                            .dec_prec = 5,
-                            .exp = -1,
-                            .digits = {9999900000000000000UL,
-                                       9999999999999999999UL,
-                                       9999999999999999999UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374700000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999997",
+                    .dec_prec = 5,
+                    .exp = -1,
+                    .digits = {9999900000000000000UL,
+                               9999999999999999999UL,
+                               9999999999999999999UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -834,48 +834,48 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round half down") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999996",
-                            .dec_prec = 5,
-                            .exp = 2,
-                            .digits = {1UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999996",
+                    .dec_prec = 5,
+                    .exp = 2,
+                    .digits = {1UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -890,48 +890,48 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round half even") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999996",
-                            .dec_prec = 5,
-                            .exp = 2,
-                            .digits = {1UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999996",
+                    .dec_prec = 5,
+                    .exp = 2,
+                    .digits = {1UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -946,48 +946,48 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round half up") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460743000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374600000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999996",
-                            .dec_prec = 5,
-                            .exp = 2,
-                            .digits = {1UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460743000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374600000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999996",
+                    .dec_prec = 5,
+                    .exp = 2,
+                    .digits = {1UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -1002,48 +1002,48 @@ TEST_CASE("Adjust presision") {
 
         SECTION("Round up") {
             struct test_data tests[] = {
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211551",
-                            .dec_prec = 12,
-                            .exp = -1,
-                            .digits = {8211551000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "34028236692093846346337460743176.8211552",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {8211552000000000000UL,
-                                       3846346337460743176UL,
-                                       3402823669209}
-                    },
-                    {
-                            .literal =
-                            "8402823669209384634633.74607431768211553",
-                            .dec_prec = 7,
-                            .exp = -1,
-                            .digits = {7460744000000000000UL,
-                                       2823669209384634633UL,
-                                       840}
-                    },
-                    {
-                            .literal =
-                            "-34028236692093.8563463374607431768211554",
-                            .dec_prec = 11,
-                            .exp = -1,
-                            .digits = {8563463374700000000UL,
-                                       34028236692093UL}
-                    },
-                    {
-                            .literal =
-                            "99999999999999999999999999999999999999.999996",
-                            .dec_prec = 5,
-                            .exp = 2,
-                            .digits = {1UL}
-                    },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211551",
+                    .dec_prec = 12,
+                    .exp = -1,
+                    .digits = {8211551000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "34028236692093846346337460743176.8211552",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {8211552000000000000UL,
+                               3846346337460743176UL,
+                               3402823669209}
+                },
+                {
+                    .literal =
+                    "8402823669209384634633.74607431768211553",
+                    .dec_prec = 7,
+                    .exp = -1,
+                    .digits = {7460744000000000000UL,
+                               2823669209384634633UL,
+                               840}
+                },
+                {
+                    .literal =
+                    "-34028236692093.8563463374607431768211554",
+                    .dec_prec = 11,
+                    .exp = -1,
+                    .digits = {8563463374700000000UL,
+                               34028236692093UL}
+                },
+                {
+                    .literal =
+                    "99999999999999999999999999999999999999.999996",
+                    .dec_prec = 5,
+                    .exp = 2,
+                    .digits = {1UL}
+                },
             };
 
             for (const auto &test : tests) {
@@ -1060,46 +1060,46 @@ TEST_CASE("Adjust presision") {
     SECTION("Digit array to shifted int") {
 
         struct test_data tests[] = {
-                {
-                        .literal = "170000000000000000000000001583e-80",
-                        .dec_prec = 4,
-                        .digits = {0UL, 0UL}
-                },
-                {
-                        .literal =
-                        "3402823669209384634633.74607431768211553",
-                        .dec_prec = 7,
-                        .digits = {6842914928856769031UL,
-                                   1844674407UL}
-                },
-                {
-                        .literal =
-                        "-34028236692093.8563463374607431768211554",
-                        .dec_prec = 1,
-                        .digits = {340282366920939UL, 0UL}
-                },
-                {
-                        .literal =
-                        "340282366920937.56346337460743176821155",
-                        .dec_prec = 0,
-                        .digits = {340282366920938UL, 0UL}
-                },
-                {
-                        .literal = "9.999999999999999999999999",
-                        .dec_prec = 5,
-                        .digits = {1000000UL, 0UL}
-                },
-                {
-                        .literal = "999999999999999999999999.99999",
-                        .dec_prec = 4,
-                        .digits = {4477988020393345024UL,
-                                   542101086UL}
-                },
-                {
-                    .literal = "999999.9999999999999999999999",
-                    .dec_prec = -4,
-                    .digits = {1000000UL, 0UL}
-                },
+            {
+                .literal = "170000000000000000000000001583e-80",
+                .dec_prec = 4,
+                .digits = {0UL, 0UL}
+            },
+            {
+                .literal =
+                "3402823669209384634633.74607431768211553",
+                .dec_prec = 7,
+                .digits = {6842914928856769031UL,
+                           1844674407UL}
+            },
+            {
+                .literal =
+                "-34028236692093.8563463374607431768211554",
+                .dec_prec = 1,
+                .digits = {340282366920939UL, 0UL}
+            },
+            {
+                .literal =
+                "340282366920937.56346337460743176821155",
+                .dec_prec = 0,
+                .digits = {340282366920938UL, 0UL}
+            },
+            {
+                .literal = "9.999999999999999999999999",
+                .dec_prec = 5,
+                .digits = {1000000UL, 0UL}
+            },
+            {
+                .literal = "999999999999999999999999.99999",
+                .dec_prec = 4,
+                .digits = {4477988020393345024UL,
+                           542101086UL}
+            },
+            {
+                .literal = "999999.9999999999999999999999",
+                .dec_prec = -4,
+                .digits = {1000000UL, 0UL}
+            },
         };
 
         for (const auto &test : tests) {
@@ -1114,46 +1114,46 @@ TEST_CASE("Adjust presision") {
     SECTION("Shifted int to digit array") {
 
         struct test_data tests[] = {
-                {
-                        .literal = "0.0000007",
-                        .dec_prec = 10,
-                        .exp = -1,
-                        .digits = {7000000000000UL}
-                },
-                {
-                        .literal = "900000000000.000000000",
-                        .dec_prec = 17,
-                        .exp = 0,
-                        .digits = {900000000000UL}
-                },
-                {
-                        .literal = "100000000000000000000000.1",
-                        .dec_prec = 9,
-                        .exp = -1,
-                        .digits = {1000000000000000000UL,
-                                   0UL,
-                                   10000UL}
-                },
-                {
-                        .literal = "100000000000000000000000.00000",
-                        .dec_prec = 9,
-                        .exp = 1,
-                        .digits = {10000UL}
-                },
-                {
-                        .literal = "792281625142643375935439.50335",
-                        .dec_prec = 6,
-                        .exp = -1,
-                        .digits = {5033500000000000000UL,
-                                   1625142643375935439UL,
-                                   79228UL}
-                },
-                {
-                        .literal = "-6e28",
-                        .dec_prec = -29,
-                        .exp = 1,
-                        .digits = {10000000000UL}
-                },
+            {
+                .literal = "0.0000007",
+                .dec_prec = 10,
+                .exp = -1,
+                .digits = {7000000000000UL}
+            },
+            {
+                .literal = "900000000000.000000000",
+                .dec_prec = 17,
+                .exp = 0,
+                .digits = {900000000000UL}
+            },
+            {
+                .literal = "100000000000000000000000.1",
+                .dec_prec = 9,
+                .exp = -1,
+                .digits = {1000000000000000000UL,
+                           0UL,
+                           10000UL}
+            },
+            {
+                .literal = "100000000000000000000000.00000",
+                .dec_prec = 9,
+                .exp = 1,
+                .digits = {10000UL}
+            },
+            {
+                .literal = "792281625142643375935439.50335",
+                .dec_prec = 6,
+                .exp = -1,
+                .digits = {5033500000000000000UL,
+                           1625142643375935439UL,
+                           79228UL}
+            },
+            {
+                .literal = "-6e28",
+                .dec_prec = -29,
+                .exp = 1,
+                .digits = {10000000000UL}
+            },
         };
 
         for (const auto &test : tests) {
@@ -1224,7 +1224,7 @@ TEST_CASE("Precision limit exceed") {
 
         SECTION(name) {
             CHECK(fpdec_adjust(&fpdec, dec_prec, FPDEC_ROUND_DEFAULT) ==
-                  FPDEC_PREC_LIMIT_EXCEEDED);
+                      FPDEC_PREC_LIMIT_EXCEEDED);
             CHECK(fpdec_adjusted(&fpdec, &FPDEC_ONE, dec_prec,
                                  FPDEC_ROUND_DEFAULT) ==
                       FPDEC_PREC_LIMIT_EXCEEDED);
