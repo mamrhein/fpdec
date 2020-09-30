@@ -209,7 +209,7 @@ fpdec_from_unicode_literal(fpdec_t *fpdec, const wchar_t *literal) {
     char *buf, *ch;
     error_t rc;
 
-    if (size == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
+    if (size == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
 
     ch = buf = fpdec_mem_alloc(size + 1, sizeof(char));
     if (buf == NULL) MEMERROR
@@ -220,7 +220,7 @@ fpdec_from_unicode_literal(fpdec_t *fpdec, const wchar_t *literal) {
             *ch = lookup_unicode_digit(*literal);
             if (*ch == -1) {
                 fpdec_mem_free(buf);
-                ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
+                ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
             }
         }
         else
@@ -529,7 +529,7 @@ fpdec_normalize_prec(fpdec_t *fpdec) {
         fpdec->lo = ui.lo;
     }
     return FPDEC_OK;
-};
+}
 
 static error_t
 fpdec_dyn_adjust_to_prec(fpdec_t *fpdec, int32_t dec_prec,
@@ -1381,7 +1381,8 @@ fpdec_divmod_abs_dyn_by_dyn(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
         r->dyn_alloc = true;
         FPDEC_DYN_EXP(r) = MIN(FPDEC_DYN_EXP(y), FPDEC_DYN_EXP(x));
         // adjust negativ quotient?
-        if (neg_quot && !digits_all_zero(r_digits, r_digits->n_signif)) {
+        if (neg_quot && !digits_all_zero(r_digits->digits,
+                                         r_digits->n_signif)) {
             error_t rc;
             fpdec_t t = *r;
             *r = FPDEC_ZERO;
@@ -1645,7 +1646,7 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     uint128_t divisor = U128_FROM_SHINT(y);
     uint128_t rem = {0, 0};
     int shift;
-    unsigned n_trailing_zeros = 0;
+    unsigned n_trailing_zeros;
 
     if (prec_limit == -1)
         shift = MAX_DEC_PREC_FOR_SHINT - FPDEC_DEC_PREC(x) +
