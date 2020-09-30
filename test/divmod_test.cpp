@@ -351,6 +351,12 @@ TEST_CASE("Divmod") {
                 .lit_quot = "491389374265394399",
                 .lit_rem = "-222153261802213102898.84571204",
             },
+            {
+                .lit_x = "-4.0006000008",
+                .lit_y = "1.0001500002",
+                .lit_quot = "-4",
+                .lit_rem = "0",
+            },
         };
 
         for (const auto &test : tests) {
