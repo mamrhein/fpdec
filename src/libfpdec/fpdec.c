@@ -363,23 +363,21 @@ const v_cmp vtab_cmp[4] = {fpdec_cmp_abs_shint_to_shint,
 
 int
 fpdec_compare(const fpdec_t *x, const fpdec_t *y, const bool ignore_sign) {
-    fpdec_sign_t x_sign, y_sign;
+    fpdec_sign_t x_sign = FPDEC_SIGN(x);
+    fpdec_sign_t y_sign = FPDEC_SIGN(y);
     int x_magn, y_magn;
 
     if (ignore_sign) {
-        if (FPDEC_SIGN(x) == 0)
-            return FPDEC_SIGN(y) ? -1 : 0;
-        if (FPDEC_SIGN(y) == 0)
-            return FPDEC_SIGN(x) != 0;
+        if (x_sign == 0)
+            return y_sign ? -1 : 0;
+        if (y_sign == 0)
+            return 1;
         x_sign = FPDEC_SIGN_POS;
     }
     else {
-        x_sign = FPDEC_SIGN(x);
-        y_sign = FPDEC_SIGN(y);
-        if (x_sign != y_sign)
-            return CMP(x_sign, y_sign);
-        if (x_sign == 0)
-            return 0;
+        int8_t cmp = CMP(x_sign, y_sign);
+        if (cmp != 0 || x_sign == 0)
+            return cmp;
     }
 
     // here: x != 0 and y != 0
