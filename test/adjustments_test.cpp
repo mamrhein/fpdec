@@ -12,8 +12,6 @@ $Source$
 $Revision$
 */
 
-#include <vector>
-
 #include "catch.hpp"
 #include "fpdec.h"
 #include "checks.hpp"

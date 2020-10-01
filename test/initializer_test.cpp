@@ -276,7 +276,6 @@ TEST_CASE("Initialize from ascii literal") {
         };
         for (const auto &literal : literals) {
             fpdec_t fpdec = FPDEC_ZERO;
-            int n = literal.length();
             std::string name;
             if (literal.empty())
                 name = "empty";
