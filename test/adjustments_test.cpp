@@ -1283,5 +1283,7 @@ TEST_CASE("Normalize presision") {
             REQUIRE(rc == FPDEC_OK);
             CHECK(fpdec_compare(&x, &z, false) == 0);
         }
+        fpdec_reset_to_zero(&x, 0);
+        fpdec_reset_to_zero(&z, 0);
     }
 }
