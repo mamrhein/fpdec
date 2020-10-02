@@ -328,8 +328,8 @@ fpdec_cmp_abs_shint_to_dyn(const fpdec_t *x, const fpdec_t *y) {
     int n_trailing_zeros_skipped;
     fpdec_n_digits_t x_n_digits;
 
-    x_n_digits = shint_to_digits(x_digits, &n_trailing_zeros_skipped, RADIX,
-                                 x->lo, x->hi, FPDEC_DEC_PREC(x));
+    x_n_digits = u128_to_digits(x_digits, &n_trailing_zeros_skipped, RADIX,
+                                x->lo, x->hi, FPDEC_DEC_PREC(x));
     return digits_cmp(x_digits, x_n_digits,
                       FPDEC_DYN_DIGITS(y), FPDEC_DYN_N_DIGITS(y));
 }
@@ -341,8 +341,8 @@ fpdec_cmp_abs_dyn_to_shint(const fpdec_t *x, const fpdec_t *y) {
     int n_trailing_zeros_skipped;
     fpdec_n_digits_t y_n_digits;
 
-    y_n_digits = shint_to_digits(y_digits, &n_trailing_zeros_skipped, RADIX,
-                                 y->lo, y->hi, FPDEC_DEC_PREC(y));
+    y_n_digits = u128_to_digits(y_digits, &n_trailing_zeros_skipped, RADIX,
+                                y->lo, y->hi, FPDEC_DEC_PREC(y));
     return digits_cmp(FPDEC_DYN_DIGITS(x), FPDEC_DYN_N_DIGITS(x),
                       y_digits, y_n_digits);
 }
@@ -412,8 +412,8 @@ fpdec_shint_to_dyn(fpdec_t *fpdec) {
 
     assert(!FPDEC_IS_DYN_ALLOC(fpdec));
 
-    n_digits = shint_to_digits(digits, &n_trailing_zeros, RADIX, fpdec->lo,
-                               fpdec->hi, FPDEC_DEC_PREC(fpdec));
+    n_digits = u128_to_digits(digits, &n_trailing_zeros, RADIX, fpdec->lo,
+                              fpdec->hi, FPDEC_DEC_PREC(fpdec));
     rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
     if (rc == FPDEC_OK) {
         fpdec->dyn_alloc = true;
