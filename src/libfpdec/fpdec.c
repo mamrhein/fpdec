@@ -1671,10 +1671,30 @@ fpdec_div_abs_shint_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
 }
 
 error_t
+fpdec_div_shints_as_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
+                        const int prec_limit,
+                        const enum FPDEC_ROUNDING_MODE rounding) {
+    error_t rc;
+    fpdec_t x_dyn;
+    fpdec_t y_dyn;
+
+    rc = fpdec_copy_shint_as_dyn(&x_dyn, x);
+    if (rc == FPDEC_OK) {
+        rc = fpdec_copy_shint_as_dyn(&y_dyn, y);
+        if (rc == FPDEC_OK) {
+            rc = fpdec_div_abs_dyn_by_dyn(z, &x_dyn, &y_dyn, prec_limit,
+                                          rounding);
+            fpdec_reset_to_zero(&y_dyn, 0);
+        }
+        fpdec_reset_to_zero(&x_dyn, 0);
+    }
+    return rc;
+}
+
+error_t
 fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
                              const int prec_limit,
                              const enum FPDEC_ROUNDING_MODE rounding) {
-    error_t rc;
     uint128_t divident = U128_FROM_SHINT(x);
     uint128_t divisor = U128_FROM_SHINT(y);
     uint128_t rem = {0, 0};
@@ -1698,14 +1718,7 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     if (U128_NE_ZERO(rem)) {
         if (prec_limit == -1 || prec_limit > MAX_DEC_PREC_FOR_SHINT) {
             // result is not exact enough
-            fpdec_t x_dyn;
-            rc = fpdec_copy_shint_as_dyn(&x_dyn, x);
-            if (rc == FPDEC_OK) {
-                rc = fpdec_div_abs_dyn_by_shint(z, &x_dyn, y, prec_limit,
-                                                rounding);
-                fpdec_reset_to_zero(&x_dyn, 0);
-            }
-            return rc;
+            return fpdec_div_shints_as_dyn(z, x, y, prec_limit, rounding);
         }
         else {
             // result (in divident) truncated to prec_limit, check rounding
