@@ -1743,6 +1743,7 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     }
     else {
         if (prec_limit == -1 && shift > 0) {
+            shift = MIN(shift, MAX_DEC_PREC_FOR_SHINT);
             n_trailing_zeros = u128_eliminate_trailing_zeros(&divident,
                                                              shift);
             FPDEC_DEC_PREC(z) = MAX_DEC_PREC_FOR_SHINT - n_trailing_zeros;
