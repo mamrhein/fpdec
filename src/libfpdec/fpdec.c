@@ -404,16 +404,14 @@ fpdec_neg(fpdec_t *fpdec, const fpdec_t *src) {
 }
 
 static error_t
-fpdec_shint_to_dyn(fpdec_t *fpdec) {
+fpdec_dyn_from_u128(fpdec_t *fpdec, uint128_t* ui) {
     fpdec_digit_t digits[3];
     int n_trailing_zeros;
     fpdec_n_digits_t n_digits;
     error_t rc;
 
-    assert(!FPDEC_IS_DYN_ALLOC(fpdec));
-
-    n_digits = u128_to_digits(digits, &n_trailing_zeros, RADIX, fpdec->lo,
-                              fpdec->hi, FPDEC_DEC_PREC(fpdec));
+    n_digits = u128_to_digits(digits, &n_trailing_zeros, RADIX, ui->lo,
+                              ui->hi, FPDEC_DEC_PREC(fpdec));
     rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
     if (rc == FPDEC_OK) {
         fpdec->dyn_alloc = true;
@@ -422,6 +420,16 @@ fpdec_shint_to_dyn(fpdec_t *fpdec) {
                      CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
     }
     return rc;
+}
+
+static error_t
+fpdec_shint_to_dyn(fpdec_t *fpdec) {
+    uint128_t ui = U128_FROM_SHINT(fpdec);
+    error_t rc;
+
+    assert(!FPDEC_IS_DYN_ALLOC(fpdec));
+
+    return fpdec_dyn_from_u128(fpdec, &ui);
 }
 
 static error_t
