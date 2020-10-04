@@ -1715,9 +1715,14 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     else
         shift = MIN(prec_limit, MAX_DEC_PREC_FOR_SHINT) - FPDEC_DEC_PREC(x) +
                 FPDEC_DEC_PREC(y);
-    if (shift > 0)
+    if (shift > 0) {
         u128_imul_10_pow_n(&divident, shift);
+        if (UINT128_CHECK_MAX(&divident))
+            // divident possibly overflowed
+            return fpdec_div_shints_as_dyn(z, x, y, prec_limit, rounding);
+    }
     else if (shift < 0)
+        // divisor < 2^96 and shift >= -9 => divisor * 10^-shift < 2^128
         u128_imul_10_pow_n(&divisor, -shift);
     if (divisor.hi == 0)
         rem.lo = u128_idiv_u64(&divident, divisor.lo);
@@ -1753,9 +1758,13 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
         else
             FPDEC_DEC_PREC(z) = prec_limit;
     }
-    z->lo = divident.lo;
-    z->hi = divident.hi;
-    return FPDEC_OK;
+    if (U128_FITS_SHINT(divident)) {
+        z->lo = divident.lo;
+        z->hi = divident.hi;
+        return FPDEC_OK;
+    }
+    else
+        return fpdec_dyn_from_u128(z, &divident);
 }
 
 typedef error_t (*v_div_op)(fpdec_t *, const fpdec_t *, const fpdec_t *,
