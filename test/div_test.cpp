@@ -413,8 +413,8 @@ TEST_CASE("Div (with limit and default rounding)") {
             },
             {
                 .lit_x = "3.4",
-                .lit_y = "6",
-                .lit_quot = "0.566666667",
+                .lit_y = "-6",
+                .lit_quot = "-0.566666667",
                 .prec_limit = 9,
             },
         };
@@ -691,10 +691,55 @@ TEST_CASE("Div (with limit and explicit rounding mode)") {
         for (const auto &test : tests) {
 
             const std::string section_name = test.lit_x + " / " + test.lit_y +
-                " [ROUND_HALF_UP]";
+                " [ROUND_HALF_EVEN]";
 
             SECTION(section_name) {
                 do_div_test(tv, test, FPDEC_ROUND_HALF_EVEN);
+            }
+        }
+    }
+
+    SECTION("shint / shint -> shint [ROUND_CEILING]") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = false,
+            .dyn_y = false,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "12.34",
+                .lit_y = "10",
+                .lit_quot = "1.24",
+                .prec_limit = 2,
+            },
+            {
+                .lit_x = "61.7",
+                .lit_y = "-5",
+                .lit_quot = "-12.3",
+                .prec_limit = 1,
+            },
+            {
+                .lit_x = "-2.5",
+                .lit_y = "5",
+                .lit_quot = "0",
+                .prec_limit = 0,
+            },
+            {
+                .lit_x = "3.4",
+                .lit_y = "-6",
+                .lit_quot = "-0.566666666",
+                .prec_limit = 9,
+            },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test.lit_y +
+                                             " [ROUND_CEILING]";
+
+            SECTION(section_name) {
+                do_div_test(tv, test, FPDEC_ROUND_CEILING);
             }
         }
     }
