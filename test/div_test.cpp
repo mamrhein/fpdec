@@ -143,6 +143,12 @@ TEST_CASE("Div (w/o limit and default rounding)") {
                 .prec_limit = 10,
             },
             {
+                .lit_x = "222222222e18",
+                .lit_y = "0.002",
+                .lit_quot = "111111111e21",
+                .prec_limit = -1,
+            },
+            {
                 .lit_x = "876543210987654321e10",
                 .lit_y = "0.000000003",
                 .lit_quot = "292181070329218107e19",
