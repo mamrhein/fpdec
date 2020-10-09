@@ -99,7 +99,7 @@ digits_from_dec_coeff_exp(fpdec_digit_array_t **digit_array, fpdec_exp_t *exp,
     }
     // least significant digit to be shifted?
     if (n_dec_shift > 0) {
-        (*digit_array)->digits[0] *= _10_POW_N(n_dec_shift);
+        (*digit_array)->digits[0] *= u64_10_pow_n(n_dec_shift);
     }
     // cut-off leading zeroes
     digit = (*digit_array)->digits + n_digits - 1;
@@ -188,7 +188,7 @@ digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
     }
     else {
         *digit = round_to_multiple(sign, *digit, digit_idx > 0,
-                                   _10_POW_N(n_dec_digits),
+                                   u64_10_pow_n(n_dec_digits),
                                    rounding);
     }
     // set all skiped digits to zero
@@ -458,7 +458,7 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t x_n_shift,
         u64_mul_u64(&t1, qhat, yd->digits[n_2]);
         u64_mul_u64(&t2, rhat, RADIX);
         u128_iadd_u64(&t2, xd->digits[j + n_2]);
-        while (qhat >= RADIX || u128_cmp(&t1, &t2) == 1) {
+        while (qhat >= RADIX || u128_cmp(t1, t2) == 1) {
             --qhat;
             rhat += yd->digits[n_1];
             if (rhat >= RADIX)

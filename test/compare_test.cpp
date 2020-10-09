@@ -16,7 +16,7 @@ $Revision$
 #include <vector>
 
 #include "catch.hpp"
-#include "helper_macros.h"
+#include "basemath.h"
 #include "fpdec.h"
 #include "checks.hpp"
 
