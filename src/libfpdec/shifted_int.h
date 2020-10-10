@@ -31,8 +31,6 @@ $Revision$
 #define MAX_N_DEC_DIGITS_IN_SHINT 29
 #define MAX_DEC_PREC_FOR_SHINT 9
 
-#define U128_NE_ZERO(x) (x.lo != 0 || x.hi != 0)
-
 #define U128_FITS_SHINT(x) (U64_HI(x.hi) == 0)
 
 #define U64_MAGNITUDE(x) ((int) log10(x))

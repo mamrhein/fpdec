@@ -35,6 +35,10 @@ $Revision$
 #define U128P_HI(x) (((uint128_t *)x)->hi)
 #define U128P_LO(x) (((uint128_t *)x)->lo)
 
+// tests
+#define U128_EQ_ZERO(x) (x.lo == 0 && x.hi == 0)
+#define U128_NE_ZERO(x) (x.lo != 0 || x.hi != 0)
+
 // overflow handling
 #define SIGNAL_OVERFLOW(x) *x = UINT128_MAX
 #define UINT128_CHECK_MAX(x) (U128P_LO(x) == UINT64_MAX && \
