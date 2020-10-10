@@ -479,7 +479,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
             switch FPDEC_DYN_EXP(fpdec) {
                 case -1:
                     u64_mul_u64(&shint, digits[digit_idx], dec_shift);
-                    u128_idiv_u64(&shint, RADIX);
+                    u128_idiv_radix(&shint);
                     if (++digit_idx == n_digits)
                         break;
                 case 0:
