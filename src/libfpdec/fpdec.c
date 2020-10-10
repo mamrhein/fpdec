@@ -279,11 +279,11 @@ fpdec_from_sign_digits_exp(fpdec_t *fpdec, fpdec_sign_t sign, size_t n_digits,
     return digits_from_digits(&(fpdec->digit_array), digits, n_digits);
 }
 
-// Functions converting the internal representation
+// Functions converting between FPDECs internal representations
 
-fpdec_n_digits_t
-u128_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
-               uint64_t b, uint64_t lo, uint64_t hi, int prec) {
+static fpdec_n_digits_t
+du64_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
+               uint64_t lo, uint64_t hi, int prec) {
     uint128_t t = {lo, hi};
     fpdec_n_digits_t n_digits = 0;
 
@@ -303,11 +303,11 @@ u128_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
         }
     }
     if (t.hi == 0) {
-        *digit = t.lo % b;
-        t.lo /= b;
+        *digit = t.lo % RADIX;
+        t.lo /= RADIX;
     }
     else {
-        *digit = u128_idiv_u64(&t, b);
+        *digit = u128_idiv_u64(&t, RADIX);
     }
     if (*digit != 0 || t.lo != 0 && n_digits > 0) {
         n_digits++;
@@ -329,7 +329,7 @@ fpdec_dyn_from_u128(fpdec_t *fpdec, uint128_t* ui) {
     fpdec_n_digits_t n_digits;
     error_t rc;
 
-    n_digits = u128_to_digits(digits, &n_trailing_zeros, RADIX, ui->lo,
+    n_digits = du64_to_digits(digits, &n_trailing_zeros, ui->lo,
                               ui->hi, FPDEC_DEC_PREC(fpdec));
     rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
     if (rc == FPDEC_OK) {
@@ -474,7 +474,7 @@ fpdec_cmp_abs_shint_to_dyn(const fpdec_t *x, const fpdec_t *y) {
     int n_trailing_zeros_skipped;
     fpdec_n_digits_t x_n_digits;
 
-    x_n_digits = u128_to_digits(x_digits, &n_trailing_zeros_skipped, RADIX,
+    x_n_digits = du64_to_digits(x_digits, &n_trailing_zeros_skipped,
                                 x->lo, x->hi, FPDEC_DEC_PREC(x));
     return digits_cmp(x_digits, x_n_digits,
                       FPDEC_DYN_DIGITS(y), FPDEC_DYN_N_DIGITS(y));
@@ -487,7 +487,7 @@ fpdec_cmp_abs_dyn_to_shint(const fpdec_t *x, const fpdec_t *y) {
     int n_trailing_zeros_skipped;
     fpdec_n_digits_t y_n_digits;
 
-    y_n_digits = u128_to_digits(y_digits, &n_trailing_zeros_skipped, RADIX,
+    y_n_digits = du64_to_digits(y_digits, &n_trailing_zeros_skipped,
                                 y->lo, y->hi, FPDEC_DEC_PREC(y));
     return digits_cmp(FPDEC_DYN_DIGITS(x), FPDEC_DYN_N_DIGITS(x),
                       y_digits, y_n_digits);
