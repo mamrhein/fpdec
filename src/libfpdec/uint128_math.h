@@ -131,6 +131,13 @@ u128_sub_u128(uint128_t *z, const uint128_t *x, const uint128_t *y) {
 
 // Multiplication
 
+static inline void
+u128_imul10(uint128_t *x) {
+    x->hi = x->hi * 10 +
+            U64_HI(U64_HI(x->lo) * 10UL + U64_HI(U64_LO(x->lo) * 10UL));
+    x->lo *= 10UL;
+}
+
 static void
 u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
     const uint64_t xl = U64_LO(x);
