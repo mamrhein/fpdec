@@ -64,8 +64,6 @@ const fpdec_t FPDEC_MINUS_ONE = {
 *  Macros
 *****************************************************************************/
 
-#define U128_FROM_SHINT(x) {x->lo, x->hi}
-
 #define FPDEC_IS_ZEROED(fpdec) (!FPDEC_IS_DYN_ALLOC(fpdec) && \
                                 !FPDEC_IS_NORMALIZED(fpdec) && \
                                 FPDEC_SIGN(fpdec) == 0 && \
