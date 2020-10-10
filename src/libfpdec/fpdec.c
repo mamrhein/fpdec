@@ -282,7 +282,7 @@ fpdec_from_sign_digits_exp(fpdec_t *fpdec, fpdec_sign_t sign, size_t n_digits,
 static fpdec_n_digits_t
 du64_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
                uint64_t lo, uint64_t hi, int prec) {
-    uint128_t t = {lo, hi};
+    uint128_t t = U128_RHS(lo, hi);
     fpdec_n_digits_t n_digits = 0;
 
     assert(lo != 0 || hi != 0);

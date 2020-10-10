@@ -116,7 +116,7 @@ u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int32_t n_dec_digits,
 
 unsigned
 u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max) {
-    uint128_t t = {ui->lo, ui->hi};
+    uint128_t t = U128_RHS(ui->lo, ui->hi);
     unsigned n_trailing_zeros = 0;
 
     while (ui->hi != 0 && n_trailing_zeros < n_max && u128_idiv_10(&t) == 0) {
