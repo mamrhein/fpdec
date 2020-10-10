@@ -279,6 +279,152 @@ fpdec_from_sign_digits_exp(fpdec_t *fpdec, fpdec_sign_t sign, size_t n_digits,
     return digits_from_digits(&(fpdec->digit_array), digits, n_digits);
 }
 
+// Functions converting the internal representation
+
+fpdec_n_digits_t
+u128_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
+               uint64_t b, uint64_t lo, uint64_t hi, int prec) {
+    uint128_t t = {lo, hi};
+    fpdec_n_digits_t n_digits = 0;
+
+    assert(lo != 0 || hi != 0);
+    assert(prec <= UINT64_10_POW_N_CUTOFF);
+
+    *n_trailing_zeros_skipped = 0;
+    if (prec > 0) {
+        *digit = u128_idiv_u64(&t, u64_10_pow_n(prec));
+        if (*digit != 0) {
+            *digit *= u64_10_pow_n(UINT64_10_POW_N_CUTOFF - prec);
+            n_digits++;
+            digit++;
+        }
+        else {
+            (*n_trailing_zeros_skipped)++;
+        }
+    }
+    if (t.hi == 0) {
+        *digit = t.lo % b;
+        t.lo /= b;
+    }
+    else {
+        *digit = u128_idiv_u64(&t, b);
+    }
+    if (*digit != 0 || t.lo != 0 && n_digits > 0) {
+        n_digits++;
+        digit++;
+    }
+    if (t.lo != 0) {
+        if (n_digits == 0)
+            (*n_trailing_zeros_skipped)++;
+        *digit = t.lo;
+        n_digits++;
+    }
+    return n_digits;
+}
+
+static error_t
+fpdec_dyn_from_u128(fpdec_t *fpdec, uint128_t* ui) {
+    fpdec_digit_t digits[3];
+    int n_trailing_zeros;
+    fpdec_n_digits_t n_digits;
+    error_t rc;
+
+    n_digits = u128_to_digits(digits, &n_trailing_zeros, RADIX, ui->lo,
+                              ui->hi, FPDEC_DEC_PREC(fpdec));
+    rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
+    if (rc == FPDEC_OK) {
+        fpdec->dyn_alloc = true;
+        fpdec->normalized = true;
+        fpdec->exp = n_trailing_zeros -
+                     CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
+    }
+    return rc;
+}
+
+static error_t
+fpdec_shint_to_dyn(fpdec_t *fpdec) {
+    uint128_t ui = U128_FROM_SHINT(fpdec);
+
+    assert(!FPDEC_IS_DYN_ALLOC(fpdec));
+
+    return fpdec_dyn_from_u128(fpdec, &ui);
+}
+
+static error_t
+fpdec_copy_shint_as_dyn(fpdec_t *cpy, const fpdec_t *src) {
+    error_t rc;
+
+    assert(!FPDEC_IS_DYN_ALLOC(src));
+
+    rc = fpdec_copy(cpy, src);
+    if (rc == FPDEC_OK)
+        rc = fpdec_shint_to_dyn(cpy);
+    return rc;
+}
+
+static void
+fpdec_dyn_normalize(fpdec_t *fpdec) {
+    fpdec_dec_prec_t dec_prec = FPDEC_DEC_PREC(fpdec);
+
+    assert(FPDEC_IS_DYN_ALLOC(fpdec));
+
+    while (FPDEC_DYN_N_DIGITS(fpdec) > 0 &&
+           FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0)
+        (FPDEC_DYN_N_DIGITS(fpdec))--;
+    if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
+        fpdec_reset_to_zero(fpdec, dec_prec);
+        return;
+    }
+    FPDEC_DYN_EXP(fpdec) +=
+        digits_eliminate_trailing_zeros(fpdec->digit_array);
+    if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
+        fpdec_reset_to_zero(fpdec, dec_prec);
+        return;
+    }
+    else
+        fpdec->normalized = true;
+
+    // try to transform dyn fpdec to shifted int
+    if (dec_prec <= MAX_DEC_PREC_FOR_SHINT && FPDEC_DYN_EXP(fpdec) <= 1) {
+        size_t n_dec_digits = MAX(fpdec_magnitude(fpdec), 0) + dec_prec;
+        if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
+            fpdec_sign_t sign = FPDEC_SIGN(fpdec);
+            uint128_t shint = {0, 0};
+            uint128_t f = {0, 0};
+            fpdec_n_digits_t n_digits = FPDEC_DYN_N_DIGITS(fpdec);
+            fpdec_n_digits_t digit_idx = 0;
+            fpdec_digit_t *digits = FPDEC_DYN_DIGITS(fpdec);
+            uint64_t dec_shift = u64_10_pow_n(dec_prec);
+            switch FPDEC_DYN_EXP(fpdec) {
+                case -1:
+                    u64_mul_u64(&shint, digits[digit_idx], dec_shift);
+                    u128_idiv_radix(&shint);
+                    if (++digit_idx == n_digits)
+                        break;
+                case 0:
+                    u64_mul_u64(&f, digits[digit_idx], dec_shift);
+                    u128_iadd_u128(&shint, &f);
+                    if (++digit_idx == n_digits)
+                        break;
+                case 1:
+                    u64_mul_u64(&f, digits[digit_idx], dec_shift);
+                    u128_imul_u64(&f, RADIX);
+                    u128_iadd_u128(&shint, &f);
+                    if (++digit_idx == n_digits)
+                        break;
+                default:
+                    assert(digit_idx == n_digits);
+            }
+            if (U128_FITS_SHINT(shint)) {
+                fpdec_reset_to_zero(fpdec, dec_prec);
+                FPDEC_SIGN(fpdec) = sign;
+                fpdec->lo = shint.lo;
+                fpdec->hi = shint.hi;
+            }
+        }
+    }
+}
+
 // Properties
 
 static int
@@ -401,109 +547,6 @@ fpdec_neg(fpdec_t *fpdec, const fpdec_t *src) {
     if (rc == ENOMEM) MEMERROR
     fpdec->sign = -src->sign;
     return FPDEC_OK;
-}
-
-static error_t
-fpdec_dyn_from_u128(fpdec_t *fpdec, uint128_t* ui) {
-    fpdec_digit_t digits[3];
-    int n_trailing_zeros;
-    fpdec_n_digits_t n_digits;
-    error_t rc;
-
-    n_digits = u128_to_digits(digits, &n_trailing_zeros, RADIX, ui->lo,
-                              ui->hi, FPDEC_DEC_PREC(fpdec));
-    rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
-    if (rc == FPDEC_OK) {
-        fpdec->dyn_alloc = true;
-        fpdec->normalized = true;
-        fpdec->exp = n_trailing_zeros -
-                     CEIL(FPDEC_DEC_PREC(fpdec), DEC_DIGITS_PER_DIGIT);
-    }
-    return rc;
-}
-
-static error_t
-fpdec_shint_to_dyn(fpdec_t *fpdec) {
-    uint128_t ui = U128_FROM_SHINT(fpdec);
-
-    assert(!FPDEC_IS_DYN_ALLOC(fpdec));
-
-    return fpdec_dyn_from_u128(fpdec, &ui);
-}
-
-static error_t
-fpdec_copy_shint_as_dyn(fpdec_t *cpy, const fpdec_t *src) {
-    error_t rc;
-
-    assert(!FPDEC_IS_DYN_ALLOC(src));
-
-    rc = fpdec_copy(cpy, src);
-    if (rc == FPDEC_OK)
-        rc = fpdec_shint_to_dyn(cpy);
-    return rc;
-}
-
-static void
-fpdec_dyn_normalize(fpdec_t *fpdec) {
-    fpdec_dec_prec_t dec_prec = FPDEC_DEC_PREC(fpdec);
-
-    assert(FPDEC_IS_DYN_ALLOC(fpdec));
-
-    while (FPDEC_DYN_N_DIGITS(fpdec) > 0 &&
-           FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec) == 0)
-        (FPDEC_DYN_N_DIGITS(fpdec))--;
-    if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
-        fpdec_reset_to_zero(fpdec, dec_prec);
-        return;
-    }
-    FPDEC_DYN_EXP(fpdec) +=
-        digits_eliminate_trailing_zeros(fpdec->digit_array);
-    if (FPDEC_DYN_N_DIGITS(fpdec) == 0) {
-        fpdec_reset_to_zero(fpdec, dec_prec);
-        return;
-    }
-    else
-        fpdec->normalized = true;
-
-    // try to transform dyn fpdec to shifted int
-    if (dec_prec <= MAX_DEC_PREC_FOR_SHINT && FPDEC_DYN_EXP(fpdec) <= 1) {
-        size_t n_dec_digits = MAX(fpdec_magnitude(fpdec), 0) + dec_prec;
-        if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
-            fpdec_sign_t sign = FPDEC_SIGN(fpdec);
-            uint128_t shint = {0, 0};
-            uint128_t f = {0, 0};
-            fpdec_n_digits_t n_digits = FPDEC_DYN_N_DIGITS(fpdec);
-            fpdec_n_digits_t digit_idx = 0;
-            fpdec_digit_t *digits = FPDEC_DYN_DIGITS(fpdec);
-            uint64_t dec_shift = u64_10_pow_n(dec_prec);
-            switch FPDEC_DYN_EXP(fpdec) {
-                case -1:
-                    u64_mul_u64(&shint, digits[digit_idx], dec_shift);
-                    u128_idiv_radix(&shint);
-                    if (++digit_idx == n_digits)
-                        break;
-                case 0:
-                    u64_mul_u64(&f, digits[digit_idx], dec_shift);
-                    u128_iadd_u128(&shint, &f);
-                    if (++digit_idx == n_digits)
-                        break;
-                case 1:
-                    u64_mul_u64(&f, digits[digit_idx], dec_shift);
-                    u128_imul_u64(&f, RADIX);
-                    u128_iadd_u128(&shint, &f);
-                    if (++digit_idx == n_digits)
-                        break;
-                default:
-                    assert(digit_idx == n_digits);
-            }
-            if (U128_FITS_SHINT(shint)) {
-                fpdec_reset_to_zero(fpdec, dec_prec);
-                FPDEC_SIGN(fpdec) = sign;
-                fpdec->lo = shint.lo;
-                fpdec->hi = shint.hi;
-            }
-        }
-    }
 }
 
 error_t

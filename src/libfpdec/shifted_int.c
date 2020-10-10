@@ -72,47 +72,6 @@ shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
     return FPDEC_OK;
 }
 
-fpdec_n_digits_t
-u128_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
-               uint64_t b, uint64_t lo, uint64_t hi, int prec) {
-    uint128_t t = {lo, hi};
-    fpdec_n_digits_t n_digits = 0;
-
-    assert(lo != 0 || hi != 0);
-    assert(prec <= UINT64_10_POW_N_CUTOFF);
-
-    *n_trailing_zeros_skipped = 0;
-    if (prec > 0) {
-        *digit = u128_idiv_u64(&t, u64_10_pow_n(prec));
-        if (*digit != 0) {
-            *digit *= u64_10_pow_n(UINT64_10_POW_N_CUTOFF - prec);
-            n_digits++;
-            digit++;
-        }
-        else {
-            (*n_trailing_zeros_skipped)++;
-        }
-    }
-    if (t.hi == 0) {
-        *digit = t.lo % b;
-        t.lo /= b;
-    }
-    else {
-        *digit = u128_idiv_u64(&t, b);
-    }
-    if (*digit != 0 || t.lo != 0 && n_digits > 0) {
-        n_digits++;
-        digit++;
-    }
-    if (t.lo != 0) {
-        if (n_digits == 0)
-            (*n_trailing_zeros_skipped)++;
-        *digit = t.lo;
-        n_digits++;
-    }
-    return n_digits;
-}
-
 // Decimal shift
 
 static void
