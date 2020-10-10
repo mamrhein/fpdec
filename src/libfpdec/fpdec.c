@@ -286,11 +286,11 @@ du64_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
     fpdec_n_digits_t n_digits = 0;
 
     assert(lo != 0 || hi != 0);
-    assert(prec <= UINT64_10_POW_N_CUTOFF);
+    assert(prec <= MAX_N_DEC_DIGITS_IN_SHINT);
 
     *n_trailing_zeros_skipped = 0;
     if (prec > 0) {
-        *digit = u128_idiv_u64(&t, u64_10_pow_n(prec));
+        *digit = u128_idiv_u32(&t, u64_10_pow_n(prec));
         if (*digit != 0) {
             *digit *= u64_10_pow_n(UINT64_10_POW_N_CUTOFF - prec);
             n_digits++;
@@ -300,21 +300,15 @@ du64_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
             (*n_trailing_zeros_skipped)++;
         }
     }
-    if (t.hi == 0) {
-        *digit = t.lo % RADIX;
-        t.lo /= RADIX;
-    }
-    else {
-        *digit = u128_idiv_u64(&t, RADIX);
-    }
-    if (*digit != 0 || t.lo != 0 && n_digits > 0) {
+    *digit = u128_idiv_radix(&t);
+    if (*digit != 0 || U128_NE_ZERO(t) && n_digits > 0) {
         n_digits++;
         digit++;
     }
-    if (t.lo != 0) {
+    if (U128_NE_ZERO(t)) {
         if (n_digits == 0)
             (*n_trailing_zeros_skipped)++;
-        *digit = t.lo;
+        *digit = U128_LO(t);
         n_digits++;
     }
     return n_digits;
