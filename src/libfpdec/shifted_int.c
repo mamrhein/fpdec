@@ -44,7 +44,7 @@ shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
 error_t
 shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
                      const size_t n_dec_digits, const size_t n_add_zeros) {
-    uint128_t accu = {0, 0};
+    uint128_t accu = UINT128_ZERO;
     const dec_digit_t *stop = coeff + n_dec_digits;
     const dec_digit_t *cut = MIN(coeff + UINT64_10_POW_N_CUTOFF, stop);
 

@@ -304,7 +304,7 @@ static void
 u128_idiv_u128_special(uint128_t *r, uint128_t *x, const uint128_t *y) {
     unsigned n_bits_left, n_bits_right;
     uint64_t xn[3], yn[2], q;
-    uint128_t t = {0, 0};
+    uint128_t t = UINT128_ZERO;
 
     assert(U128P_HI(y) != 0);
     assert(u128_cmp(*x, *y) >= 0);

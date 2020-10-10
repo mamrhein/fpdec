@@ -381,8 +381,8 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
         size_t n_dec_digits = MAX(fpdec_magnitude(fpdec), 0) + dec_prec;
         if (n_dec_digits <= MAX_N_DEC_DIGITS_IN_SHINT) {
             fpdec_sign_t sign = FPDEC_SIGN(fpdec);
-            uint128_t shint = {0, 0};
-            uint128_t f = {0, 0};
+            uint128_t shint = UINT128_ZERO;
+            uint128_t f = UINT128_ZERO;
             fpdec_n_digits_t n_digits = FPDEC_DYN_N_DIGITS(fpdec);
             fpdec_n_digits_t digit_idx = 0;
             fpdec_digit_t *digits = FPDEC_DYN_DIGITS(fpdec);
@@ -1739,7 +1739,7 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
                              const enum FPDEC_ROUNDING_MODE rounding) {
     uint128_t divident = U128_FROM_SHINT(x);
     uint128_t divisor = U128_FROM_SHINT(y);
-    uint128_t rem = {0, 0};
+    uint128_t rem = UINT128_ZERO;
     int shift;
     unsigned n_trailing_zeros;
 
