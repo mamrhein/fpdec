@@ -315,14 +315,15 @@ du64_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
 }
 
 static error_t
-fpdec_dyn_from_u128(fpdec_t *fpdec, uint128_t* ui) {
+fpdec_set_dyn_coeff(fpdec_t *fpdec,
+                    const uint64_t lo, const uint64_t hi) {
     fpdec_digit_t digits[3];
     int n_trailing_zeros;
     fpdec_n_digits_t n_digits;
     error_t rc;
 
-    n_digits = du64_to_digits(digits, &n_trailing_zeros, ui->lo,
-                              ui->hi, FPDEC_DEC_PREC(fpdec));
+    n_digits = du64_to_digits(digits, &n_trailing_zeros, lo, hi,
+                              FPDEC_DEC_PREC(fpdec));
     rc = digits_from_digits(&fpdec->digit_array, digits, n_digits);
     if (rc == FPDEC_OK) {
         fpdec->dyn_alloc = true;
@@ -333,13 +334,11 @@ fpdec_dyn_from_u128(fpdec_t *fpdec, uint128_t* ui) {
     return rc;
 }
 
-static error_t
+static inline error_t
 fpdec_shint_to_dyn(fpdec_t *fpdec) {
-    uint128_t ui = U128_FROM_SHINT(fpdec);
-
     assert(!FPDEC_IS_DYN_ALLOC(fpdec));
 
-    return fpdec_dyn_from_u128(fpdec, &ui);
+    return fpdec_set_dyn_coeff(fpdec, fpdec->lo, fpdec->hi);
 }
 
 static error_t
@@ -1799,7 +1798,7 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
         return FPDEC_OK;
     }
     else
-        return fpdec_dyn_from_u128(z, &divident);
+        return fpdec_set_dyn_coeff(z, divident.lo, divident.hi);
 }
 
 typedef error_t (*v_div_op)(fpdec_t *, const fpdec_t *, const fpdec_t *,
