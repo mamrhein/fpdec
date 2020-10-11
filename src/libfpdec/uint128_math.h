@@ -389,4 +389,15 @@ u128_idiv_10(uint128_t *x) {
     return tl % 10;
 }
 
+static inline uint128_t
+u128_shift_right(uint128_t *x, unsigned n_bits) {
+    assert(n_bits < 64U);
+    uint128_t t;
+
+    U128P_HI(&t) = U128P_HI(x) >> n_bits;
+    U128P_LO(&t) = ((U128P_HI(x) % (1U << n_bits)) << (64U - n_bits)) +
+                   (U128P_LO(x) >> n_bits);
+    return t;
+}
+
 #endif // FPDEC_UINT128_MATH_H
