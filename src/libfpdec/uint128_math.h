@@ -38,6 +38,8 @@ $Revision$
 // tests
 #define U128_EQ_ZERO(x) (x.lo == 0 && x.hi == 0)
 #define U128_NE_ZERO(x) (x.lo != 0 || x.hi != 0)
+#define U128P_EQ_ZERO(x) (x->lo == 0 && x->hi == 0)
+#define U128P_NE_ZERO(x) (x->lo != 0 || x->hi != 0)
 
 // overflow handling
 #define SIGNAL_OVERFLOW(x) *x = UINT128_MAX
