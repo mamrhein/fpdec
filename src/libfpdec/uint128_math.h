@@ -140,7 +140,7 @@ u128_imul10(uint128_t *x) {
     x->lo *= 10UL;
 }
 
-static void
+static inline void
 u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
     const uint64_t xl = U64_LO(x);
     const uint64_t xh = U64_HI(x);
@@ -157,7 +157,7 @@ u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
     U128P_HI(z) += xh * yh + U64_HI(t);
 }
 
-static void
+static inline void
 u128_imul_u64(uint128_t *x, const uint64_t y) {
     uint64_t xhi = U128P_HI(x);
     uint128_t t = UINT128_ZERO;
@@ -312,7 +312,7 @@ u128_idiv_u64(uint128_t *x, const uint64_t y) {
 // The following code is based on Algorithm D from
 // D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.3.1,
 // adapted to base 2^64 and special case m = n = 2
-static void
+static inline void
 u128_idiv_u128_special(uint128_t *r, uint128_t *x, const uint128_t *y) {
     unsigned n_bits_left, n_bits_right;
     uint64_t xn[3], yn[2], q;
@@ -358,7 +358,7 @@ u128_idiv_u128_special(uint128_t *r, uint128_t *x, const uint128_t *y) {
     }
 }
 
-static void
+static inline void
 u128_idiv_u128(uint128_t *r, uint128_t *x, const uint128_t *y) {
     int cmp;
 
