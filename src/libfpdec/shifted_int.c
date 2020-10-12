@@ -44,25 +44,50 @@ shint_cmp_abs(uint128_t x, fpdec_dec_prec_t x_prec,
 error_t
 shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
                      const size_t n_dec_digits, const size_t n_add_zeros) {
-    uint128_t accu = UINT128_ZERO;
     const dec_digit_t *stop = coeff + n_dec_digits;
     const dec_digit_t *cut = MIN(coeff + UINT64_10_POW_N_CUTOFF, stop);
+    uint64_t t;
+
+    *hi = 0;
+    *lo = *coeff;
+    coeff++;
 
     for (; coeff < cut; ++coeff) {
-        U128P_LO(&accu) *= 10;
-        U128P_LO(&accu) += *coeff;  // *coeff is < 10, so no overflow here
+        *lo *= 10UL;
+        *lo += *coeff;              // *coeff is < 10, so no overflow here
     }
     for (; coeff < stop; ++coeff) {
-        u128_imul10(&accu);
-        u128_iadd_u64(&accu, *coeff);
+        t = *hi * 10UL +
+            U64_HI(U64_HI(*lo) * 10UL + U64_HI(U64_LO(*lo) * 10UL));
+        *lo *= 10UL;
+        *lo += *coeff;
+        if (*lo < *coeff)
+            t++;
+        if (U64_HI(t))
+            goto OVERFLOW;
+        *hi = t;
     }
-    for (int i = 0; i < n_add_zeros; ++i) {
-        u128_imul10(&accu);
+    if (n_add_zeros > 0) {
+        uint8_t n_left_to_shift = n_add_zeros;
+        uint8_t n_shift;
+        uint128_t sh;
+        U128_FROM_LO_HI(&sh, *lo, *hi);
+        while (n_left_to_shift > 0) {
+            n_shift = MIN(n_left_to_shift, UINT64_10_POW_N_CUTOFF);
+            u128_imul_10_pow_n(&sh, n_shift);
+            if (U64_HI(U128_HI(sh)))
+                goto OVERFLOW;
+            n_left_to_shift -= n_shift;
+        }
+        *hi = (uint32_t)U128_HI(sh);
+        *lo = U128_LO(sh);
     }
-    if (U64_HI(accu.hi)) return FPDEC_N_DIGITS_LIMIT_EXCEEDED;
-    *lo = U128_LO(accu);
-    *hi = (uint32_t) U128_HI(accu);
     return FPDEC_OK;
+
+OVERFLOW:
+    *hi = 0;
+    *lo = 0;
+    return FPDEC_N_DIGITS_LIMIT_EXCEEDED;
 }
 
 // Decimal shift
@@ -77,7 +102,7 @@ u128_idivr_10_pow_n(uint128_t *x, const fpdec_sign_t sign, const uint8_t n,
     divisor = u64_10_pow_n(n);
     rem = u128_idiv_u64(x, divisor);
     if (rem > 0 && round_qr(sign, U128P_LO(x), rem, false, divisor, rounding)
-        > 0)
+                   > 0)
         u128_incr(x);
 }
 
@@ -92,7 +117,7 @@ u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int32_t n_dec_digits,
         return;
     }
 
-    if (n_dec_digits < 0)  {
+    if (n_dec_digits < 0) {
         n_dec_digits = -n_dec_digits;
         int32_t dec_shift = MIN(n_dec_digits, UINT64_10_POW_N_CUTOFF);
         if (dec_shift < n_dec_digits) {
