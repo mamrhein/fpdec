@@ -159,9 +159,15 @@ u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
 
 static void
 u128_imul_u64(uint128_t *x, const uint64_t y) {
-    uint128_t t;
+    uint64_t xhi = U128P_HI(x);
+    uint128_t t = UINT128_ZERO;
 
-    u64_mul_u64(&t, U128P_HI(x), y);
+    if (xhi == 0) {
+        u64_mul_u64(x, U128P_LO(x), y);
+        return;
+    }
+
+    u64_mul_u64(&t, xhi, y);
     if (U128_HI(t) != 0) {
         SIGNAL_OVERFLOW(x);
         return;
@@ -178,10 +184,7 @@ u128_imul_u64(uint128_t *x, const uint64_t y) {
 
 static inline void
 u128_imul_10_pow_n(uint128_t *x, const uint8_t n) {
-    if (U128P_HI(x) == 0)
-        u64_mul_u64(x, U128P_LO(x), u64_10_pow_n(n));
-    else
-        u128_imul_u64(x, u64_10_pow_n(n));
+    u128_imul_u64(x, u64_10_pow_n(n));
 }
 
 // Division
