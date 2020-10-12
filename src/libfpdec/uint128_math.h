@@ -413,4 +413,23 @@ u128_shift_right(uint128_t *x, unsigned n_bits) {
     return t;
 }
 
+static inline unsigned
+u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max) {
+    uint128_t t = U128_RHS(U128P_LO(ui), U128P_HI(ui));
+    unsigned n_trailing_zeros = 0;
+
+    while (U128P_HI(ui) != 0 &&
+           n_trailing_zeros < n_max && u128_idiv_10(&t) == 0) {
+        *ui = t;
+        n_trailing_zeros++;
+    }
+    if (U128P_HI(ui) == 0) {
+        while (n_trailing_zeros < n_max && U128P_LO(ui) % 10 == 0) {
+            U128P_LO(ui) /= 10;
+            n_trailing_zeros++;
+        }
+    }
+    return n_trailing_zeros;
+}
+
 #endif // FPDEC_UINT128_MATH_H

@@ -60,7 +60,4 @@ void
 u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int32_t n_dec_digits,
                enum FPDEC_ROUNDING_MODE rounding);
 
-unsigned
-u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max);
-
 #endif //FPDEC_SHIFTED_INT_H
