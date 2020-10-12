@@ -352,7 +352,10 @@ static void
 u128_idiv_u128(uint128_t *r, uint128_t *x, const uint128_t *y) {
     int cmp;
 
-    assert(U128P_HI(y) != 0);
+    if(U128P_HI(y) == 0) {
+        U128_FROM_LO_HI(r, u128_idiv_u64(x, U128P_LO(y)), 0);
+        return;
+    }
 
     cmp = u128_cmp(*x, *y);
 

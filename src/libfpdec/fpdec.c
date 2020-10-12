@@ -1503,12 +1503,7 @@ fpdec_divmod_abs_shint_by_shint(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
     FPDEC_DEC_PREC(r) = make_adjusted_shints(&q_shint, &y_shint,
                                              FPDEC_DEC_PREC(x),
                                              FPDEC_DEC_PREC(y));
-    if (U128_HI(y_shint) == 0) {
-        U128_FROM_LO_HI(&r_shint, u128_idiv_u64(&q_shint, U128_LO(y_shint)),
-                        0);
-    }
-    else
-        u128_idiv_u128(&r_shint, &q_shint, &y_shint);
+    u128_idiv_u128(&r_shint, &q_shint, &y_shint);
     // adjust negativ quotient?
     if (neg_quot && U128_NE_ZERO(r_shint)) {
         u128_incr(&q_shint);
@@ -1745,10 +1740,7 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     else if (shift < 0)
         // divisor < 2^96 and shift >= -9 => divisor * 10^-shift < 2^128
         u128_imul_10_pow_n(&divisor, -shift);
-    if (U128_HI(divisor) == 0)
-        U128P_LO(&rem) = u128_idiv_u64(&divident, U128_LO(divisor));
-    else
-        u128_idiv_u128(&rem, &divident, &divisor);
+    u128_idiv_u128(&rem, &divident, &divisor);
     if (U128_NE_ZERO(rem)) {
         if (prec_limit == -1 || prec_limit > MAX_DEC_PREC_FOR_SHINT) {
             // result is not exact enough
