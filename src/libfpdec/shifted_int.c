@@ -75,12 +75,7 @@ u128_idivr_10_pow_n(uint128_t *x, const fpdec_sign_t sign, const uint8_t n,
     assert(n <= UINT64_10_POW_N_CUTOFF);
 
     divisor = u64_10_pow_n(n);
-    if (U128P_HI(x) != 0)
-        rem = u128_idiv_u64(x, divisor);
-    else {
-        rem = U128P_LO(x) % divisor;
-        U128P_LO(x) /= divisor;
-    }
+    rem = u128_idiv_u64(x, divisor);
     if (rem > 0 && round_qr(sign, U128P_LO(x), rem, false, divisor, rounding)
         > 0)
         u128_incr(x);

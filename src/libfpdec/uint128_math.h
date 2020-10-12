@@ -280,15 +280,22 @@ u128_idiv_u64_special(uint128_t *x, uint64_t y) {
 
 static uint64_t
 u128_idiv_u64(uint128_t *x, const uint64_t y) {
+    uint64_t xhi = U128P_HI(x);
     uint64_t r;
     uint128_t t;
 
     assert(y != 0);
 
+    if (xhi == 0) {
+        r = U128P_LO(x) % y;
+        U128P_LO(x) /= y;
+        return r;
+    }
+
     if (U64_HI(y) == 0)
         return u128_idiv_u32(x, U64_LO(y));
 
-    if (U128P_HI(x) < y)
+    if (xhi < y)
         return u128_idiv_u64_special(x, y);
 
     U128P_HI(&t) = U128P_HI(x) % y;
@@ -352,7 +359,7 @@ static void
 u128_idiv_u128(uint128_t *r, uint128_t *x, const uint128_t *y) {
     int cmp;
 
-    if(U128P_HI(y) == 0) {
+    if (U128P_HI(y) == 0) {
         U128_FROM_LO_HI(r, u128_idiv_u64(x, U128P_LO(y)), 0);
         return;
     }
