@@ -49,8 +49,8 @@ shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
     const dec_digit_t *cut = MIN(coeff + UINT64_10_POW_N_CUTOFF, stop);
 
     for (; coeff < cut; ++coeff) {
-        accu.lo *= 10;
-        accu.lo += *coeff;           // *coeff is < 10, so no overflow here
+        U128P_LO(&accu) *= 10;
+        U128P_LO(&accu) += *coeff;  // *coeff is < 10, so no overflow here
     }
     for (; coeff < stop; ++coeff) {
         u128_imul10(&accu);
@@ -60,8 +60,8 @@ shint_from_dec_coeff(uint64_t *lo, uint32_t *hi, const dec_digit_t *coeff,
         u128_imul10(&accu);
     }
     if (U64_HI(accu.hi)) return FPDEC_N_DIGITS_LIMIT_EXCEEDED;
-    *lo = accu.lo;
-    *hi = (uint32_t) accu.hi;
+    *lo = U128_LO(accu);
+    *hi = (uint32_t) U128_HI(accu);
     return FPDEC_OK;
 }
 
@@ -75,13 +75,14 @@ u128_idivr_10_pow_n(uint128_t *x, const fpdec_sign_t sign, const uint8_t n,
     assert(n <= UINT64_10_POW_N_CUTOFF);
 
     divisor = u64_10_pow_n(n);
-    if (x->hi != 0)
+    if (U128P_HI(x) != 0)
         rem = u128_idiv_u64(x, divisor);
     else {
-        rem = x->lo % divisor;
-        x->lo /= divisor;
+        rem = U128P_LO(x) % divisor;
+        U128P_LO(x) /= divisor;
     }
-    if (rem > 0 && round_qr(sign, x->lo, rem, false, divisor, rounding) > 0)
+    if (rem > 0 && round_qr(sign, U128P_LO(x), rem, false, divisor, rounding)
+        > 0)
         u128_incr(x);
 }
 
@@ -109,17 +110,17 @@ u128_idecshift(uint128_t *ui, fpdec_sign_t sign, int32_t n_dec_digits,
 
 unsigned
 u128_eliminate_trailing_zeros(uint128_t *ui, unsigned n_max) {
-    uint128_t t = U128_RHS(ui->lo, ui->hi);
+    uint128_t t = U128_RHS(U128P_LO(ui), U128P_HI(ui));
     unsigned n_trailing_zeros = 0;
 
-    while (ui->hi != 0 && n_trailing_zeros < n_max && u128_idiv_10(&t) == 0) {
-        ui->lo = t.lo;
-        ui->hi = t.hi;
+    while (U128P_HI(ui) != 0 &&
+           n_trailing_zeros < n_max && u128_idiv_10(&t) == 0) {
+        *ui = t;
         n_trailing_zeros++;
     }
-    if (ui->hi == 0) {
-        while (n_trailing_zeros < n_max && ui->lo % 10 == 0) {
-            ui->lo /= 10;
+    if (U128P_HI(ui) == 0) {
+        while (n_trailing_zeros < n_max && U128P_LO(ui) % 10 == 0) {
+            U128P_LO(ui) /= 10;
             n_trailing_zeros++;
         }
     }

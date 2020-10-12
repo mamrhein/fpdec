@@ -409,8 +409,8 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
             if (U128_FITS_SHINT(shint)) {
                 fpdec_reset_to_zero(fpdec, dec_prec);
                 FPDEC_SIGN(fpdec) = sign;
-                fpdec->lo = shint.lo;
-                fpdec->hi = shint.hi;
+                fpdec->lo = U128_LO(shint);
+                fpdec->hi = U128_HI(shint);
             }
         }
     }
@@ -566,8 +566,8 @@ fpdec_normalize_prec(fpdec_t *fpdec) {
         uint128_t ui = U128_FROM_SHINT(fpdec);
         FPDEC_DEC_PREC(fpdec) -=
             u128_eliminate_trailing_zeros(&ui, FPDEC_DEC_PREC(fpdec));
-        fpdec->hi = ui.hi;
-        fpdec->lo = ui.lo;
+        fpdec->hi = U128_HI(ui);
+        fpdec->lo = U128_LO(ui);
     }
     return FPDEC_OK;
 }
@@ -645,9 +645,9 @@ fpdec_shint_adjust_to_prec(fpdec_t *fpdec, const int32_t dec_prec,
         return fpdec_dyn_adjust_to_prec(fpdec, dec_prec, rounding);
     }
     else {
-        if (shifted.lo > 0 || shifted.hi > 0) {
-            fpdec->lo = shifted.lo;
-            fpdec->hi = shifted.hi;
+        if (U128_NE_ZERO(shifted)) {
+            fpdec->lo = U128_LO(shifted);
+            fpdec->hi = U128_HI(shifted);
         }
         else {
             FPDEC_SIGN(fpdec) = FPDEC_SIGN_ZERO;
@@ -866,7 +866,7 @@ static inline char *
 fill_in_u128(char *buf, uint128_t ui) {
     char dec_digits[MAX_N_DEC_DIGITS_IN_SHINT];
     char *ch = dec_digits;
-    while (ui.lo != 0 || ui.hi != 0)
+    while (U128_NE_ZERO(ui))
         *(ch++) = '0' + u128_idiv_10(&ui);
     while (--ch >= dec_digits)
         *(buf++) = *ch;
@@ -908,7 +908,7 @@ fpdec_shint_as_ascii_literal(const fpdec_t *fpdec,
         if (FPDEC_SIGN(fpdec) == FPDEC_SIGN_NEG)
             *(ch++) = '-';
         // atleast one integral digit
-        if (t.lo == 0 && t.hi == 0)
+        if (U128_EQ_ZERO(t))
             *(ch++) = '0';
         else
             ch = fill_in_u128(ch, t);
@@ -953,8 +953,7 @@ fpdec_as_sign_coeff128_exp(fpdec_sign_t *sign, uint128_t *coeff, int64_t *exp,
                            const fpdec_t *fpdec) {
     *sign = FPDEC_SIGN(fpdec);
     if (*sign == 0) {
-        coeff->hi = 0ULL;
-        coeff->lo = 0ULL;
+        *coeff = UINT128_ZERO;
         *exp = 0ULL;
         return 0;
     }
@@ -967,33 +966,26 @@ fpdec_as_sign_coeff128_exp(fpdec_sign_t *sign, uint128_t *coeff, int64_t *exp,
         *exp = FPDEC_DYN_EXP(fpdec) * DEC_DIGITS_PER_DIGIT;
         switch (n) {
             case 1:
-                coeff->lo = digits[0];
-                coeff->hi = 0UL;
+                U128_FROM_LO_HI(coeff, digits[0], 0UL);
                 break;
             case 2:
-                coeff->lo = digits[1];
-                coeff->hi = 0UL;
+                U128_FROM_LO_HI(coeff, digits[1], 0UL);
                 u128_imul_10_pow_n(coeff, DEC_DIGITS_PER_DIGIT);
                 u128_iadd_u64(coeff, digits[0]);
                 break;
             case 3:
                 // try to fit normalized coeff into uint128
-                t1.lo = digits[0];
-                t1.hi = 0ULL;
+                U128_FROM_LO_HI(&t1, digits[0], 0ULL);
                 ntz = u128_eliminate_trailing_zeros(&t1,
                                                     DEC_DIGITS_PER_DIGIT);
                 nsd = DEC_DIGITS_PER_DIGIT - ntz;
-                coeff->lo = t1.lo;
-                coeff->hi = 0ULL;
-                t1.lo = digits[1];
-                t1.hi = 0ULL;
+                U128_FROM_LO_HI(coeff, U128_LO(t1), 0UL);
+                U128_FROM_LO_HI(&t1, digits[1], 0UL);
                 u128_imul_10_pow_n(&t1, nsd);
                 u128_iadd_u128(coeff, &t1);
-                t1.lo = digits[2];
-                t1.hi = 0ULL;
+                U128_FROM_LO_HI(&t1, digits[2], 0UL);
                 u128_imul_u64(&t1, RADIX);
-                t2.lo = t1.lo;
-                t2.hi = t1.hi;
+                t2 = t1;
                 u128_imul_10_pow_n(&t2, nsd);
                 if (u128_cmp(t2, t1) < 0)
                     // overflow
@@ -1010,8 +1002,7 @@ fpdec_as_sign_coeff128_exp(fpdec_sign_t *sign, uint128_t *coeff, int64_t *exp,
         }
     }
     else {
-        coeff->hi = fpdec->hi;
-        coeff->lo = fpdec->lo;
+        U128_FROM_LO_HI(coeff, fpdec->lo, fpdec->hi);
         *exp = -FPDEC_DEC_PREC(fpdec);
     }
     // normalize coeff
@@ -1050,8 +1041,8 @@ fpdec_add_abs_shint_to_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
                                              FPDEC_DEC_PREC(x),
                                              FPDEC_DEC_PREC(y));
     u128_iadd_u128(&x_shint, &y_shint);
-    z->lo = x_shint.lo;
-    z->hi = x_shint.hi;
+    z->lo = U128_LO(x_shint);
+    z->hi = U128_HI(x_shint);
     if (U128_FITS_SHINT(x_shint))
         return FPDEC_OK;
     else
@@ -1156,8 +1147,8 @@ fpdec_sub_abs_shint_from_shint(fpdec_t *z, const fpdec_t *x,
                                              FPDEC_DEC_PREC(x),
                                              FPDEC_DEC_PREC(y));
     u128_isub_u128(&x_shint, &y_shint);
-    z->lo = x_shint.lo;
-    z->hi = x_shint.hi;
+    z->lo = U128_LO(x_shint);
+    z->hi = U128_HI(x_shint);
     return FPDEC_OK;
 }
 
@@ -1320,8 +1311,8 @@ fpdec_mul_abs_shint_by_u64(fpdec_t *z, const fpdec_t *x, const uint64_t y) {
 
     u128_imul_u64(&z_shint, y);
     if (U128_FITS_SHINT(z_shint)) {
-        z->lo = z_shint.lo;
-        z->hi = z_shint.hi;
+        z->lo = U128_LO(z_shint);
+        z->hi = U128_HI(z_shint);
         return FPDEC_OK;
     }
     return FPDEC_N_DIGITS_LIMIT_EXCEEDED;
@@ -1512,26 +1503,23 @@ fpdec_divmod_abs_shint_by_shint(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
     FPDEC_DEC_PREC(r) = make_adjusted_shints(&q_shint, &y_shint,
                                              FPDEC_DEC_PREC(x),
                                              FPDEC_DEC_PREC(y));
-    if (y_shint.hi == 0) {
-        r_shint.hi = 0;
-        r_shint.lo = u128_idiv_u64(&q_shint, y_shint.lo);
+    if (U128_HI(y_shint) == 0) {
+        U128_FROM_LO_HI(&r_shint, u128_idiv_u64(&q_shint, U128_LO(y_shint)),
+                        0);
     }
     else
         u128_idiv_u128(&r_shint, &q_shint, &y_shint);
     // adjust negativ quotient?
     if (neg_quot && U128_NE_ZERO(r_shint)) {
         u128_incr(&q_shint);
-        if (r_shint.hi == 0)
-            u128_isub_u64(&y_shint, r_shint.lo);
-        else
-            u128_isub_u128(&y_shint, &r_shint);
+        u128_isub_u128(&y_shint, &r_shint);
         r_shint = y_shint;
     }
     if (U128_FITS_SHINT(q_shint)) {
-        q->lo = q_shint.lo;
-        q->hi = q_shint.hi;
-        r->lo = r_shint.lo;
-        r->hi = r_shint.hi;
+        q->lo = U128_LO(q_shint);
+        q->hi = U128_HI(q_shint);
+        r->lo = U128_LO(r_shint);
+        r->hi = U128_HI(r_shint);
         return FPDEC_OK;
     }
     else {
@@ -1757,8 +1745,8 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     else if (shift < 0)
         // divisor < 2^96 and shift >= -9 => divisor * 10^-shift < 2^128
         u128_imul_10_pow_n(&divisor, -shift);
-    if (divisor.hi == 0)
-        rem.lo = u128_idiv_u64(&divident, divisor.lo);
+    if (U128_HI(divisor) == 0)
+        U128P_LO(&rem) = u128_idiv_u64(&divident, U128_LO(divisor));
     else
         u128_idiv_u128(&rem, &divident, &divisor);
     if (U128_NE_ZERO(rem)) {
@@ -1783,8 +1771,8 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
         }
         else if (prec_limit > MAX_DEC_PREC_FOR_SHINT) {
             FPDEC_DEC_PREC(z) = MAX_DEC_PREC_FOR_SHINT;
-            z->lo = divident.lo;
-            z->hi = divident.hi;
+            z->lo = U128_LO(divident);
+            z->hi = U128_HI(divident);
             fpdec_shint_to_dyn(z);
             FPDEC_DEC_PREC(z) = prec_limit;
             return FPDEC_OK;
@@ -1793,12 +1781,12 @@ fpdec_div_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
             FPDEC_DEC_PREC(z) = prec_limit;
     }
     if (U128_FITS_SHINT(divident)) {
-        z->lo = divident.lo;
-        z->hi = divident.hi;
+        z->lo = U128_LO(divident);
+        z->hi = U128_HI(divident);
         return FPDEC_OK;
     }
     else
-        return fpdec_set_dyn_coeff(z, divident.lo, divident.hi);
+        return fpdec_set_dyn_coeff(z, U128_LO(divident), U128_HI(divident));
 }
 
 typedef error_t (*v_div_op)(fpdec_t *, const fpdec_t *, const fpdec_t *,

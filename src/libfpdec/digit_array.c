@@ -369,7 +369,7 @@ digits_mul(const fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
             *z_digit = u128_idiv_radix(&t);
             // t <= RADIX - 1
             // *z_digit <= RADIX - 1
-            *z_carry = t.lo;
+            *z_carry = U128_LO(t);
             // *z_carry <= RADIX - 1
             z_digit++;
         }
@@ -407,7 +407,7 @@ digits_div_digit(const fpdec_digit_array_t *x,
         u128_iadd_u64(&t, xhat->digits[i]);
         r = u128_idiv_u64(&t, y);
         assert(t.hi == 0);
-        q->digits[i] = t.lo;
+        q->digits[i] = U128_LO(t);
     }
     q->n_signif = q->n_alloc;
     if (rem != NULL)
@@ -453,8 +453,8 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t x_n_shift,
         u64_mul_u64(&t1, xd->digits[j + n], RADIX);
         u128_iadd_u64(&t1, xd->digits[j + n_1]);
         rhat = u128_idiv_u64(&t1, yd->digits[n_1]);
-        assert(t1.hi == 0);
-        qhat = t1.lo;
+        assert(U128_HI(t1) == 0);
+        qhat = U128_LO(t1);
         u64_mul_u64(&t1, qhat, yd->digits[n_2]);
         u64_mul_u64(&t2, rhat, RADIX);
         u128_iadd_u64(&t2, xd->digits[j + n_2]);
@@ -474,7 +474,7 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t x_n_shift,
             u64_mul_u64(&t1, qhat, yd->digits[i]);
             u128_iadd_u64(&t1, carry);
             rhat = u128_idiv_radix(&t1);
-            carry = t1.lo;
+            carry = U128_LO(t1);
             rhat = xd->digits[j + i] - (rhat + borrow);
             borrow = (rhat > xd->digits[j + i]);
             xd->digits[j + i] = borrow ? rhat + RADIX : rhat;
