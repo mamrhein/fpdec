@@ -185,7 +185,7 @@ u128_imul_10_pow_n(uint128_t *x, const uint8_t n) {
 // adapted from
 // D. E. Knuth, The Art of Computer Programming, Vol. 2, Ch. 4.3.1,
 // Exercise 16
-static uint64_t
+static inline uint64_t
 u128_idiv_u32(uint128_t *x, uint32_t y) {
     uint64_t th, tl, r;
 
@@ -213,7 +213,7 @@ u128_idiv_u32(uint128_t *x, uint32_t y) {
 // adapted to the special case m = 4 and n = 2 and U128P_HI(x) < y (!).
 // The link given above does not exist anymore, but the code can still be
 // found at https://github.com/hcs0/Hackers-Delight/blob/master/divlu.c.txt.
-static uint64_t
+static inline uint64_t
 u128_idiv_u64_special(uint128_t *x, uint64_t y) {
     const uint64_t b = 1UL << 32U;
     unsigned n_bits;
@@ -274,7 +274,7 @@ u128_idiv_u64_special(uint128_t *x, uint64_t y) {
     return (t * b + xn0 - q0 * y) >> n_bits;
 }
 
-static uint64_t
+static inline uint64_t
 u128_idiv_u64(uint128_t *x, const uint64_t y) {
     uint64_t xhi = U128P_HI(x);
     uint64_t r;
