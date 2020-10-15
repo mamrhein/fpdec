@@ -262,6 +262,13 @@ TEST_CASE("As sign/coeff/exp") {
                 .coeff = U128_RHS(0ULL, 0ULL),
                 .exp = 0
             },
+            {
+                .literal = "0.40000000000000002220446049250313080847"
+                           "263336181640625",
+                .sign = 0,
+                .coeff = U128_RHS(0ULL, 0ULL),
+                .exp = 0
+            },
         };
         error_t rc;
 
