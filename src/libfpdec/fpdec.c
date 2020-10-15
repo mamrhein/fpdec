@@ -444,6 +444,7 @@ const v_magnitude vtab_magnitude[2] = {fpdec_shint_magnitude,
 int
 fpdec_magnitude(const fpdec_t *fpdec) {
     if (FPDEC_EQ_ZERO(fpdec)) ERROR_RETVAL(ERANGE, -1)
+    errno = 0;
     return DISPATCH_FUNC(vtab_magnitude, fpdec);
 }
 

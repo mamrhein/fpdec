@@ -78,4 +78,11 @@ TEST_CASE("Magnitude") {
         CHECK(fpdec_magnitude(&zero) == -1);
         CHECK(errno == ERANGE);
     }
+
+    SECTION("Dangling errno") {
+        errno = 7;
+        fpdec_t x = FPDEC_ONE;
+        CHECK(fpdec_magnitude(&x) == 0);
+        CHECK(errno == 0);
+    }
 }
