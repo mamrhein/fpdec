@@ -122,12 +122,16 @@ u64_mul_u64(uint128_t *z, const uint64_t x, const uint64_t y) {
 
 static inline void
 u128_imul_u64(uint128_t *x, const uint64_t y) {
+    if (U128_HI((uint128_t)U128P_HI(x) * y) != 0) {
+        SIGNAL_OVERFLOW(x);
+        return;
+    }
     *x *= y;
 }
 
 static inline void
 u128_imul_10_pow_n(uint128_t *x, const uint8_t n) {
-    *x *= u64_10_pow_n(n);
+    u128_imul_u64(x, u64_10_pow_n(n));
 }
 
 // Division
