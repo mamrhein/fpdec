@@ -527,6 +527,7 @@ digits_div_max_prec(const fpdec_digit_array_t *x,
             q = digits_div_digit(x, x_n_shift, d, &r);
             if (x_n_shift >= max_x_n_shift || r == 0)
                 break;
+            fpdec_mem_free(q);
             accel++;
             x_n_shift = MIN(x_n_shift + accel * accel, max_x_n_shift);
         }
@@ -542,6 +543,7 @@ digits_div_max_prec(const fpdec_digit_array_t *x,
             if (x_n_shift >= max_x_n_shift ||
                 digits_all_zero(r->digits, r->n_signif))
                 break;
+            fpdec_mem_free(q);
             accel++;
             x_n_shift = MIN(x_n_shift + accel * accel, max_x_n_shift);
         }
