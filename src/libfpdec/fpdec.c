@@ -130,7 +130,8 @@ fpdec_copy(fpdec_t *fpdec, const fpdec_t *src) {
     *fpdec = *src;
     if (src->dyn_alloc) {
         fpdec->digit_array = digits_copy(src->digit_array, 0, 0);
-        if (fpdec->digit_array == NULL) MEMERROR
+        if (fpdec->digit_array == NULL)
+            MEMERROR;
     }
     return FPDEC_OK;
 }
@@ -145,17 +146,20 @@ fpdec_from_ascii_literal(fpdec_t *fpdec, const char *literal) {
 
     ASSERT_FPDEC_IS_ZEROED(fpdec);
 
-    if (n_chars == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
+    if (n_chars == 0)
+        ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
 
     if (n_chars <= COEFF_SIZE_THRESHOLD) {
         dec_repr = &st_dec_repr;
     }
     else {
         dec_repr = fpdec_mem_alloc(offsetof(dec_repr_t, coeff) + n_chars, 1);
-        if (dec_repr == NULL) MEMERROR
+        if (dec_repr == NULL)
+            MEMERROR;
     }
     rc = parse_ascii_dec_literal(dec_repr, literal);
-    if (rc != FPDEC_OK) ERROR(rc)
+    if (rc != FPDEC_OK)
+        ERROR(rc);
 
     fpdec->sign = dec_repr->negative ? FPDEC_SIGN_NEG : FPDEC_SIGN_POS;
     n_add_zeros = MAX(0, dec_repr->exp);
@@ -207,10 +211,12 @@ fpdec_from_unicode_literal(fpdec_t *fpdec, const wchar_t *literal) {
     char *buf, *ch;
     error_t rc;
 
-    if (size == 0) ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
+    if (size == 0)
+        ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
 
     ch = buf = fpdec_mem_alloc(size + 1, sizeof(char));
-    if (buf == NULL) MEMERROR
+    if (buf == NULL)
+        MEMERROR;
 
     for (; iswspace(*literal); ++literal);
     for (; *literal != 0; ++literal, ++ch) {
@@ -218,7 +224,7 @@ fpdec_from_unicode_literal(fpdec_t *fpdec, const wchar_t *literal) {
             *ch = lookup_unicode_digit(*literal);
             if (*ch == -1) {
                 fpdec_mem_free(buf);
-                ERROR(FPDEC_INVALID_DECIMAL_LITERAL)
+                ERROR(FPDEC_INVALID_DECIMAL_LITERAL);
             }
         }
         else
@@ -455,7 +461,8 @@ const v_magnitude vtab_magnitude[2] = {fpdec_shint_magnitude,
 
 int
 fpdec_magnitude(const fpdec_t *fpdec) {
-    if (FPDEC_EQ_ZERO(fpdec)) ERROR_RETVAL(ERANGE, -1)
+    if (FPDEC_EQ_ZERO(fpdec))
+        ERROR_RETVAL(ERANGE, -1);
     errno = 0;
     return DISPATCH_FUNC(vtab_magnitude, fpdec);
 }
@@ -548,7 +555,8 @@ fpdec_neg(fpdec_t *fpdec, const fpdec_t *src) {
     ASSERT_FPDEC_IS_ZEROED(fpdec);
 
     rc = fpdec_copy(fpdec, src);
-    if (rc == ENOMEM) MEMERROR
+    if (rc == ENOMEM)
+        MEMERROR;
     fpdec->sign = -src->sign;
     return FPDEC_OK;
 }
@@ -683,7 +691,8 @@ fpdec_adjust(fpdec_t *fpdec, int32_t dec_prec,
              enum FPDEC_ROUNDING_MODE rounding) {
     error_t rc;
 
-    if (ABS(dec_prec) > FPDEC_MAX_DEC_PREC) ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
+    if (ABS(dec_prec) > FPDEC_MAX_DEC_PREC)
+        ERROR(FPDEC_PREC_LIMIT_EXCEEDED);
 
     if (FPDEC_DEC_PREC(fpdec) == dec_prec)
         return FPDEC_OK;
@@ -710,7 +719,8 @@ fpdec_adjusted(fpdec_t *fpdec, const fpdec_t *src, int32_t dec_prec,
     ASSERT_FPDEC_IS_ZEROED(fpdec);
 
     rc = fpdec_copy(fpdec, src);
-    if (rc == ENOMEM) MEMERROR
+    if (rc == ENOMEM)
+        MEMERROR;
 
     rc = fpdec_adjust(fpdec, dec_prec, rounding);
     if (rc != FPDEC_OK)
@@ -743,7 +753,8 @@ fpdec_quantized(fpdec_t *fpdec, const fpdec_t *src, fpdec_t *quant,
     ASSERT_FPDEC_IS_ZEROED(fpdec);
 
     rc = fpdec_copy(fpdec, src);
-    if (rc == ENOMEM) MEMERROR
+    if (rc == ENOMEM)
+        MEMERROR;
 
     rc = fpdec_quantize(fpdec, quant, rounding);
     if (rc != FPDEC_OK)
@@ -838,7 +849,8 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
         // provision for sign, radix point and leading zero
         3;
     buf = (char *)fpdec_mem_alloc(max_n_chars + 1, 1);
-    if (buf == NULL) MEMERROR_RETVAL(NULL)
+    if (buf == NULL)
+        MEMERROR_RETVAL(NULL);
     ch = buf;
 
     if (sign == FPDEC_SIGN_NEG)
@@ -898,12 +910,14 @@ fpdec_shint_as_ascii_literal(const fpdec_t *fpdec,
     if (FPDEC_EQ_ZERO(fpdec)) {
         if (no_trailing_zeros || FPDEC_DEC_PREC(fpdec) == 0) {
             buf = fpdec_mem_alloc(2, 1);
-            if (buf == NULL) MEMERROR_RETVAL(NULL)
+            if (buf == NULL)
+                MEMERROR_RETVAL(NULL);
             *buf = '0';
         }
         else {
             buf = fpdec_mem_alloc(FPDEC_DEC_PREC(fpdec) + 3, 1);
-            if (buf == NULL) MEMERROR_RETVAL(NULL)
+            if (buf == NULL)
+                MEMERROR_RETVAL(NULL);
             buf[0] = '0';
             buf[1] = '.';
             for (int i = 2; i < FPDEC_DEC_PREC(fpdec) + 2; i++)
@@ -916,7 +930,8 @@ fpdec_shint_as_ascii_literal(const fpdec_t *fpdec,
         char *ch;
 
         buf = fpdec_mem_alloc(MAX_N_DEC_DIGITS_IN_SHINT + 3, 1);
-        if (buf == NULL) MEMERROR_RETVAL(NULL)
+        if (buf == NULL)
+            MEMERROR_RETVAL(NULL);
         ch = buf;
 
         if (FPDEC_DEC_PREC(fpdec) > 0)
@@ -1085,12 +1100,14 @@ fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
         n_add_zeros = 1;            // provision for potential carry-over
         if (FPDEC_DYN_N_DIGITS(x) >= FPDEC_DYN_N_DIGITS(y)) {
             z_digits = digits_copy(x->digit_array, n_shift, n_add_zeros);
-            if (z_digits == NULL) MEMERROR
+            if (z_digits == NULL)
+                MEMERROR;
             s_digits = y->digit_array;
         }
         else {
             z_digits = digits_copy(y->digit_array, n_shift, n_add_zeros);
-            if (z_digits == NULL) MEMERROR
+            if (z_digits == NULL)
+                MEMERROR;
             s_digits = x->digit_array;
         }
         z_exp = FPDEC_DYN_EXP(x);
@@ -1102,7 +1119,8 @@ fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
                           (int)n_shift + 1,
                           1);
         z_digits = digits_copy(x->digit_array, n_shift, n_add_zeros);
-        if (z_digits == NULL) MEMERROR
+        if (z_digits == NULL)
+            MEMERROR;
         s_digits = y->digit_array;
         z_exp = FPDEC_DYN_EXP(y);
     }
@@ -1113,7 +1131,8 @@ fpdec_add_abs_dyn_to_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
                           (int)n_shift + 1,
                           1);
         z_digits = digits_copy(y->digit_array, n_shift, n_add_zeros);
-        if (z_digits == NULL) MEMERROR
+        if (z_digits == NULL)
+            MEMERROR;
         s_digits = x->digit_array;
         z_exp = FPDEC_DYN_EXP(x);
     }
@@ -1187,23 +1206,27 @@ fpdec_sub_abs_dyn_from_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     if (FPDEC_DYN_EXP(x) == FPDEC_DYN_EXP(y)) {
         n_shift = 0;                // no need to adjust exponents
         z_digits = digits_copy(x->digit_array, n_shift, 0);
-        if (z_digits == NULL) MEMERROR
+        if (z_digits == NULL)
+            MEMERROR;
         s_digits = y->digit_array;
         z_exp = FPDEC_DYN_EXP(x);
     }
     else if (FPDEC_DYN_EXP(x) > FPDEC_DYN_EXP(y)) {
         n_shift = FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y);
         z_digits = digits_copy(x->digit_array, n_shift, 0);
-        if (z_digits == NULL) MEMERROR
+        if (z_digits == NULL)
+            MEMERROR;
         s_digits = y->digit_array;
         z_exp = FPDEC_DYN_EXP(y);
     }
     else {
         z_digits = digits_copy(x->digit_array, 0, 0);
-        if (z_digits == NULL) MEMERROR
+        if (z_digits == NULL)
+            MEMERROR;
         n_shift = FPDEC_DYN_EXP(y) - FPDEC_DYN_EXP(x);
         s_digits = digits_copy(y->digit_array, n_shift, 0);
-        if (s_digits == NULL) MEMERROR
+        if (s_digits == NULL)
+            MEMERROR;
         s_digits_is_copy = true;
         z_exp = FPDEC_DYN_EXP(x);
     }
@@ -1321,7 +1344,8 @@ static error_t
 fpdec_mul_abs_dyn_by_u64(fpdec_t *z, const fpdec_t *x, const uint64_t y) {
     fpdec_digit_array_t *z_digits = digits_copy(x->digit_array, 0, 1);
 
-    if (z_digits == NULL) MEMERROR
+    if (z_digits == NULL)
+        MEMERROR;
 
     digits_imul_digit(z_digits, y);
     z->digit_array = z_digits;
@@ -1348,11 +1372,12 @@ fpdec_mul_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     int64_t exp;
 
     z_digits = digits_mul(x->digit_array, y->digit_array);
-    if (z_digits == NULL) MEMERROR
+    if (z_digits == NULL)
+        MEMERROR;
     z->digit_array = z_digits;
     exp = (int64_t)FPDEC_DYN_EXP(x) + (int64_t)FPDEC_DYN_EXP(y);
-    if (exp > FPDEC_MAX_EXP || exp < INT32_MIN) ERROR(
-        FPDEC_EXP_LIMIT_EXCEEDED)
+    if (exp > FPDEC_MAX_EXP || exp < INT32_MIN)
+        ERROR(FPDEC_EXP_LIMIT_EXCEEDED);
     z->exp = (fpdec_exp_t)exp;
     FPDEC_IS_DYN_ALLOC(z) = true;
     return FPDEC_OK;
@@ -1417,8 +1442,8 @@ fpdec_mul(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
 
     FPDEC_SIGN(z) = FPDEC_SIGN(x) * FPDEC_SIGN(y);
     FPDEC_DEC_PREC(z) = FPDEC_DEC_PREC(x) + FPDEC_DEC_PREC(y);
-    if (FPDEC_DEC_PREC(z) < FPDEC_DEC_PREC(x)) ERROR(
-        FPDEC_PREC_LIMIT_EXCEEDED)
+    if (FPDEC_DEC_PREC(z) < FPDEC_DEC_PREC(x))
+        ERROR(FPDEC_PREC_LIMIT_EXCEEDED);
     if (FPDEC_DEC_PREC(z) <= MAX_DEC_PREC_FOR_SHINT ||
         FPDEC_IS_DYN_ALLOC(x) || FPDEC_IS_DYN_ALLOC(y)) {
         rc = DISPATCH_BIN_OP(vtab_mul_abs, z, x, y);
@@ -1449,7 +1474,8 @@ fpdec_divmod_abs_dyn_by_dyn(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
     if (FPDEC_DYN_N_DIGITS(y) == 1 && n_shift_y == 0) {
         q_digits = digits_div_digit(x->digit_array, n_shift_x,
                                     FPDEC_DYN_DIGITS(y)[0], &r->lo);
-        if (q_digits == NULL) MEMERROR
+        if (q_digits == NULL)
+            MEMERROR;
         // adjust negativ quotient?
         if (neg_quot && r->lo != 0) {
             // Because there is a remainder,
@@ -1464,8 +1490,10 @@ fpdec_divmod_abs_dyn_by_dyn(fpdec_t *q, fpdec_t *r, const fpdec_t *x,
     else {
         q_digits = digits_divmod(x->digit_array, n_shift_x, y->digit_array,
                                  n_shift_y, &r_digits);
-        if (q_digits == NULL) MEMERROR
-        if (r_digits == NULL) MEMERROR
+        if (q_digits == NULL)
+            MEMERROR;
+        if (r_digits == NULL)
+            MEMERROR;
         r->digit_array = r_digits;
         r->dyn_alloc = true;
         FPDEC_DYN_EXP(r) = MIN(FPDEC_DYN_EXP(y), FPDEC_DYN_EXP(x));
@@ -1571,7 +1599,8 @@ fpdec_divmod(fpdec_t *q, fpdec_t *r, const fpdec_t *x, const fpdec_t *y) {
     ASSERT_FPDEC_IS_ZEROED(q);
     ASSERT_FPDEC_IS_ZEROED(r);
 
-    if (FPDEC_EQ_ZERO(y)) ERROR(FPDEC_DIVIDE_BY_ZERO)
+    if (FPDEC_EQ_ZERO(y))
+        ERROR(FPDEC_DIVIDE_BY_ZERO);
 
     if (FPDEC_EQ_ZERO(x))
         return FPDEC_OK;
@@ -1614,13 +1643,17 @@ fpdec_div_abs_dyn_by_dyn_exact(fpdec_t *z, const fpdec_t *x,
     fpdec_digit_array_t *q_digits;
     int exp = FPDEC_DYN_EXP(x) - FPDEC_DYN_EXP(y);
 
-    if (exp < FPDEC_MIN_EXP) ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
+    if (exp < FPDEC_MIN_EXP)
+        ERROR(FPDEC_PREC_LIMIT_EXCEEDED);
 
     q_digits = digits_div_max_prec(x->digit_array, y->digit_array,
                                    &exp);
-    if (q_digits == NULL) MEMERROR
-    if (exp > FPDEC_MAX_EXP) ERROR(FPDEC_EXP_LIMIT_EXCEEDED)
-    if (exp <= FPDEC_MIN_EXP) ERROR(FPDEC_PREC_LIMIT_EXCEEDED)
+    if (q_digits == NULL)
+        MEMERROR;
+    if (exp > FPDEC_MAX_EXP)
+        ERROR(FPDEC_EXP_LIMIT_EXCEEDED);
+    if (exp <= FPDEC_MIN_EXP)
+        ERROR(FPDEC_PREC_LIMIT_EXCEEDED);
     FPDEC_DYN_EXP(z) = exp;
     // calculate decimal precision
     FPDEC_DEC_PREC(z) = MAX(0, -exp * DEC_DIGITS_PER_DIGIT);
@@ -1675,7 +1708,8 @@ fpdec_div_abs_dyn_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
             fpdec_digit_array_t *q_digits =
                 digits_div_limit_prec(x->digit_array, x_n_shift,
                                       y->digit_array, y_n_shift);
-            if (q_digits == NULL) MEMERROR
+            if (q_digits == NULL)
+                MEMERROR;
             int d_shift = prec_limit % DEC_DIGITS_PER_DIGIT;
             digits_round(q_digits, FPDEC_SIGN(z),
                          DEC_DIGITS_PER_DIGIT - d_shift,
@@ -1824,7 +1858,8 @@ fpdec_div(fpdec_t *z, const fpdec_t *x, const fpdec_t *y,
     assert(prec_limit >= -1);
     assert(prec_limit <= FPDEC_MAX_DEC_PREC);
 
-    if (FPDEC_EQ_ZERO(y)) ERROR(FPDEC_DIVIDE_BY_ZERO)
+    if (FPDEC_EQ_ZERO(y))
+        ERROR(FPDEC_DIVIDE_BY_ZERO);
 
     if (FPDEC_EQ_ZERO(x))
         return FPDEC_OK;
