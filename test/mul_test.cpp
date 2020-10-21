@@ -234,6 +234,7 @@ TEST_CASE("Multiplication: Limits exceeded") {
         REQUIRE(rc == FPDEC_OK);
         rc = fpdec_mul(&z, &x, &x);
         CHECK(rc == FPDEC_EXP_LIMIT_EXCEEDED);
+        fpdec_reset_to_zero(&x, 0);
     }
 
     SECTION("Precision limit excedded") {
@@ -246,5 +247,6 @@ TEST_CASE("Multiplication: Limits exceeded") {
         REQUIRE(rc == FPDEC_OK);
         rc = fpdec_mul(&z, &x, &x);
         CHECK(rc == FPDEC_PREC_LIMIT_EXCEEDED);
+        fpdec_reset_to_zero(&x, 0);
     }
 }

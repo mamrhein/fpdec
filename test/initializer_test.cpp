@@ -447,6 +447,7 @@ TEST_CASE("Initialize from sign, digits, exp.") {
                 CHECK(fpdec->hi == 0);
             }
         }
+        fpdec_reset_to_zero(fpdec, 0);
         fpdec_mem_free(fpdec);
         fpdec = NULL;
     }
