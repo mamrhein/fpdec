@@ -763,42 +763,39 @@ fpdec_quantized(fpdec_t *fpdec, const fpdec_t *src, fpdec_t *quant,
     return rc;
 }
 
-static inline char *
-fill_in_leading_digit(char *buf, const fpdec_digit_t digit) {
-    char dec_digits[DEC_DIGITS_PER_DIGIT];
-    char *ch = dec_digits;
-    fpdec_digit_t t = digit;
-    while (t > 0) {
-        *(ch++) = '0' + (t % 10);
-        t /= 10;
+static inline uint8_t *
+fill_in_leading_digit(uint8_t *buf, fpdec_digit_t digit) {
+    uint8_t dec_digits[DEC_DIGITS_PER_DIGIT];
+    uint8_t *ch = dec_digits;
+    while (digit > 0) {
+        *ch++ = '0' + (digit % 10);
+        digit /= 10;
     }
     while (--ch >= dec_digits)
-        *(buf++) = *ch;
+        *buf++ = *ch;
     return buf;
 }
 
-static inline char *
-fill_in_digit(char *buf, const fpdec_digit_t digit, const int n) {
-    fpdec_digit_t t = digit;
-    char *ch;
-    ch = buf = buf + n;
-    for (int i = 0; i < n; i++) {
-        *(--ch) = '0' + (t % 10);
-        t /= 10;
+static inline uint8_t *
+fill_in_digit(uint8_t *buf, fpdec_digit_t digit, const int n) {
+    uint8_t *t = buf + n;
+    for (uint8_t *ch = t - 1; ch >= buf; --ch) {
+        *ch = '0' + (digit % 10);
+        digit /= 10;
     }
-    return buf;
+    return t;
 }
 
-static inline char *
-fill_in_zeros(char *ch, const int n) {
-    for (int i = 0; i < n; i++)
-        *(ch++) = '0';
-    return ch;
+static inline uint8_t *
+fill_in_zeros(uint8_t *ch, const int n) {
+    uint8_t *stop = ch + n;
+    for (; ch < stop; *ch++ = '0');
+    return stop;
 }
 
-static char *
-fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
-                           const bool no_trailing_zeros) {
+static uint8_t *
+fpdec_dyn_formatted(const fpdec_t *fpdec,
+                    const bool no_trailing_zeros) {
     fpdec_sign_t sign = FPDEC_SIGN(fpdec);
     fpdec_dec_prec_t dec_prec = FPDEC_DEC_PREC(fpdec);
     fpdec_exp_t exp = FPDEC_DYN_EXP(fpdec);
@@ -807,8 +804,8 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
     size_t n_dec_frac_fill_zeros;
     size_t n_dec_frac_digits, d_adjust;
     size_t max_n_chars;
-    char *buf;
-    char *ch;
+    uint8_t *buf;
+    uint8_t *ch;
     fpdec_digit_t *digit =
         FPDEC_DYN_DIGITS(fpdec) + FPDEC_DYN_N_DIGITS(fpdec) - 1;
 
@@ -860,7 +857,7 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
         n_int_digits * DEC_DIGITS_PER_DIGIT +
         // provision for sign, radix point and leading zero
         3;
-    buf = (char *)fpdec_mem_alloc(max_n_chars + 1, 1);
+    buf = (uint8_t *)fpdec_mem_alloc(max_n_chars + 1, 1);
     if (buf == NULL)
         MEMERROR_RETVAL(NULL);
     ch = buf;
@@ -899,25 +896,25 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
     ch = fill_in_zeros(ch, n_dec_trailing_frac_zeros);
 
     assert(*ch == 0);
-    assert(strlen(buf) <= max_n_chars);
+    assert(strlen((char *)buf) <= max_n_chars);
     return buf;
 }
 
-static inline char *
-fill_in_u128(char *buf, uint128_t ui) {
-    char dec_digits[MAX_N_DEC_DIGITS_IN_SHINT];
-    char *ch = dec_digits;
+static inline uint8_t *
+fill_in_u128(uint8_t *buf, uint128_t ui) {
+    uint8_t dec_digits[MAX_N_DEC_DIGITS_IN_SHINT];
+    uint8_t *ch = dec_digits;
     while (U128_NE_ZERO(ui))
-        *(ch++) = '0' + u128_idiv_10(&ui);
+        *ch++ = '0' + u128_idiv_10(&ui);
     while (--ch >= dec_digits)
-        *(buf++) = *ch;
+        *buf++ = *ch;
     return buf;
 }
 
-static char *
-fpdec_shint_as_ascii_literal(const fpdec_t *fpdec,
+static uint8_t *
+fpdec_shint_formatted(const fpdec_t *fpdec,
                              const bool no_trailing_zeros) {
-    char *buf;
+    uint8_t *buf;
 
     if (FPDEC_EQ_ZERO(fpdec)) {
         if (no_trailing_zeros || FPDEC_DEC_PREC(fpdec) == 0) {
@@ -939,7 +936,7 @@ fpdec_shint_as_ascii_literal(const fpdec_t *fpdec,
     else {
         uint128_t t = U128_FROM_SHINT(fpdec);
         uint64_t r = 0;
-        char *ch;
+        uint8_t *ch;
 
         buf = fpdec_mem_alloc(MAX_N_DEC_DIGITS_IN_SHINT + 3, 1);
         if (buf == NULL)
@@ -979,17 +976,18 @@ fpdec_shint_as_ascii_literal(const fpdec_t *fpdec,
     return buf;
 }
 
-typedef char *(*v_as_ascii_literal)(const fpdec_t *, const bool);
+typedef uint8_t *(*v_formatted)(const fpdec_t *, const bool);
 
-const v_as_ascii_literal vtab_as_ascii_literal[2] = {
-    fpdec_shint_as_ascii_literal,
-    fpdec_dyn_as_ascii_literal,
+const v_formatted vtab_formatted[2] = {
+    fpdec_shint_formatted,
+    fpdec_dyn_formatted,
 };
 
 char *
 fpdec_as_ascii_literal(const fpdec_t *fpdec,
                        const bool no_trailing_zeros) {
-    return DISPATCH_FUNC_VA(vtab_as_ascii_literal, fpdec, no_trailing_zeros);
+    return (char *)DISPATCH_FUNC_VA(vtab_formatted, fpdec,
+                                    no_trailing_zeros);
 }
 
 int
