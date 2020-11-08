@@ -804,7 +804,7 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
     fpdec_exp_t exp = FPDEC_DYN_EXP(fpdec);
     fpdec_n_digits_t n_int_digits, n_frac_digits;
     size_t n_dec_trailing_int_zeros, n_dec_trailing_frac_zeros;
-    size_t n_dec_fill_zeros;
+    size_t n_dec_frac_fill_zeros;
     size_t n_dec_frac_digits, d_adjust;
     size_t max_n_chars;
     char *buf;
@@ -814,14 +814,26 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
 
     if (exp >= 0) {
         n_int_digits = FPDEC_DYN_N_DIGITS(fpdec);
+        n_dec_trailing_int_zeros = exp * DEC_DIGITS_PER_DIGIT;
         n_frac_digits = 0;
+        n_dec_frac_digits = 0;
+        n_dec_frac_fill_zeros = 0;
     }
     else {
-        n_frac_digits = MIN(FPDEC_DYN_N_DIGITS(fpdec), -exp);
-        n_int_digits = FPDEC_DYN_N_DIGITS(fpdec) - n_frac_digits;
+        if (-exp > FPDEC_DYN_N_DIGITS(fpdec)) {
+            n_int_digits = 0;
+            n_frac_digits = FPDEC_DYN_N_DIGITS(fpdec);
+            n_dec_frac_fill_zeros =
+                (-exp - n_frac_digits) * DEC_DIGITS_PER_DIGIT;
+        }
+        else {
+            n_int_digits = FPDEC_DYN_N_DIGITS(fpdec) + exp;
+            n_frac_digits = -exp;
+            n_dec_frac_fill_zeros = 0;
+        }
+        n_dec_trailing_int_zeros = 0;
+        n_dec_frac_digits = -exp * DEC_DIGITS_PER_DIGIT;
     }
-    n_dec_trailing_int_zeros = MAX(0, exp * DEC_DIGITS_PER_DIGIT);
-    n_dec_frac_digits = MAX(0, -exp) * DEC_DIGITS_PER_DIGIT;
     if (n_dec_frac_digits > dec_prec) {
         d_adjust = n_dec_frac_digits - dec_prec;
         n_dec_trailing_frac_zeros = 0;
@@ -833,7 +845,6 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
         else
             n_dec_trailing_frac_zeros = dec_prec - n_dec_frac_digits;
     }
-    n_dec_fill_zeros = MAX(0, -exp - n_frac_digits) * DEC_DIGITS_PER_DIGIT;
     max_n_chars =
         // zeros to be inserted after least significant digit and after
         // radix point
@@ -841,7 +852,7 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
         // fractional digits in coeff
         n_dec_frac_digits - d_adjust +
         // zeros to inserted between fractional digits and radix point
-        n_dec_fill_zeros +
+        n_dec_frac_fill_zeros +
         // zeros to be inserted after least significant digit and before
         // radix point
         n_dec_trailing_int_zeros +
@@ -870,7 +881,7 @@ fpdec_dyn_as_ascii_literal(const fpdec_t *fpdec,
     if (n_frac_digits != 0)
         *(ch++) = '.';
     // zeros between radix point and fractional digits
-    ch = fill_in_zeros(ch, n_dec_fill_zeros);
+    ch = fill_in_zeros(ch, n_dec_frac_fill_zeros);
     // full fractional digits
     for (fpdec_n_digits_t i = 1; i < n_frac_digits; i++) {
         ch = fill_in_digit(ch, *(digit--), DEC_DIGITS_PER_DIGIT);
