@@ -1157,16 +1157,16 @@ fpdec_dyn_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
         else {
             rc = fpdec_adjusted(&adj, fpdec, fmt_spec->precision,
                                 FPDEC_ROUND_DEFAULT);
-            if (!FPDEC_IS_DYN_ALLOC(&adj)) {
-                buf = fpdec_shint_formatted(&adj, fmt_spec,
-                                            no_trailing_zeros);
-                fpdec_reset_to_zero(&adj, 0);
-                return buf;
-            }
             fpdec = &adj;
         }
         if (rc != FPDEC_OK)
             return NULL;
+        if (!FPDEC_IS_DYN_ALLOC(fpdec)) {
+            buf = fpdec_shint_formatted(&adj, fmt_spec,
+                                        no_trailing_zeros);
+            fpdec_reset_to_zero(&adj, 0);
+            return buf;
+        }
     }
 
     dec_prec = FPDEC_DEC_PREC(fpdec);
