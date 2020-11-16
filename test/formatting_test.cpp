@@ -312,6 +312,11 @@ TEST_CASE("Format decimal number") {
                 .formatted = "0,000,000,000,015,000"
             },
             {
+                .literal = "0.055",
+                .fmt = "%",
+                .formatted = "5.500%"
+            },
+            {
                 .literal = "3.074",
                 .fmt = "_>10.2%",
                 .formatted = "___307.40%"
@@ -437,6 +442,11 @@ TEST_CASE("Format decimal number") {
                 .fmt = "+050,.4",
                 .formatted = "-0,000,415,000,000,000,000,000,000,000,000,000"
                              ".0000"
+            },
+            {
+                .literal = "-0.0930000001",
+                .fmt = "%",
+                .formatted = "-9.3000000100%"
             },
             {
                 .literal = "-0.0740000001",
