@@ -924,6 +924,7 @@ fpdec_shint_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
     size_t len_thousands_sep = fmt_spec->thousands_sep.n_bytes;
     size_t len_fill = fmt_spec->fill.n_bytes;
     uint8_t dec_point_shift = 0;
+    uint8_t n_add_int_zeros = 0;
     error_t rc;
     fpdec_t adj = FPDEC_ZERO;
     fpdec_dec_prec_t dec_prec = FPDEC_DEC_PREC(fpdec);
@@ -931,7 +932,12 @@ fpdec_shint_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
     // shift decimal point for %-format
     if (fmt_spec->type == '%') {
         dec_point_shift = 2;
-        dec_prec = dec_prec > 2 ? dec_prec - 2 : 0;
+        if (dec_prec > 2)
+            dec_prec -= 2;
+        else {
+            n_add_int_zeros = 2 - dec_prec;
+            dec_prec = 0;
+        }
     }
 
     if (fmt_spec->precision < dec_prec) {
@@ -968,6 +974,9 @@ fpdec_shint_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
     if (dec_prec > 0)
         // split shifted int
         frac_part = u128_idiv_u64(&int_part, u64_10_pow_n(dec_prec));
+    else if (n_add_int_zeros > 0)
+        // shift int part
+        u128_imul_u64(&int_part, u64_10_pow_n(n_add_int_zeros));
 
     if (fmt_spec->sign != '\0')
         *ch++ = fmt_spec->sign;
