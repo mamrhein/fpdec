@@ -1377,7 +1377,7 @@ fpdec_as_ascii_literal(const fpdec_t *fpdec,
     format_spec_t fmt_spec = {
         .fill = {0, ""},
         .align = '<',
-        .sign = FPDEC_LT_ZERO(fpdec) ? '-' : '\0',
+        .sign = '-',
         .min_width = 0,
         .thousands_sep = {0, ""},
         .grouping = {3, 0, 0, 0, 0},
