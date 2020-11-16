@@ -336,6 +336,16 @@ TEST_CASE("Format decimal number") {
                 .fmt = " 010,.3%",
                 .formatted = " 0,003.186%"
             },
+            {
+                .literal = "7",
+                .fmt = ".2%",
+                .formatted = "700.00%"
+            },
+            {
+                .literal = "-0.0008",
+                .fmt = " .2%",
+                .formatted = " 0.00%"
+            },
         };
 
         for (auto test : tests) {
@@ -432,6 +442,11 @@ TEST_CASE("Format decimal number") {
                 .literal = "0.0428600000",
                 .fmt = " 020,.9%",
                 .formatted = " 0,000,004.286000000%"
+            },
+            {
+                .literal = "1234567890.12345678901234567890",
+                .fmt = ".2%",
+                .formatted = "123456789012.35%"
             },
         };
 
