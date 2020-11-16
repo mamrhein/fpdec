@@ -344,7 +344,7 @@ TEST_CASE("Format decimal number") {
             {
                 .literal = "-0.0008",
                 .fmt = " .2%",
-                .formatted = " 0.00%"
+                .formatted = "-0.08%"
             },
         };
 
