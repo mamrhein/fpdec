@@ -1361,11 +1361,8 @@ fpdec_formatted(const fpdec_t *fpdec, const uint8_t *format) {
         fmt_spec.sign = '\0';       // suppress positive sign
 
     // precision and decimal point
-    if (fmt_spec.type == '%')
-        dec_point_shift = 2;
     if (fmt_spec.precision == SIZE_MAX)
-        fmt_spec.precision = FPDEC_DEC_PREC(fpdec) > dec_point_shift ?
-                             FPDEC_DEC_PREC(fpdec) - dec_point_shift : 0;
+        fmt_spec.precision = FPDEC_DEC_PREC(fpdec);
     if (fmt_spec.precision == 0)                    // if number is integral
         fmt_spec.decimal_point.n_bytes = 0;         // suppress decimal point
 
