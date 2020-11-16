@@ -337,14 +337,34 @@ TEST_CASE("Format decimal number") {
                 .formatted = " 0,003.186%"
             },
             {
+                .literal = "0.7",
+                .fmt = "+.2%",
+                .formatted = "+70.00%"
+            },
+            {
                 .literal = "7",
                 .fmt = ".2%",
                 .formatted = "700.00%"
             },
             {
+                .literal = "70",
+                .fmt = ",.2%",
+                .formatted = "7,000.00%"
+            },
+            {
                 .literal = "-0.0008",
                 .fmt = " .2%",
                 .formatted = "-0.08%"
+            },
+            {
+                .literal = "-0.00008",
+                .fmt = " .2%",
+                .formatted = "-0.01%"
+            },
+            {
+                .literal = "-0.000008",
+                .fmt = " .2%",
+                .formatted = " 0.00%"
             },
         };
 
