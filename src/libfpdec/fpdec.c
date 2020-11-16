@@ -1141,6 +1141,8 @@ fpdec_dyn_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
     uint8_t len_decimal_point = fmt_spec->decimal_point.n_bytes;
     size_t len_thousands_sep = fmt_spec->thousands_sep.n_bytes;
     size_t len_fill = fmt_spec->fill.n_bytes;
+    uint8_t dec_point_shift = fmt_spec->type == '%' ? 2 : 0;
+    fpdec_dec_prec_t needed_dec_prec = fmt_spec->precision + dec_point_shift;
     error_t rc;
     fpdec_t adj = FPDEC_ZERO;
     fpdec_dec_prec_t dec_prec;
@@ -1150,32 +1152,44 @@ fpdec_dyn_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
     size_t n_dec_frac_fill_zeros;
     size_t n_dec_frac_digits, d_adjust;
 
-    if (fmt_spec->type == '%') {
-        rc = fpdec_mul(&adj, fpdec, &FPDEC_ONE_HUNDRED);
-        if (rc != FPDEC_OK)
-            return NULL;
-        FPDEC_DEC_PREC(&adj) = FPDEC_DEC_PREC(&adj) > 2 ?
-                               FPDEC_DEC_PREC(&adj) - 2 : 0;
-        fpdec = &adj;
-    }
-
-    if (fmt_spec->precision < FPDEC_DEC_PREC(fpdec)) {
+    if (needed_dec_prec < FPDEC_DEC_PREC(fpdec)) {
         // need to adjust value
-        if (fpdec == &adj)
-            rc = fpdec_adjust(&adj, fmt_spec->precision, FPDEC_ROUND_DEFAULT);
-        else {
-            rc = fpdec_adjusted(&adj, fpdec, fmt_spec->precision,
-                                FPDEC_ROUND_DEFAULT);
-            fpdec = &adj;
-        }
+        rc = fpdec_adjusted(&adj, fpdec, needed_dec_prec,
+                            FPDEC_ROUND_DEFAULT);
         if (rc != FPDEC_OK)
             return NULL;
-        if (!FPDEC_IS_DYN_ALLOC(fpdec)) {
-            buf = fpdec_shint_formatted(&adj, fmt_spec,
-                                        no_trailing_zeros);
+        if (!FPDEC_IS_DYN_ALLOC(&adj)) {
+            buf = fpdec_shint_formatted(&adj, fmt_spec, no_trailing_zeros);
             fpdec_reset_to_zero(&adj, 0);
             return buf;
         }
+        fpdec = &adj;
+    }
+
+    if (fmt_spec->type == '%') {
+        if (fpdec == &adj) {
+            fpdec_digit_array_t *digits = adj.digit_array;
+            if (digits->n_alloc == digits->n_signif) {
+                fpdec_digit_t most_signif_digit =
+                    FPDEC_DYN_MOST_SIGNIF_DIGIT(fpdec);
+                if (most_signif_digit > MAX_DIGIT / 100) {
+                    // multiplication below would overflow, so need to
+                    // realloc the digit array
+                    digits = digits_copy(adj.digit_array, 0, 1);
+                    fpdec_mem_free(adj.digit_array);
+                    adj.digit_array = digits;
+                }
+            }
+            digits_imul_digit(digits, 100);
+        }
+        else {
+            rc = fpdec_mul(&adj, fpdec, &FPDEC_ONE_HUNDRED);
+            if (rc != FPDEC_OK)
+                return NULL;
+            fpdec = &adj;
+        }
+        FPDEC_DEC_PREC(fpdec) = FPDEC_DEC_PREC(fpdec) > 2 ?
+                                FPDEC_DEC_PREC(fpdec) - 2 : 0;
     }
 
     dec_prec = FPDEC_DEC_PREC(fpdec);
