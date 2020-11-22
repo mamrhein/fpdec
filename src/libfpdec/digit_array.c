@@ -174,9 +174,9 @@ digits_round(fpdec_digit_array_t *digit_array, fpdec_sign_t sign,
 
     /* digit points to the digit to be rounded, n_dec_digits is the number
        of decimal digits to be rounded */
-    digit_idx = FLOOR(n_dec_shift, DEC_DIGITS_PER_DIGIT);
+    digit_idx = n_dec_shift / DEC_DIGITS_PER_DIGIT;
     digit = digit_array->digits + digit_idx;
-    n_dec_digits = MOD(n_dec_shift, DEC_DIGITS_PER_DIGIT);
+    n_dec_digits = n_dec_shift % DEC_DIGITS_PER_DIGIT;
     if (n_dec_digits == 0) {
         // need to round the previous digit ...
         fpdec_digit_t quot = (digit_idx < digit_array->n_signif) ? *digit : 0;
