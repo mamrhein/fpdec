@@ -115,7 +115,7 @@ fpdec_dump(const fpdec_t *fpdec) {
         printf("exp: %d\n", FPDEC_DYN_EXP(fpdec));
         printf("n digits: %u\n", FPDEC_DYN_N_DIGITS(fpdec));
         printf("digits: ");
-        for (int i = 0; i < FPDEC_DYN_N_DIGITS(fpdec); ++i) {
+        for (uint32_t i = 0; i < FPDEC_DYN_N_DIGITS(fpdec); ++i) {
             printf("%lu, ", FPDEC_DYN_DIGITS(fpdec)[i]);
         }
     }
@@ -1083,7 +1083,7 @@ fill_in_digits_padded(uint8_t *buf, const fpdec_digit_t *most_signif_digit,
     *ch = '\0';
     i = n = iter_grouping(it);
 
-    for (int j = 0; j < n_trailing_zeros; ++j) {
+    for (size_t j = 0; j < n_trailing_zeros; ++j) {
         *(--ch) = '0';
         if (n > 0) {
             --i;
@@ -1215,7 +1215,7 @@ fpdec_dyn_formatted(const fpdec_t *fpdec, const format_spec_t *fmt_spec,
         n_dec_frac_fill_zeros = 0;
     }
     else {
-        if (-exp > FPDEC_DYN_N_DIGITS(fpdec)) {
+        if ((uint32_t)-exp > FPDEC_DYN_N_DIGITS(fpdec)) {
             n_int_digits = 0;
             n_frac_digits = FPDEC_DYN_N_DIGITS(fpdec);
             n_dec_frac_fill_zeros =

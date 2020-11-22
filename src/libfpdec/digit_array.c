@@ -150,7 +150,7 @@ digits_eliminate_trailing_zeros(fpdec_digit_array_t *digit_array) {
 
     if (n_trailing_zeros > 0) {
         digit_array->n_signif -= n_trailing_zeros;
-        for (int i = 0; i < digit_array->n_signif; ++i) {
+        for (uint32_t i = 0; i < digit_array->n_signif; ++i) {
             digit_array->digits[i] = lsd[i];
         }
     }
@@ -358,9 +358,9 @@ digits_mul(const fpdec_digit_array_t *x, const fpdec_digit_array_t *y) {
         MEMERROR_RETVAL(NULL);
 
     z_carry = z->digits + x->n_signif;
-    for (int j = 0; j < y->n_signif; ++j) {
+    for (uint32_t j = 0; j < y->n_signif; ++j) {
         z_digit = z->digits + j;
-        for (int i = 0; i < x->n_signif; ++i) {
+        for (uint32_t i = 0; i < x->n_signif; ++i) {
             // x->digits[i] <= RADIX - 1 and y->digits[j] <= RADIX - 1 and
             // *z_digit <= RADIX - 1 and *z_carry <= RADIX - 1
             u64_mul_u64(&t, x->digits[i], y->digits[j]);
@@ -485,7 +485,7 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t x_n_shift,
         // D4: multiply and subtract
         carry = 0;
         borrow = 0;
-        for (int i = 0; i <= n; ++i) {
+        for (uint32_t i = 0; i <= n; ++i) {
             u64_mul_u64(&t1, qhat, yd->digits[i]);
             u128_iadd_u64(&t1, carry);
             rhat = u128_idiv_radix(&t1);
@@ -501,7 +501,7 @@ digits_divmod(const fpdec_digit_array_t *x, const fpdec_n_digits_t x_n_shift,
             // D6: add back
             q->digits[j] = qhat - 1;
             carry = 0;
-            for (int i = 0; i <= n; ++i) {
+            for (uint32_t i = 0; i <= n; ++i) {
                 xd->digits[j + i] += yd->digits[i] + carry;
                 carry = (xd->digits[j + i] < yd->digits[i] ||
                     xd->digits[j + i] >= RADIX);
