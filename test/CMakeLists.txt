@@ -4,6 +4,9 @@ file(GLOB_RECURSE TEST_SRC *.cpp *.cxx *.cc *.C *.c *.h *.hpp)
 set(TEST_BIN ${PROJECT_NAME}_test)
 set(TEST_LIBS ${PROJECT_NAME} ${PROJECT_NAME}++)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -Wall -Wextra")
+
 # configure the executable
 link_directories(${MAINFOLDER}/lib)
 include_directories("${CATCH_DIR}/include")

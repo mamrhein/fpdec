@@ -3,6 +3,9 @@
 file(GLOB_RECURSE PROJECT_C_SRCS *.c *.h)
 file(GLOB_RECURSE PROJECT_CXX_SRCS *.cpp *.hpp)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+
 # C lib
 set(LIB_NAME "${PROJECT_NAME}")
 add_library(${LIB_NAME} SHARED ${PROJECT_C_SRCS})
