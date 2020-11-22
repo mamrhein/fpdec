@@ -1363,7 +1363,6 @@ const v_formatted vtab_formatted[2] = {
 uint8_t *
 fpdec_formatted(const fpdec_t *fpdec, const uint8_t *format) {
     format_spec_t fmt_spec;
-    uint8_t dec_point_shift = 0;
     int rc;
 
     rc = parse_format_spec(&fmt_spec, format);
@@ -1757,20 +1756,6 @@ fpdec_sub(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
         return DISPATCH_BIN_OP(vtab_sub_abs, z, y, x);
     }
     // ... and |x| = |y| => x - y = 0
-    return FPDEC_OK;
-
-}
-
-static error_t
-fpdec_mul_abs_dyn_by_u64(fpdec_t *z, const fpdec_t *x, const uint64_t y) {
-    fpdec_digit_array_t *z_digits = digits_copy(x->digit_array, 0, 1);
-
-    if (z_digits == NULL)
-        MEMERROR;
-
-    digits_imul_digit(z_digits, y);
-    z->digit_array = z_digits;
-    FPDEC_IS_DYN_ALLOC(z) = true;
     return FPDEC_OK;
 }
 

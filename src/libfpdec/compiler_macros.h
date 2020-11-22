@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-Name:        mem.h
+Name:        compiler_macros.h
 
 Author:      Michael Amrhein (michael@adrhinum.de)
 
@@ -12,16 +12,13 @@ $Source$
 $Revision$
 */
 
-#ifndef FPDEC_MEM_H
-#define FPDEC_MEM_H
+#ifndef FPDEC_COMPILER_MACROS_H
+#define FPDEC_COMPILER_MACROS_H
 
-#include <malloc.h>
-#include "compiler_macros.h"
+#if defined(__GNUC__) || defined(__clang__)
+#define UNUSED __attribute__((unused))
+#else
+#define UNUSED
+#endif
 
-typedef void * (*mem_alloc_func)(size_t num, size_t size);
-typedef void (*mem_free_func)(void *);
-
-static mem_alloc_func fpdec_mem_alloc UNUSED = calloc;
-static mem_free_func fpdec_mem_free UNUSED = free;
-
-#endif //FPDEC_MEM_H
+#endif //FPDEC_COMPILER_MACROS_H
