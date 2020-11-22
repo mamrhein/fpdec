@@ -189,7 +189,7 @@ std::string Decimal::dump() {
         buf << "exp: " << FPDEC_DYN_EXP(&fpdec) << std::endl
             << "n digits: " << fpdec.digit_array->n_alloc << std::endl
             << "digits: ";
-        for (int i = 0; i < fpdec.digit_array->n_alloc; ++i)
+        for (fpdec_n_digits_t i = 0; i < fpdec.digit_array->n_alloc; ++i)
             buf << fpdec.digit_array->digits[i] << ", ";
     }
     else {
