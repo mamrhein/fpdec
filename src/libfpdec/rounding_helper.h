@@ -135,15 +135,15 @@ round_u128(fpdec_sign_t sign, uint128_t *quot, uint128_t *rem,
             // Round 5 to nearest even, rest to nearest
             tie = u128_shift_right(divisor, 1UL);
             cmp = u128_cmp(*rem, tie);
-            if (cmp > 0 || cmp == 0 && U128P_LO(divisor) % 2 == 0 &&
-                U128P_LO(quot) % 2 != 0)
+            if (cmp > 0 || (cmp == 0 && U128P_LO(divisor) % 2 == 0 &&
+                U128P_LO(quot) % 2 != 0))
                 return true;
             break;
         case FPDEC_ROUND_HALF_UP:
             // Round 5 up (away from 0), rest to nearest
             tie = u128_shift_right(divisor, 1UL);
             cmp = u128_cmp(*rem, tie);
-            if (cmp > 0 || cmp == 0 && U128P_LO(divisor) % 2 == 0)
+            if (cmp > 0 || (cmp == 0 && U128P_LO(divisor) % 2 == 0))
                 return true;
             break;
         case FPDEC_ROUND_UP:
