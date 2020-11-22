@@ -316,7 +316,7 @@ du64_to_digits(fpdec_digit_t *digit, int *n_trailing_zeros_skipped,
         }
     }
     *digit = u128_idiv_radix(&t);
-    if (*digit != 0 || U128_NE_ZERO(t) && n_digits > 0) {
+    if (*digit != 0 || (U128_NE_ZERO(t) && n_digits > 0)) {
         n_digits++;
         digit++;
     }
@@ -1390,7 +1390,7 @@ fpdec_as_ascii_literal(const fpdec_t *fpdec,
         .min_width = 0,
         .thousands_sep = {0, ""},
         .grouping = {3, 0, 0, 0, 0},
-        .decimal_point = {FPDEC_DEC_PREC(fpdec) == 0 ? 0 : 1, '.'},
+        .decimal_point = {FPDEC_DEC_PREC(fpdec) == 0 ? 0 : 1, {'.'}},
         .precision = FPDEC_DEC_PREC(fpdec),
         .type = 'f'
     };
@@ -1804,15 +1804,10 @@ fpdec_mul_abs_shint_by_dyn(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     return rc;
 }
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "ArgumentSelectionDefects"
-
 static error_t
 fpdec_mul_abs_dyn_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
     return fpdec_mul_abs_shint_by_dyn(z, y, x);
 }
-
-#pragma clang diagnostic pop
 
 static error_t
 fpdec_mul_abs_shint_by_shint(fpdec_t *z, const fpdec_t *x, const fpdec_t *y) {
