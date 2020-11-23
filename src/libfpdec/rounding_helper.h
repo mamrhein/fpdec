@@ -20,12 +20,13 @@ $Revision$
 extern "C" {
 #endif // __cplusplus
 
+#include "compiler_macros.h"
 #include "common.h"
 #include "rounding.h"
 #include "basemath.h"
 
 
-static inline fpdec_digit_t
+static inline fpdec_digit_t UNUSED
 round_qr(fpdec_sign_t sign, fpdec_digit_t quot, fpdec_digit_t rem, bool delta,
          fpdec_digit_t divisor, enum FPDEC_ROUNDING_MODE rounding) {
     const uint64_t max_tie = 0x8000000000000000;
@@ -92,7 +93,7 @@ fpdec_digit_t
 round_to_multiple(fpdec_sign_t sign, fpdec_digit_t num, bool delta,
                   fpdec_digit_t quant, enum FPDEC_ROUNDING_MODE rounding);
 
-static inline bool
+static inline bool UNUSED
 round_u128(fpdec_sign_t sign, uint128_t *quot, uint128_t *rem,
            uint128_t *divisor, enum FPDEC_ROUNDING_MODE rounding) {
     uint128_t tie;
