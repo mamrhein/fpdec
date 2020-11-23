@@ -408,6 +408,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
                     // shint < RADIX
                     if (++digit_idx == n_digits)
                         break;
+                    FALLTHROUGH;
                 case 0:
                     u64_mul_u64(&f, digits[digit_idx], dec_shift);
                     // f < RADIX * 10^9
@@ -415,6 +416,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
                     // shint < RADIX + RADIX * 10^9 < 2^96
                     if (++digit_idx == n_digits)
                         break;
+                    FALLTHROUGH;
                 case 1:
                     u64_mul_u64(&f, digits[digit_idx], dec_shift);
                     // f < RADIX * 10^9
@@ -430,6 +432,7 @@ fpdec_dyn_normalize(fpdec_t *fpdec) {
                     }
                     if (++digit_idx == n_digits)
                         break;
+                    FALLTHROUGH;
                 default:
                     assert(digit_idx == n_digits);
             }

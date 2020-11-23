@@ -17,8 +17,10 @@ $Revision$
 
 #if defined(__GNUC__) || defined(__clang__)
 #define UNUSED __attribute__((unused))
+#define FALLTHROUGH __attribute__((fallthrough))
 #else
 #define UNUSED
+#define FALLTHROUGH
 #endif
 
 #endif //FPDEC_COMPILER_MACROS_H
