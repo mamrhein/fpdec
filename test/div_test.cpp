@@ -744,6 +744,39 @@ TEST_CASE("Div (with limit and explicit rounding mode)") {
         }
     }
 
+    SECTION("dyn / shint -> shint [ROUND_UP]") {
+
+        const struct div_test_variant tv = {
+            .dyn_x = true,
+            .dyn_y = false,
+            .dyn_quot = false,
+        };
+
+        struct div_test_data tests[] = {
+            {
+                .lit_x = "-0.160419683452",
+                .lit_y = "1",
+                .lit_quot = "-1",
+                .prec_limit = 0,
+            },
+            {
+                .lit_x = "0.00000000000606",
+                .lit_y = "3.03",
+                .lit_quot = "0.001",
+                .prec_limit = 3,
+            },
+        };
+        for (const auto &test : tests) {
+
+            const std::string section_name = test.lit_x + " / " + test.lit_y +
+                                             " [ROUND_UP]";
+
+            SECTION(section_name) {
+                do_div_test(tv, test, FPDEC_ROUND_UP);
+            }
+        }
+    }
+
     SECTION("dyn / dyn -> shint [ROUND_HALF_UP]") {
 
         const struct div_test_variant tv = {
@@ -839,7 +872,4 @@ TEST_CASE("Div (with limit and explicit rounding mode)") {
             }
         }
     }
-}
-
-TEST_CASE("Div (w/o limit and explicit rounding mode)") {
 }
